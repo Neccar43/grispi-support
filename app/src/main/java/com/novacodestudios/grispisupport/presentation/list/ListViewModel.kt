@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.novacodestudios.grispisupport.presentation.list.ListEvent.Clicked
 import com.novacodestudios.grispisupport.presentation.model.Ticket
 import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,9 +36,20 @@ class ListViewModel @Inject constructor(
 
     fun onEvent(event: ListEvent) {
         when (event) {
-            Clicked -> {}
+            is ListEvent.OnQueryChanged -> state = state.copy(query = event.query)
+            ListEvent.OnSearchClicked -> search(state.query)
         }
     }
+
+    private fun search(query: String?) {
+        if (query.isNullOrEmpty()) {
+            state = state.copy(searchTickets = emptyList())
+            return
+        }
+        val searchResult = state.tickets.filter { it.subject.contains(query, ignoreCase = true) }
+        state = state.copy(searchTickets = searchResult)
+    }
+
 
     sealed interface UIEvent {
         data class ShowSnackBar(val message: String) : UIEvent
@@ -48,10 +58,15 @@ class ListViewModel @Inject constructor(
 
 data class ListState(
     val isLoading: Boolean = false,
-    val tickets: List<Ticket> =emptyList(),
-    )
+    val tickets: List<Ticket> = emptyList(),
+    val sortOptions: SortOptions = SortOptions.DEFAULT,
+    val isAscending: Boolean = false,
+    val query: String? = null,
+    val searchTickets: List<Ticket> = emptyList(), // TODO: ileride sadece ticket değil organizasyon ve kullanıcı da içerebilir
+)
 
 sealed interface ListEvent {
-    data object Clicked : ListEvent
+    data class OnQueryChanged(val query: String?) : ListEvent
+    data object OnSearchClicked : ListEvent
 }
 

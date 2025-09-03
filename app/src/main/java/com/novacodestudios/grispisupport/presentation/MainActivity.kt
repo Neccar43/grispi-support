@@ -4,19 +4,33 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.exclude
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Feedback
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Feedback
+import androidx.compose.material.icons.outlined.Notifications
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.DrawerState
+import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.NavigationBarDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.novacodestudios.grispisupport.presentation.navigation.SupportNavHost
+import com.novacodestudios.grispisupport.presentation.navigation.GrispiDrawer
+import com.novacodestudios.grispisupport.presentation.navigation.NavigationItem
+import com.novacodestudios.grispisupport.presentation.navigation.Screen
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -26,14 +40,62 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             GrispiSupportTheme {
-                Scaffold(
-                    modifier = Modifier.Companion.fillMaxSize(),
-                    contentWindowInsets = ScaffoldDefaults.contentWindowInsets
-                        .exclude(TopAppBarDefaults.windowInsets).exclude(NavigationBarDefaults.windowInsets)
-                ) { innerPadding ->
-                    SupportNavHost(modifier = Modifier.padding(innerPadding), navController = rememberNavController())
-                }
+                val appState = rememberAppState()
+
+                GrispiDrawer(modifier = Modifier, appState = appState)
             }
         }
     }
+}
+
+@Composable
+fun rememberAppState(
+    navController: NavHostController = rememberNavController(),
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+): AppState = remember {
+    AppState(
+        navController,
+        coroutineScope,
+        drawerState
+    )
+}
+
+
+@Stable
+class AppState(
+    val navController: NavHostController,
+    val coroutineScope: CoroutineScope,
+    val drawerState: DrawerState
+) {
+    val currentDestination: NavDestination?
+        @Composable get() = navController.currentBackStackEntryAsState().value?.destination
+
+    @Composable
+    fun isSelected(item: NavigationItem) = currentDestination?.hasRoute(item.route::class) == true
+
+    val navItems = listOf(
+        NavigationItem(
+            title = "Bildirimler",
+            selectedIcon = Icons.Filled.Notifications,
+            unSelectedIcon = Icons.Outlined.Notifications,
+            route = Screen.Notification
+        ),
+        NavigationItem(
+            title = "Geri Bildirim",
+            selectedIcon = Icons.Filled.Feedback,
+            unSelectedIcon = Icons.Outlined.Feedback,
+            route = Screen.Feedback
+        ),
+        NavigationItem(
+            title = "Ayarlar",
+            selectedIcon = Icons.Filled.Settings,
+            unSelectedIcon = Icons.Outlined.Settings,
+            route = Screen.Settings
+        ),
+
+        )
+
+    val currentUser = com.novacodestudios.grispisupport.presentation.util.currentUser
+
 }

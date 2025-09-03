@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,7 +38,7 @@ class ReceiverMessageBubbleShape(
         val path = Path().apply {
             addRoundRect(
                 RoundRect(
-                    left =25f ,
+                    left = 25f,
                     top = 0f,
                     right = size.width,
                     bottom = size.height,
@@ -83,9 +84,9 @@ class SenderMessageBubbleShape(
                     bottomLeftCornerRadius = CornerRadius(cornerRadius, cornerRadius),
                 )
             )
-            moveTo(size.width-25f, 0f)
+            moveTo(size.width - 25f, 0f)
             lineTo(size.width, 0f)
-            lineTo(size.width-25f, 40f)
+            lineTo(size.width - 25f, 40f)
 
 
             close()
@@ -136,24 +137,32 @@ private fun dlkjfdls() {
 @Composable
 fun ReceiverMessageBubbleCard(
     modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit
-){
+) {
     Card(
         modifier = modifier,
         shape = ReceiverMessageBubbleShape(LocalDensity.current.run { 12.dp.toPx() })
     ) {
-        Column(modifier = Modifier.padding(8.dp).padding(start =8.dp),content=content)
+        Column(
+            modifier = Modifier
+                .padding(8.dp)
+                .padding(start = 8.dp), content = content
+        )
     }
 }
 
 @Composable
 fun SenderMessageBubbleCard(
     modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit
-){
-    Card(
+) {
+    ElevatedCard(
         modifier = modifier,
         shape = SenderMessageBubbleShape(LocalDensity.current.run { 12.dp.toPx() })
     ) {
-        Column(modifier = Modifier.padding(8.dp).padding(end =8.dp),content=content)
+        Column(
+            modifier = Modifier
+                .padding(8.dp)
+                .padding(end = 8.dp), content = content
+        )
     }
 }
 

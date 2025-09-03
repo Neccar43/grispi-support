@@ -1,11 +1,24 @@
 package com.novacodestudios.grispisupport.presentation.detail
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Tab
@@ -14,21 +27,29 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.novacodestudios.grispisupport.presentation.detail.component.ConversationSection
 import com.novacodestudios.grispisupport.presentation.detail.component.DetailSection
 import com.novacodestudios.grispisupport.presentation.detail.component.DetailTopBar
+import com.novacodestudios.grispisupport.presentation.detail.component.ExtensionSection
+import com.novacodestudios.grispisupport.presentation.detail.component.HistorySection
+import com.novacodestudios.grispisupport.presentation.detail.component.ReplyCard
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
+import com.novacodestudios.grispisupport.presentation.util.dummyHistories
 import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import com.novacodestudios.grispisupport.presentation.util.messagesT1
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @Composable
 fun DetailScreen(
     viewModel: DetailViewModel = hiltViewModel(),
-    navigateUp: () -> Unit
+    navigateUp: () -> Unit,
+    navigateProfile: (String) -> Unit,
 ) {
     val snackbarHostState =
         remember { SnackbarHostState() }
@@ -45,7 +66,8 @@ fun DetailScreen(
         state = viewModel.state,
         snackbarHostState = snackbarHostState,
         onEvent = viewModel::onEvent,
-        navigateUp = navigateUp
+        navigateUp = navigateUp,
+        navigateProfile = navigateProfile
     )
 }
 
@@ -55,7 +77,8 @@ fun DetailScreenContent(
     state: DetailState,
     snackbarHostState: SnackbarHostState,
     onEvent: (DetailEvent) -> Unit,
-    navigateUp: () -> Unit
+    navigateUp: () -> Unit,
+    navigateProfile: (String) -> Unit,
 ) {
     if (state.ticket == null) {
         // TODO: Handle et
@@ -67,45 +90,90 @@ fun DetailScreenContent(
             DetailTopBar(
                 state.ticket,
                 navigateUp = navigateUp,
-                isConversation = state.isConversation
+                onTitleClick = navigateProfile
             )
-        }
-    ) { paddingValues ->
+        },
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets
+            .exclude(NavigationBarDefaults.windowInsets)
+    )
+    { paddingValues ->
+        val pagerState = rememberPagerState(
+            initialPage = DetailTabs.entries.indexOf(state.activeTab),
+            pageCount = { DetailTabs.entries.size }
+        )
+        val coroutineScope = rememberCoroutineScope()
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
             TabRow(
-                selectedTabIndex = if (state.isConversation) 0 else 1
+                selectedTabIndex = pagerState.currentPage,
             ) {
-                Tab(
-                    selected = state.isConversation,
-                    onClick = { onEvent(DetailEvent.OnActiveTabChange(true)) },
-                    text = { Text("Sohbet") }
-                )
-                Tab(
-                    selected = !state.isConversation,
-                    onClick = { onEvent(DetailEvent.OnActiveTabChange(false)) },
-                    text = { Text("Detay") }
-                )
+                DetailTabs.entries.forEachIndexed { index, tab ->
+                    Tab(
+                        selected = pagerState.currentPage == index,
+                        onClick = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(index)
+                                onEvent(DetailEvent.OnActiveTabChange(tab))
+                            }
+                        },
+                        text = { Text(tab.title) }
+                    )
+                }
             }
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.weight(1f)
+            ) { page ->
+                when (DetailTabs.entries[page]) {
+                    DetailTabs.Conversation -> ConversationSection(
+                        ticket = state.ticket,
+                        messageList = state.messageList,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 8.dp)
+                    )
 
-            if (state.isConversation) {
-                ConversationSection(
-                    ticket = state.ticket,
-                    messageList = state.messageList,
-                    replyValue = state.replyText,
-                    onReplyChange = { onEvent(DetailEvent.OnReplyTextChange(it)) },
-                )
-            } else {
-                DetailSection(
-                    ticket = state.ticket,
-                    replyValue = state.replyText,
-                    onReplyChange = { onEvent(DetailEvent.OnReplyTextChange(it)) }
-                )
+                    DetailTabs.Detail -> DetailSection(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 8.dp)
+                            .verticalScroll(rememberScrollState()),
+                        state = state,
+                        onEvent = onEvent
+                    )
+
+                    DetailTabs.History -> HistorySection(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(vertical = 8.dp)
+                            .padding(horizontal = 16.dp),
+                        ticketHistories = state.ticketHistories
+                    )
+
+                    DetailTabs.Extension -> ExtensionSection(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(vertical = 8.dp)
+                            .padding(horizontal = 16.dp)
+                    )
+                }
             }
-
+            ReplyCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(
+                        WindowInsets.ime
+                            .union(NavigationBarDefaults.windowInsets)
+                            .only(WindowInsetsSides.Bottom)
+                    ),
+                replyValue = state.replyText,
+                onReplyChange = { onEvent(DetailEvent.OnReplyTextChange(it)) },
+                ticket = state.ticket,
+                onFocusChange = { onEvent(DetailEvent.OnActiveTabChange(DetailTabs.Conversation)) },
+            )
         }
     }
 }
@@ -117,11 +185,29 @@ private fun DetailScreenPreview() {
         DetailScreenContent(
             state = DetailState(
                 ticket = dummyTicketList.first(),
-                isConversation = true,
-                messageList = messagesT1.sortedBy { it.sentAt }),
+                activeTab = DetailTabs.Conversation,
+                messageList = messagesT1.sortedBy { it.sentAt },
+                ticketHistories = dummyHistories.filter { it.ticketId == "t1" }
+                    .sortedByDescending { it.createdAt }
+
+            ),
             snackbarHostState = SnackbarHostState(),
             onEvent = {},
-            navigateUp = {}
+            navigateUp = {},
+            navigateProfile = {}
         )
     }
 }
+
+enum class DetailTabs(val title: String) {
+    Conversation("Sohbet"),
+    Detail("Detay"),
+    Extension("Uygulama"),
+    History("Geçmiş")
+}
+
+
+
+
+
+

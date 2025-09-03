@@ -10,8 +10,33 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.novacodestudios.grispisupport.presentation.model.Ticket
+import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
+import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
+
+@Composable
+fun TicketListV1(tickets: List<Ticket>, onTicketClick: (Ticket) -> Unit) {
+    LazyColumn(modifier = Modifier.fillMaxWidth()) {
+
+        items(items = tickets, key = { it.id }) {
+            HorizontalDivider()
+            TicketItem(ticket = it, onClick = { onTicketClick(it) })
+        }
+
+        item {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                text = "Listenin sonu",
+                textAlign = TextAlign.Center,
+                color = Color.Gray
+            )
+        }
+    }
+}
 
 @Composable
 fun TicketList(tickets: List<Ticket>, onTicketClick: (Ticket) -> Unit) {
@@ -32,5 +57,16 @@ fun TicketList(tickets: List<Ticket>, onTicketClick: (Ticket) -> Unit) {
                 color = Color.Gray
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun TicketListPreview() {
+    GrispiSupportTheme {
+        TicketList(
+            tickets = dummyTicketList,
+            onTicketClick = {}
+        )
     }
 }

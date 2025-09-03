@@ -7,8 +7,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.navigation.toRoute
 import com.novacodestudios.grispisupport.presentation.model.Message
+import com.novacodestudios.grispisupport.presentation.model.Tag
 import com.novacodestudios.grispisupport.presentation.model.Ticket
+import com.novacodestudios.grispisupport.presentation.model.TicketHistory
+import com.novacodestudios.grispisupport.presentation.model.User
 import com.novacodestudios.grispisupport.presentation.navigation.Screen
+import com.novacodestudios.grispisupport.presentation.util.allDummyUsers
+import com.novacodestudios.grispisupport.presentation.util.dummyHistories
 import com.novacodestudios.grispisupport.presentation.util.dummyMessageList
 import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,17 +34,60 @@ class DetailViewModel @Inject constructor(
     init {
         val id = savedStateHandle.toRoute<Screen.Detail>().id
         val ticket = dummyTicketList.find { it.id == id }
-        val messages= dummyMessageList.filter { it.ticketId==id }
+        val messages = dummyMessageList.filter { it.ticketId == id }
         state = state.copy(ticket = ticket, messageList = messages.sortedBy { it.sentAt })
+        val histories =
+            dummyHistories.filter { it.ticketId == id }.sortedByDescending { it.createdAt }
+        state = state.copy(ticketHistories = histories)
 
     }
 
     fun onEvent(event: DetailEvent) {
         when (event) {
             is DetailEvent.OnActiveTabChange -> state =
-                state.copy(isConversation = event.isConversation)
+                state.copy(activeTab = event.tab)
 
             is DetailEvent.OnReplyTextChange -> state = state.copy(replyText = event.text)
+
+            is DetailEvent.OnUserQueryChange -> {
+                state = state.copy(userQuery = event.query)
+                searchUsers(event.query)
+            }
+
+            is DetailEvent.OnTagQueryChange -> {
+                state = state.copy(tagQuery = event.query)
+                searchTags(event.query)
+            }
+
+        }
+    }
+
+    private fun searchUsers(query: String) {
+        if (query.isBlank() || query.isEmpty()) {
+            state = state.copy(searchUsers = emptyList())
+            return
+        }
+        allDummyUsers.filter {
+            it.name.contains(query, ignoreCase = true) || it.email.contains(
+                query,
+                ignoreCase = true
+            )
+        }.let {
+            state = state.copy(searchUsers = it)
+        }
+
+    }
+
+    private fun searchTags(query: String) {
+        if (query.isBlank() || query.isEmpty()) {
+            state = state.copy(searchTags = emptyList())
+            return
+        }
+        val allTags = dummyTicketList.flatMap { it.tags }.distinct()
+        allTags.filter {
+            it.name.contains(query, ignoreCase = true)
+        }.let {
+            state = state.copy(searchTags = it)
         }
     }
 
@@ -51,12 +99,20 @@ class DetailViewModel @Inject constructor(
 data class DetailState(
     val isLoading: Boolean = false,
     val ticket: Ticket? = null,
-    val isConversation: Boolean = true,
-    val replyText: String="",
-    val messageList: List<Message> = emptyList()
-)
+    val activeTab: DetailTabs = DetailTabs.Conversation,
+    val replyText: String = "",
+    val messageList: List<Message> = emptyList(),
+    val searchUsers: List<User> = emptyList(),
+    val searchTags: List<Tag> = emptyList(),
+    val userQuery: String = "",
+    val tagQuery: String = "",
+    val ticketHistories: List<TicketHistory> = emptyList(),
+
+    )
 
 sealed interface DetailEvent {
-    data class OnActiveTabChange(val isConversation: Boolean): DetailEvent
-    data class OnReplyTextChange(val text: String): DetailEvent
+    data class OnActiveTabChange(val tab: DetailTabs) : DetailEvent
+    data class OnReplyTextChange(val text: String) : DetailEvent
+    data class OnUserQueryChange(val query: String) : DetailEvent
+    data class OnTagQueryChange(val query: String) : DetailEvent
 }

@@ -1,5 +1,6 @@
 package com.novacodestudios.grispisupport.presentation.model
 
+
 data class Ticket(
     val id: String,
     val number: Int,
@@ -7,18 +8,39 @@ data class Ticket(
     val requester: User,
     val assignee: User?,
     val followers: List<User>,
-    val tags: List<String>,
+    val tags: List<Tag>,
     val form: String?,
     val status: TicketStatus,
     val createdAt: Long,
-    val updatedAt: Long
+    val updatedAt: Long,
+    val lastMessageContent: String, // TODO: Burası message türünde olacak,
+    val channel: Channel,
+    val type: Type,
+    val priority: Priority,
 )
 
 enum class TicketStatus {
     OPEN,
-    PENDING,       // kullanıcıdan cevap bekleniyor
-    IN_PROGRESS,   // agent ilgileniyor
-    ON_HOLD,       // başka bir birimden cevap bekleniyor
-    RESOLVED,      // çözüm sağlandı
-    CLOSED         // tamamen kapatıldı
+
+    //PENDING,
+    IN_PROGRESS,
+    ON_HOLD,
+    RESOLVED,
+    // CLOSED
 }
+
+enum class Type {
+    QUESTION,
+    INCIDENT,
+    PROBLEM,
+    TASK
+}
+
+enum class Priority {
+    LOW,
+    MEDIUM,
+    HIGH,
+    URGENT
+}
+
+data class Tag(val id: Int, val name: String)

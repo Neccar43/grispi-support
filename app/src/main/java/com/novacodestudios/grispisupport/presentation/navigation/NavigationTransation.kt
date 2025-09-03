@@ -7,7 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 
-private const val DURATION=700
+private const val DURATION = 700
 fun enterTransition(): AnimatedContentTransitionScope<*>.() -> EnterTransition {
     return {
         slideIntoContainer(

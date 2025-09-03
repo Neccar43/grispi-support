@@ -2,7 +2,6 @@ package com.novacodestudios.grispisupport.presentation.navigation
 
 import kotlinx.serialization.Serializable
 
-// TODO: Search Notification Settings ekranları da implement edilecek
 @Serializable
 sealed interface Screen {
     @Serializable
@@ -13,5 +12,17 @@ sealed interface Screen {
 
     @Serializable
     data class Detail(val id: String) : Screen
+
+    @Serializable
+    data object Notification : Screen
+
+    @Serializable
+    data object Feedback : Screen
+
+    @Serializable
+    data object Settings : Screen
+
+    @Serializable
+    data class Profile(val id: String) : Screen
 
 }

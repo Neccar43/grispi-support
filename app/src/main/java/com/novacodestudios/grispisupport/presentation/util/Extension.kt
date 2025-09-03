@@ -49,19 +49,17 @@ fun isSameWeek(cal1: Calendar, cal2: Calendar): Boolean {
 }
 
 fun TicketStatus.toColor() = when (this) {
-    TicketStatus.OPEN -> Color(0xFF1976D2)
+    TicketStatus.OPEN -> Color(0xFFD32F2F)
     TicketStatus.IN_PROGRESS -> Color(0xFFFFA000)
-    TicketStatus.PENDING -> Color(0xFF7E57C2)
-    TicketStatus.ON_HOLD -> Color(0xFF8D6E63)
-    TicketStatus.RESOLVED -> Color(0xFF388E3C)
-    TicketStatus.CLOSED -> Color(0xFF9E9E9E)
+    TicketStatus.ON_HOLD -> Color(0xFF1976D2)
+    TicketStatus.RESOLVED -> Color(0xFF9E9E9E)
 }
 
 fun TicketStatus.toUiName() = when (this) {
     TicketStatus.OPEN -> "Açık"
     TicketStatus.IN_PROGRESS -> "Devam Ediyor"
-    TicketStatus.PENDING -> "Beklemede"
-    TicketStatus.ON_HOLD -> "Askıda"
+    //  TicketStatus.PENDING -> "Askıda"
+    TicketStatus.ON_HOLD -> "Beklemede"
     TicketStatus.RESOLVED -> "Çözüldü"
-    TicketStatus.CLOSED -> "Kapalı"
+    // TicketStatus.CLOSED -> "Kapalı"
 }
