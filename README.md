@@ -1,30 +1,27 @@
-# 🛠️ Grispi Support – Android App
+# Grispi Support – Android App
 
-## 📄 Description
+## Description
 
-This is a **mock mobile support interface** application inspired by
-the [Zendesk Support Mobile App](https://play.google.com/store/apps/details?id=com.zendesk.android).
-It has been developed natively using **Kotlin** and **Jetpack Compose**, following modern Android
-development principles.
+This is a **mock mobile support interface** application inspired by the [Zendesk Support Mobile App](https://play.google.com/store/apps/details?id=com.zendesk.android).  
+It has been developed natively using **Kotlin** and **Jetpack Compose**, following modern Android development principles.
 
-The app provides UI screens for a typical support workflow. It is designed solely for frontend 
-demonstration purposes using mock data, and has been developed with an attempt to follow MVI 
-architectural principles.
----
-
-## ⚙️ Tech Stack
-
-* **UI**: Jetpack Compose
-* **Architecture**: MVI (Model-View-Intent)
-* **Dependency Injection**: Hilt
-* **Navigation**: Compose Navigation
-* **Asynchronous operations**: Kotlin Coroutines
-* **ViewModel**: Android Jetpack ViewModel
-* **UI Theme**: Material Design 3 (Material You)
+The app provides UI screens for a typical support workflow. It is designed solely for frontend demonstration purposes using mock data, and it follows MVI architectural principles.
 
 ---
 
-## 📁 Package Structure
+## Tech Stack
+
+* **UI**: Jetpack Compose  
+* **Architecture**: MVI (Model-View-Intent)  
+* **Dependency Injection**: Hilt  
+* **Navigation**: Compose Navigation  
+* **Asynchronous operations**: Kotlin Coroutines  
+* **ViewModel**: Android Jetpack ViewModel  
+* **UI Theme**: Material Design 3 (Material You)  
+
+---
+
+## Package Structure
 
 ```text
 ├── di                  # Dependency Injection (Hilt)
@@ -36,13 +33,11 @@ architectural principles.
     ├── theme           # MaterialTheme definitions
     ├── util            # Utilities and helpers
     ├── component       # Reusable UI components
-    └── screen          # Viewmodel, State, Event and Screen Composable related to the relevant screen
+    └── screen          # ViewModel, State, Event and Screen Composable related to the relevant screen
         └── component   # Screen-specific components
 ```
 
----
-
-## 📱 Screens
+## Screens
 
 * **SignIn** – Basic login screen
 * **List** – Shows support ticket list with basic metadata
@@ -54,34 +49,34 @@ architectural principles.
 * **Settings** – App settings screen
 * **Notification** – Notification center screen
 
+<table>
+  <tr>
+    <td align="center"><img src="screenshot/signin_1.png" width="333"/></td>
+    <td align="center"><img src="screenshot/signin_2.png" width="333"/></td>
+    <td align="center"><img src="screenshot/list.png" width="333"/></td>
+  </tr>
+</table>
 
-### Sign In
-<img src="screenshot/signin_1.png" width="250"/> <img src="screenshot/signin_2.png" width="250"/>
+<table>
+  <tr>
+    <td align="center"><img src="screenshot/detail_conversation.png" width="249"/></td>
+    <td align="center"><img src="screenshot/detail_detail.png" width="249"/></td>
+    <td align="center"><img src="screenshot/detail_application.png" width="249"/></td>
+    <td align="center"><img src="screenshot/detail_history.png" width="249"/></td>
+  </tr>
+</table>
 
-### Ticket List
-<img src="screenshot/list.png" width="250"/>
-
-### Ticket Details
-<img src="screenshot/detail_application.png" width="250"/>
-<img src="screenshot/detail_conversation.png" width="250"/>
-<img src="screenshot/detail_detail.png" width="250"/>
-
-### History
-<img src="screenshot/detail_history.png" width="250"/>
-
-### Notifications
-<img src="screenshot/notification.png" width="250"/>
-
-### Profile
-<img src="screenshot/profile.png" width="250"/>
-
-### Settings
-<img src="screenshot/settings.png" width="250"/>
-
+<table>
+  <tr>
+    <td align="center"><img src="screenshot/notification.png" width="333"/></td>
+    <td align="center"><img src="screenshot/profile.png" width="333"/></td>
+    <td align="center"><img src="screenshot/settings.png" width="333"/></td>
+  </tr>
+</table>
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -101,6 +96,6 @@ architectural principles.
 
 ---
 
-## 📌 Notes
+## Notes
 
 * The project uses **mock data only** (no backend).
