@@ -2,11 +2,14 @@
 
 ## 📄 Description
 
-This is a **mock mobile support interface** application inspired by the [Zendesk Support Mobile App](https://support.zendesk.com/hc/en-us/articles/4408846407066-About-the-Zendesk-Support-mobile-app).
-It has been developed natively using **Kotlin** and **Jetpack Compose**, following modern Android development principles.
+This is a **mock mobile support interface** application inspired by
+the [Zendesk Support Mobile App](https://play.google.com/store/apps/details?id=com.zendesk.android).
+It has been developed natively using **Kotlin** and **Jetpack Compose**, following modern Android
+development principles.
 
-The app provides UI screens for a typical support workflow including ticket list, details, and responses. It is designed solely for frontend demonstration purposes using mock data and is built with an emphasis on clean architecture and modularity.
-
+The app provides UI screens for a typical support workflow. It is designed solely for frontend 
+demonstration purposes using mock data, and has been developed with an attempt to follow MVI 
+architectural principles.
 ---
 
 ## ⚙️ Tech Stack
@@ -24,18 +27,17 @@ The app provides UI screens for a typical support workflow including ticket list
 ## 📁 Package Structure
 
 ```text
-├── di               # Dependency Injection (Hilt)
-├── data             # Data layer
-├── domain           # Business logic (if needed for future expansion)
-└── presentation     # UI layer
-    ├── model        # UI models (ViewState, Events, etc.)
-    ├── navigation   # Navigation graph & routes
-    ├── theme        # MaterialTheme definitions
-    ├── util         # Utilities and helpers
-    ├── component    # Reusable UI components
-    ├── signin       # Sign-in screen
-    ├── list         # Ticket list screen
-    └── detail       # Ticket detail & response tabs
+├── di                  # Dependency Injection (Hilt)
+├── data                # Data layer
+├── domain              # Business logic (if needed for future expansion)
+└── presentation        # UI layer
+    ├── model           # UI models
+    ├── navigation      # Components related to navigation
+    ├── theme           # MaterialTheme definitions
+    ├── util            # Utilities and helpers
+    ├── component       # Reusable UI components
+    └── screen          # Viewmodel, State, Event and Screen Composable related to the relevant screen
+        └── component   # Screen-specific components
 ```
 
 ---
@@ -44,15 +46,38 @@ The app provides UI screens for a typical support workflow including ticket list
 
 * **SignIn** – Basic login screen
 * **List** – Shows support ticket list with basic metadata
-* **Detail (Detail Tab)** – Displays selected ticket information
-* **Detail (Response Tab)** – Shows and allows entering a response
+* **Conversation Tab** – Displays selected ticket information
+* **Detail Tab** – Shows and allows entering a response
+* **Application Tab** – Displays application details
+* **History Tab** – Shows ticket history
+* **Profile** – User profile screen
+* **Settings** – App settings screen
+* **Notification** – Notification center screen
 
-<p align="center">
-  <img width="18%" height="auto" src="screenshot/signin.png" />
-  <img width="18%" height="auto" src="screenshot/list.png" />
-  <img width="18%" height="auto" src="screenshot/detail_conversation.png" />
-  <img width="18%" height="auto" src="screenshot/detail.png" />
-</p>
+
+### Sign In
+<img src="screenshot/signin_1.png" width="250"/> <img src="screenshot/signin_2.png" width="250"/>
+
+### Ticket List
+<img src="screenshot/list.png" width="250"/>
+
+### Ticket Details
+<img src="screenshot/detail_application.png" width="250"/>
+<img src="screenshot/detail_conversation.png" width="250"/>
+<img src="screenshot/detail_detail.png" width="250"/>
+
+### History
+<img src="screenshot/detail_history.png" width="250"/>
+
+### Notifications
+<img src="screenshot/notification.png" width="250"/>
+
+### Profile
+<img src="screenshot/profile.png" width="250"/>
+
+### Settings
+<img src="screenshot/settings.png" width="250"/>
+
 
 ---
 
@@ -60,7 +85,7 @@ The app provides UI screens for a typical support workflow including ticket list
 
 ### Prerequisites
 
-* AAndroid Studio Meerkat Feature Drop | 2024.3.2 or later
+* Android Studio Meerkat Feature Drop | 2024.3.2 or later
 * Kotlin 2.2.0+
 * Gradle 8.11.1+
 

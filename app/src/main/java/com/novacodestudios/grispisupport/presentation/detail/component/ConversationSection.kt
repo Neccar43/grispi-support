@@ -108,6 +108,8 @@ fun ConversationSection(
                     }
                 }
             }
+
+            item { Spacer(modifier = Modifier.padding(top = 1.dp)) }
         }
     }
 }
