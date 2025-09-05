@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.toRoute
 import com.novacodestudios.grispisupport.presentation.model.User
 import com.novacodestudios.grispisupport.presentation.navigation.Screen
-import com.novacodestudios.grispisupport.presentation.profile.ProfileEvent.Clicked
 import com.novacodestudios.grispisupport.presentation.util.allDummyUsers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -33,7 +32,9 @@ class ProfileViewModel @Inject constructor(
 
     fun onEvent(event: ProfileEvent) {
         when (event) {
-            Clicked -> {}
+            ProfileEvent.OnConfirmName -> {
+            }
+            is ProfileEvent.OnNameChange -> state = state.copy(name = event.value)
         }
     }
 
@@ -45,8 +46,10 @@ class ProfileViewModel @Inject constructor(
 data class ProfileState(
     val isLoading: Boolean = false,
     val user: User? = null,
+    val name: String = user?.name.orEmpty(),
 )
 
 sealed interface ProfileEvent {
-    data object Clicked : ProfileEvent
+    data class OnNameChange(val value: String) : ProfileEvent
+    data object OnConfirmName: ProfileEvent
 }

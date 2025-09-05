@@ -1,6 +1,7 @@
 package com.novacodestudios.grispisupport.presentation.settings
 
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -10,12 +11,17 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.novacodestudios.grispisupport.presentation.detail.component.DetailDialog
+import com.novacodestudios.grispisupport.presentation.detail.component.DialogRadioGroup
 import com.novacodestudios.grispisupport.presentation.settings.component.SettingsItem
 import com.novacodestudios.grispisupport.presentation.settings.component.SettingsTopBar
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
@@ -57,6 +63,8 @@ fun SettingsScreenContent(
     navigateProfile: () -> Unit,
     navigateSignIn: () -> Unit,
 ) {
+    var isThemeDialogVisible by remember { mutableStateOf(false) }
+    var isLanguageDialogVisible by remember { mutableStateOf(false) }
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = { SettingsTopBar(navigateUp = navigateUp) }
@@ -72,7 +80,6 @@ fun SettingsScreenContent(
             SettingsItem(
                 onClick = { navigateProfile() },
                 headlineText = "Profil",
-                //supportingText = "Çevrimiçi"
             )
             HorizontalDivider()
             SettingsItem(
@@ -81,15 +88,15 @@ fun SettingsScreenContent(
             )
             HorizontalDivider()
             SettingsItem(
-                onClick = { },
+                onClick = { isThemeDialogVisible = true },
                 headlineText = "Tema",
-                supportingText = "Açık" // TODO: tema seçimi ekle (Açık, Koyu, Sistem
+                supportingText = state.theme.displayName
             )
             HorizontalDivider()
             SettingsItem(
-                onClick = { },
+                onClick = { isLanguageDialogVisible = true },
                 headlineText = "Dil",
-                supportingText = "Türkçe" // TODO: dil seçimi ekle
+                supportingText = state.language.displayName
             )
             HorizontalDivider()
             SettingsItem(
@@ -118,6 +125,77 @@ fun SettingsScreenContent(
             )
         }
     }
+
+    if (isThemeDialogVisible) {
+        var selectedOption by remember { mutableStateOf(state.theme) }
+        DetailDialog(
+            onDismiss = { isThemeDialogVisible = false },
+            title = "Tema",
+            text = {
+                DialogRadioGroup(
+                    options = ThemeOption.entries.map { it.displayName },
+                    selectedOption = selectedOption.displayName,
+                    onOptionSelected = { selectedOption = ThemeOption.displayNameToTheme(it) },
+                )
+            },
+            onConfirm = {
+                Log.d(TAG, "SettingsScreenContent: Selected theme: $selectedOption")
+                onEvent(SettingsEvent.OnThemeSelected(selectedOption))
+                isThemeDialogVisible = false
+            },
+        )
+    }
+    if (isLanguageDialogVisible) {
+        var selectedOption by remember { mutableStateOf(state.language) }
+        DetailDialog(
+            onDismiss = { isLanguageDialogVisible = false },
+            title = "Dil",
+            text = {
+                DialogRadioGroup(
+                    options = LanguageOption.entries.map { it.displayName },
+                    selectedOption = selectedOption.displayName,
+                    onOptionSelected = { selectedOption = LanguageOption.displayNameToLanguage(it) },
+                )
+            },
+            onConfirm = {
+                onEvent(SettingsEvent.OnLanguageSelected(selectedOption))
+                isLanguageDialogVisible = false
+            },
+        )
+    }
+}
+
+enum class ThemeOption(val displayName: String) {
+    LIGHT("Açık"),
+    DARK("Koyu"),
+    SYSTEM_DEFAULT("Sistem");
+
+    companion object {
+        fun displayNameToTheme(displayName: String): ThemeOption {
+            return when (displayName) {
+                "Açık" -> LIGHT
+                "Koyu" -> DARK
+                "Sistem" -> SYSTEM_DEFAULT
+                else -> SYSTEM_DEFAULT
+            }
+        }
+    }
+}
+
+
+enum class LanguageOption(val displayName: String) {
+    TURKISH("Türkçe"),
+    ENGLISH("İngilizce");
+
+    companion object {
+        fun displayNameToLanguage(displayName: String): LanguageOption {
+            return when (displayName) {
+                "Türkçe" -> TURKISH
+                "İngilizce" -> ENGLISH
+                else -> TURKISH
+            }
+        }
+    }
 }
 
 @Preview
@@ -134,3 +212,5 @@ private fun SettingsScreenPreview() {
         )
     }
 }
+
+private const val TAG = "SettingsScreen"

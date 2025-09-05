@@ -15,7 +15,7 @@ import com.novacodestudios.grispisupport.presentation.model.User
 import com.novacodestudios.grispisupport.presentation.model.UserRole
 
 val user1 = User("u1", "Ahmet Kuru", "ahmet@example.com", UserRole.END_USER)
-val user2 = User("u2", "Mehmet Zeybek", "mehmet@zendesk.com", UserRole.AGENT)
+val user2 = User("u2", "Mehmet Zeybek", "mehmet@zendesk.com", UserRole.AGENT, phone = "+905301234567", organization = "Grispi", groups = listOf("Destek", "Satış"))
 val user3 = User("u3", "Ayşe Yılmaz", "ayse@zendesk.com", UserRole.AGENT)
 val user4 = User("u4", "Zeynep Demir", "zeynep@example.com", UserRole.END_USER)
 val user5 = User("u5", "Ali Sever", "ali@zendesk.com", UserRole.AGENT)

@@ -11,21 +11,29 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.novacodestudios.grispisupport.presentation.component.GrspTextField
+import com.novacodestudios.grispisupport.presentation.component.SipAlertDialog
+import com.novacodestudios.grispisupport.presentation.model.UserRole
 import com.novacodestudios.grispisupport.presentation.profile.component.ProfileItem
 import com.novacodestudios.grispisupport.presentation.profile.component.ProfileTopBar
 import com.novacodestudios.grispisupport.presentation.settings.component.SettingsItem
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
 import com.novacodestudios.grispisupport.presentation.util.currentUser
+import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
-    navigateUp: () -> Unit
+    navigateUp: () -> Unit,
+    navigateFilteredTickets: (String, UserTicketFilter) -> Unit,
 ) {
     val snackbarHostState =
         remember { SnackbarHostState() }
@@ -43,6 +51,7 @@ fun ProfileScreen(
         snackbarHostState = snackbarHostState,
         onEvent = viewModel::onEvent,
         navigateUp = navigateUp,
+        navigateFilteredTickets = navigateFilteredTickets
     )
 }
 
@@ -51,7 +60,8 @@ fun ProfileScreenContent(
     state: ProfileState,
     snackbarHostState: SnackbarHostState,
     onEvent: (ProfileEvent) -> Unit,
-    navigateUp: () -> Unit
+    navigateUp: () -> Unit,
+    navigateFilteredTickets: (String, UserTicketFilter) -> Unit
 ) {
     // TODO: farklı şekilde handle et
     if (state.user == null) return
@@ -64,6 +74,7 @@ fun ProfileScreenContent(
             )
         }
     ) { paddingValues ->
+        var isNameDialogVisible by remember { mutableStateOf(false) }
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -74,72 +85,91 @@ fun ProfileScreenContent(
             ProfileItem(
                 title = "Ad soyad",
                 subtitle = state.user.name,
-                onClick = {} // TODO: dialog aç
+                onClick = {isNameDialogVisible=true}
             )
             ProfileItem(
                 title = "E-posta",
                 subtitle = state.user.email,
             )
-            SettingsItem(
-                headlineText = "Şifreyi sıfırla",
-                onClick = {}
-                //subtitle = "Masaüstü linki ile"
-            )
+            if (state.user.id==currentUser.id){ // sadece kendi profiline girince gözüksün yada ayarlar ekrnaına taşı
+                SettingsItem(
+                    headlineText = "Şifreyi sıfırla",
+                    onClick = {}
+                )
+            }
 
-            HorizontalDivider()
             ProfileItem(
-                title = "Atandı",
-                subtitle = "6"
-            )
-            ProfileItem(
-                title = "Talep ettiği",
-                subtitle = "1"
-            )
-            ProfileItem(
-                title = "Takip ettiği",
-                subtitle = "1"
-            )
-            ProfileItem(
-                title = "Bilgilendirilenler",
-                subtitle = "2"
-            )
-            HorizontalDivider()
-            ProfileItem(
-                title = "Rol",
-                subtitle = "Yönetici"
-            )
-            ProfileItem(
-                title = "Gruplar",
-                subtitle = "Support"
-            )
-            ProfileItem(
-                title = "Takma ad",
-                subtitle = "-"
-            )
-            ProfileItem(
-                title = "İmza",
-                subtitle = "-"
-            )
-            HorizontalDivider()
-            ProfileItem(
-                title = "Birincil e-posta",
-                subtitle = state.user.email
-            )
-            HorizontalDivider()
-            ProfileItem(
-                title = "Etiketler",
-                subtitle = "-"
-            )
-            ProfileItem(
-                title = "Org",
-                subtitle = "Test"
+                title = "Telefon",
+                subtitle = state.user.phone ?: "-",
             )
             ProfileItem(
                 title = "Dil",
                 subtitle = "Türkçe"
             )
+            HorizontalDivider()
+            ProfileItem(
+                title = "Rol",
+                subtitle = state.user.role.toUiString()
+            )
+            ProfileItem(
+                title = "Organizasyon",
+                subtitle = state.user.organization ?: "-"
+            )
+            ProfileItem(
+                title = "Gruplar",
+                subtitle = state.user.groups.joinToString(", ").ifEmpty { "-" }
+            )
+
+            HorizontalDivider()
+            ProfileItem(
+                title = "Atandı",
+                subtitle = dummyTicketList.count { it.assignee?.id == state.user.id }.toString(),
+                onClick = { navigateFilteredTickets(state.user.id, UserTicketFilter.ASSIGNEE) }
+            )
+            ProfileItem(
+                title = "Talep ettiği",
+                subtitle = dummyTicketList.count { it.requester.id == state.user.id }.toString(),
+                onClick = { navigateFilteredTickets(state.user.id, UserTicketFilter.REQUEST) }
+            )
+            ProfileItem(
+                title = "Takip ettiği",
+                subtitle = dummyTicketList.count { it.followers.any { f-> f.id==state.user.id } }.toString(),
+                onClick = { navigateFilteredTickets(state.user.id, UserTicketFilter.FOLLOW) }
+            )
+            ProfileItem(
+                title = "Bilgilendirilenler",
+                subtitle = "2",
+                onClick = { navigateFilteredTickets(state.user.id, UserTicketFilter.MENTION) }
+            )
+        }
+
+        if (isNameDialogVisible){
+            SipAlertDialog(
+                onDismiss = { isNameDialogVisible = false },
+                title = "Ad soyad",
+                text = {
+                    GrspTextField(
+                        value = state.name,
+                        onValueChange = { onEvent(ProfileEvent.OnNameChange(it)) },
+                        placeholder = "Ad soyad"
+                    )
+                },
+                confirmButtonText = "Tamam",
+                onConfirm = {
+                    onEvent(ProfileEvent.OnConfirmName)
+                    isNameDialogVisible = false
+                },
+                dismissButtonText = "İptal",
+            )
         }
     }
+}
+
+enum class UserTicketFilter{
+    ASSIGNEE,
+    REQUEST,
+    FOLLOW,
+    MENTION
 }
 
 @Preview
@@ -152,7 +182,16 @@ private fun PSP() {
             ),
             snackbarHostState = remember { SnackbarHostState() },
             onEvent = {},
-            navigateUp = {}
+            navigateUp = {},
+            navigateFilteredTickets = { _, _ -> }
         )
+    }
+}
+
+
+fun UserRole.toUiString(): String {
+    return when (this) {
+        UserRole.END_USER -> "Son kullanıcı"
+        UserRole.AGENT -> "Temsilci"
     }
 }

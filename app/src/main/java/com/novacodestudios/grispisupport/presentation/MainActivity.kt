@@ -1,7 +1,9 @@
 package com.novacodestudios.grispisupport.presentation
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material.icons.Icons
@@ -17,20 +19,29 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.novacodestudios.grispisupport.data.local.Keys
+import com.novacodestudios.grispisupport.data.local.Preferences
 import com.novacodestudios.grispisupport.presentation.navigation.GrispiDrawer
 import com.novacodestudios.grispisupport.presentation.navigation.NavigationItem
 import com.novacodestudios.grispisupport.presentation.navigation.Screen
+import com.novacodestudios.grispisupport.presentation.settings.SettingsViewModel
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -39,9 +50,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            GrispiSupportTheme {
-                val appState = rememberAppState()
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
 
+            GrispiSupportTheme(
+                darkTheme = settingsViewModel.state.theme
+            ) {
+                val appState = rememberAppState()
                 GrispiDrawer(modifier = Modifier, appState = appState)
             }
         }

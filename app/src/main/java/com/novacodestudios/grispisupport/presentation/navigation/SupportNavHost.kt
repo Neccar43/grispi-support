@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import com.novacodestudios.grispisupport.presentation.AppState
 import com.novacodestudios.grispisupport.presentation.detail.DetailScreen
 import com.novacodestudios.grispisupport.presentation.feedback.FeedbackScreen
+import com.novacodestudios.grispisupport.presentation.filteredtickets.FilteredTicketsScreen
 import com.novacodestudios.grispisupport.presentation.list.ListScreen
 import com.novacodestudios.grispisupport.presentation.notification.NotificationScreen
 import com.novacodestudios.grispisupport.presentation.profile.ProfileScreen
@@ -80,7 +81,16 @@ fun SupportNavHost(modifier: Modifier = Modifier, appState: AppState) {
 
         }
         composable<Screen.Profile> {
-            ProfileScreen(navigateUp = navigateUp)
+            ProfileScreen(navigateUp = navigateUp, navigateFilteredTickets = {  userId, filter ->
+                appState.navController.navigate(Screen.FilteredTickets(userId, filter))
+            })
+        }
+
+        composable<Screen.FilteredTickets> {
+            FilteredTicketsScreen(
+                navigateUp = navigateUp,
+                navigateDetail = { appState.navController.navigate(Screen.Detail(it)) }
+            )
         }
     }
 }

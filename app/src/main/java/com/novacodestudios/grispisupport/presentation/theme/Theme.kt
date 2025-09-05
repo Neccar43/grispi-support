@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import com.novacodestudios.grispisupport.presentation.settings.ThemeOption
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -30,12 +31,16 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun GrispiSupportTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: ThemeOption= when {
+        isSystemInDarkTheme() -> ThemeOption.DARK
+        else -> ThemeOption.LIGHT
+    },
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+    val colorScheme = when (darkTheme) {
+        ThemeOption.DARK -> DarkColorScheme
+        ThemeOption.LIGHT -> LightColorScheme
+        ThemeOption.SYSTEM_DEFAULT -> if (isSystemInDarkTheme()) DarkColorScheme else LightColorScheme
     }
 
     MaterialTheme(

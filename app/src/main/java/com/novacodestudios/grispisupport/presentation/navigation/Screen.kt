@@ -1,5 +1,6 @@
 package com.novacodestudios.grispisupport.presentation.navigation
 
+import com.novacodestudios.grispisupport.presentation.profile.UserTicketFilter
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -24,5 +25,8 @@ sealed interface Screen {
 
     @Serializable
     data class Profile(val id: String) : Screen
+
+    @Serializable
+    data class FilteredTickets(val userId: String,val filter: UserTicketFilter ) : Screen
 
 }

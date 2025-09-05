@@ -17,28 +17,6 @@ import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
 import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 
 @Composable
-fun TicketListV1(tickets: List<Ticket>, onTicketClick: (Ticket) -> Unit) {
-    LazyColumn(modifier = Modifier.fillMaxWidth()) {
-
-        items(items = tickets, key = { it.id }) {
-            HorizontalDivider()
-            TicketItem(ticket = it, onClick = { onTicketClick(it) })
-        }
-
-        item {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                text = "Listenin sonu",
-                textAlign = TextAlign.Center,
-                color = Color.Gray
-            )
-        }
-    }
-}
-
-@Composable
 fun TicketList(tickets: List<Ticket>, onTicketClick: (Ticket) -> Unit) {
     LazyColumn(modifier = Modifier.fillMaxWidth()) {
 
