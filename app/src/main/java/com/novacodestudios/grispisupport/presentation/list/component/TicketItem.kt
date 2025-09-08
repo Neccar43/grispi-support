@@ -117,14 +117,15 @@ private fun TicketItemPreview() {
                 tags = listOf(
                     Tag(1, "yeni")
                 ),
-                form = "Geri Bildirim",
-                status = TicketStatus.IN_PROGRESS,
+                formId = "Geri Bildirim",
+                status = TicketStatus.PENDING,
                 createdAt = System.currentTimeMillis() - 7 * 86400000,
                 updatedAt = System.currentTimeMillis() - 6 * 86400000,
                 lastMessageContent = LoremIpsum(50).values.joinToString(),
                 channel = Channel.WHATSAPP,
                 type = Type.QUESTION,
-                priority = Priority.HIGH
+                priority = Priority.HIGH,
+                formResponseId = "fr1"
             ),
             onClick = {}
         )

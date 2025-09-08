@@ -8,8 +8,9 @@ data class Ticket(
     val requester: User,
     val assignee: User?,
     val followers: List<User>,
-    val tags: List<Tag>,
-    val form: String?,
+    val tags: List<Tag>, // TODO: kaldırılıp form üzerinden çekilecek
+    val formId: String,
+    val formResponseId: String,
     val status: TicketStatus,
     val createdAt: Long,
     val updatedAt: Long,
@@ -20,10 +21,10 @@ data class Ticket(
 )
 
 enum class TicketStatus {
+    NEW, // sadece ilk açılışta olacak sonrasında geçiş yapılamayacak
     OPEN,
-
-    //PENDING,
-    IN_PROGRESS,
+    PENDING,
+    // IN_PROGRESS,
     ON_HOLD,
     RESOLVED,
     // CLOSED

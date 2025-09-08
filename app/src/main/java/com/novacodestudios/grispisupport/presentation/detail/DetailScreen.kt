@@ -139,8 +139,8 @@ fun DetailScreenContent(
                     DetailTabs.Detail -> DetailSection(
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(bottom = 8.dp)
-                            .verticalScroll(rememberScrollState()),
+                            .padding(bottom = 8.dp),
+                           // .verticalScroll(rememberScrollState()),
                         state = state,
                         onEvent = onEvent
                     )

@@ -1,6 +1,10 @@
 package com.novacodestudios.grispisupport.presentation.util
 
-import com.novacodestudios.grispisupport.presentation.model.Application
+import com.novacodestudios.grispisupport.presentation.detail.component.FieldResponse
+import com.novacodestudios.grispisupport.presentation.detail.component.FieldType
+import com.novacodestudios.grispisupport.presentation.detail.component.Form
+import com.novacodestudios.grispisupport.presentation.detail.component.FormField
+import com.novacodestudios.grispisupport.presentation.detail.component.FormResponse
 import com.novacodestudios.grispisupport.presentation.model.Channel
 import com.novacodestudios.grispisupport.presentation.model.Message
 import com.novacodestudios.grispisupport.presentation.model.Notification
@@ -15,7 +19,15 @@ import com.novacodestudios.grispisupport.presentation.model.User
 import com.novacodestudios.grispisupport.presentation.model.UserRole
 
 val user1 = User("u1", "Ahmet Kuru", "ahmet@example.com", UserRole.END_USER)
-val user2 = User("u2", "Mehmet Zeybek", "mehmet@zendesk.com", UserRole.AGENT, phone = "+905301234567", organization = "Grispi", groups = listOf("Destek", "Satış"))
+val user2 = User(
+    "u2",
+    "Mehmet Zeybek",
+    "mehmet@zendesk.com",
+    UserRole.AGENT,
+    phone = "+905301234567",
+    organization = "Grispi",
+    groups = listOf("Destek", "Satış")
+)
 val user3 = User("u3", "Ayşe Yılmaz", "ayse@zendesk.com", UserRole.AGENT)
 val user4 = User("u4", "Zeynep Demir", "zeynep@example.com", UserRole.END_USER)
 val user5 = User("u5", "Ali Sever", "ali@zendesk.com", UserRole.AGENT)
@@ -149,14 +161,15 @@ val dummyTicketList = listOf(
         tags = listOf(
             Tag(1, "teslimat"), Tag(2, "acil"), Tag(3, "ödeme")
         ),
-        form = "Teslimat Sorunu",
-        status = TicketStatus.IN_PROGRESS,
+        formId = "delivery_form",
+        status = TicketStatus.OPEN,
         createdAt = System.currentTimeMillis() - 3 * 86400000,
         updatedAt = System.currentTimeMillis() - 2 * 86400000,
         lastMessageContent = dummyMessageList.last { it.ticketId == "t1" }.content,
         channel = Channel.WHATSAPP,
         type = Type.QUESTION,
-        priority = Priority.HIGH
+        priority = Priority.HIGH,
+        formResponseId = "fr2"
     ),
     Ticket(
         id = "t2",
@@ -168,14 +181,15 @@ val dummyTicketList = listOf(
         tags = listOf(
             Tag(1, "teslimat"),
         ),
-        form = "Sipariş Sorunu",
-        status = TicketStatus.OPEN,
+        formId = "default_form",
+        status = TicketStatus.PENDING,
         createdAt = System.currentTimeMillis() - 2 * 86400000,
         updatedAt = System.currentTimeMillis() - 86400000,
         lastMessageContent = dummyMessageList.last { it.ticketId == "t2" }.content,
         channel = Channel.WHATSAPP,
         type = Type.QUESTION,
-        priority = Priority.HIGH
+        priority = Priority.HIGH,
+        formResponseId = "fr3"
     ),
     Ticket(
         id = "t3",
@@ -187,14 +201,15 @@ val dummyTicketList = listOf(
         tags = listOf(
             Tag(1, "teslimat"),
         ),
-        form = "Faturalama",
+        formId = "membership_form",
         status = TicketStatus.ON_HOLD,
         createdAt = System.currentTimeMillis() - 4 * 86400000,
         updatedAt = System.currentTimeMillis() - 3 * 86400000,
         lastMessageContent = dummyMessageList.last { it.ticketId == "t3" }.content,
         channel = Channel.WHATSAPP,
         type = Type.QUESTION,
-        priority = Priority.HIGH
+        priority = Priority.HIGH,
+        formResponseId = "fr1"
     ),
     Ticket(
         id = "t4",
@@ -206,14 +221,15 @@ val dummyTicketList = listOf(
         tags = listOf(
             Tag(1, "teslimat"),
         ),
-        form = "Genel Destek",
+        formId = "default_form",
         status = TicketStatus.ON_HOLD,
         createdAt = System.currentTimeMillis() - 86400000,
         updatedAt = System.currentTimeMillis() - 3600000,
         lastMessageContent = dummyMessageList.last { it.ticketId == "t4" }.content,
         channel = Channel.WHATSAPP,
         type = Type.QUESTION,
-        priority = Priority.HIGH
+        priority = Priority.HIGH,
+        formResponseId = ""
     ),
     Ticket(
         id = "t5",
@@ -225,14 +241,15 @@ val dummyTicketList = listOf(
         tags = listOf(
             Tag(1, "teslimat"),
         ),
-        form = "Geri Bildirim",
+        formId = "default_form",
         status = TicketStatus.RESOLVED,
         createdAt = System.currentTimeMillis() - 7 * 86400000,
         updatedAt = System.currentTimeMillis() - 6 * 86400000,
         lastMessageContent = dummyMessageList.last { it.ticketId == "t5" }.content,
         channel = Channel.WHATSAPP,
         type = Type.QUESTION,
-        priority = Priority.HIGH
+        priority = Priority.HIGH,
+        formResponseId = ""
     )
 )
 
@@ -324,41 +341,164 @@ val dummyHistories = listOf(
 
     )
 
-val dummyApplications = listOf(
-    Application(
-        id = "app1",
-        iconUrl = "icon_url_1",
-        rating = 4.5f,
-        commentsCount = 1200,
-        price = "Free",
-        name = "Trello",
-        description = "Proje yönetim aracı"
+
+val dummyForms = listOf(
+    Form(
+        id = "default_form",
+        name = "Default Form",
+        fields = listOf(
+            FormField(
+                id = "tags",
+                label = "Etiketler",
+                type = FieldType.MULTI_SELECT,
+                options = listOf("Önemli", "Finans", "Teknik"),
+                required = false,
+            ),
+            FormField(
+                id = "type",
+                label = "Tür",
+                type = FieldType.SINGLE_SELECT,
+                options = listOf("Soru", "Olay", "Problem", "Görev"),
+                required = true,
+            )
+        )
     ),
-    Application(
-        id = "app2",
-        iconUrl = "icon_url_2",
-        rating = 4.7f,
-        commentsCount = 850,
-        price = "$9.99",
-        name = "Slack",
-        description = "İletişim ve iş birliği platformu"
+    Form(
+        id = "membership_form",
+        name = "Üyelik Hesap Formu",
+        fields = listOf(
+            FormField(
+                id = "tags",
+                label = "Etiketler",
+                type = FieldType.MULTI_SELECT,
+                options = listOf("Hesap", "Şifre", "Destek"),
+                required = false,
+            ),
+            FormField(
+                id = "username",
+                label = "Üye Kullanıcı Adı",
+                type = FieldType.TEXT,
+                required = true,
+            ),
+            FormField(
+                id = "next_call_date",
+                label = "Sonraki Arama Tarihi",
+                type = FieldType.DATE,
+                required = false,
+            ),
+            FormField(
+                id = "request_type",
+                label = "Kullanıcı Talep Tipi",
+                type = FieldType.SINGLE_SELECT,
+                options = listOf("Şifremi Unuttum", "Hesabıma Giriş Yapamıyorum", "Diğer"),
+                required = true,
+            )
+        )
     ),
-    Application(
-        id = "app3",
-        iconUrl = "icon_url_3",
-        rating = 4.3f,
-        commentsCount = 430,
-        price = "Free",
-        name = "Zoom",
-        description = "Video konferans uygulaması"
+    Form(
+        id = "delivery_form",
+        name = "Teslimat ve Kargo Formu",
+        fields = listOf(
+            FormField(
+                id = "sender",
+                label = "Gönderici Kurum Adı",
+                type = FieldType.TEXT,
+                required = true,
+            ),
+            FormField(
+                id = "send_to_backoffice",
+                label = "Backoffice Kontrolüne Gönderilecek",
+                type = FieldType.CHECKBOX,
+                required = false,
+            ),
+            FormField(
+                id = "order_status",
+                label = "Sipariş Durumu",
+                type = FieldType.SINGLE_SELECT,
+                options = listOf("Hazırlanıyor", "Yolda", "Teslim Edildi", "İade Edildi"),
+                required = true,
+            ),
+            FormField(
+                id = "tracking_code",
+                label = "Kargo Takip Kodu",
+                type = FieldType.TEXT,
+                required = false,
+            ),
+            FormField(
+                id = "origin_branch",
+                label = "Başlangıç Şubesi",
+                type = FieldType.TEXT,
+                required = false,
+            ),
+            FormField(
+                id = "destination_branch",
+                label = "Varış Şubesi",
+                type = FieldType.TEXT,
+                required = false,
+                // value = "Ankara"
+            ),
+            FormField(
+                id = "driver_name",
+                label = "Sürücü Adı",
+                type = FieldType.TEXT,
+                required = false,
+                // value = "Ahmet Yılmaz"
+            ),
+            FormField(
+                id = "order_number",
+                label = "Sipariş Numarası",
+                type = FieldType.TEXT,
+                required = false,
+                // value = "ORD-20250905"
+            ),
+            FormField(
+                id = "shipping_date",
+                label = "Ürünün Kargoya Verilme Tarihi",
+                type = FieldType.DATE,
+                required = false,
+                // value = "2025-09-05"
+            )
+        )
+    )
+)
+
+val dummyFormResponses = listOf(
+    FormResponse(
+        id = "fr1",
+        formId = "membership_form",
+        ticketId = "t3",
+        responses = listOf(
+            FieldResponse(fieldId = "tags", value = listOf("Hesap", "Şifre")),
+            FieldResponse(fieldId = "username", value = listOf("ahmet kuru")),
+            FieldResponse(fieldId = "next_call_date", value = listOf("10.09.2025")),
+            FieldResponse(fieldId = "request_type", value = listOf("Şifremi Unuttum"))
+        )
     ),
-    Application(
-        id = "app4",
-        iconUrl = "icon_url_4",
-        rating = 4.8f,
-        commentsCount = 2300,
-        price = "$4.99",
-        name = "Evernote",
-        description = "Not alma ve organizasyon aracı"
+    FormResponse(
+        id = "fr2",
+        formId = "delivery_form",
+        ticketId = "t1",
+        responses = listOf(
+            FieldResponse(fieldId = "tags", value = listOf("teslimat", "acil", "ödeme")),
+            FieldResponse(fieldId = "sender", value = listOf("Trendyol")),
+            FieldResponse(fieldId = "send_to_backoffice", value = listOf("true")),
+            FieldResponse(fieldId = "order_status", value = listOf("Yolda")),
+            FieldResponse(fieldId = "tracking_code", value = listOf("TR123456789")),
+            FieldResponse(fieldId = "origin_branch", value = listOf("İstanbul")),
+            FieldResponse(fieldId = "destination_branch", value = listOf("Ankara")),
+            FieldResponse(fieldId = "driver_name", value = listOf("Ahmet Yılmaz")),
+            FieldResponse(fieldId = "order_number", value = listOf("ORD-20250905")),
+            FieldResponse(fieldId = "shipping_date", value = listOf("05.09.2025"))
+        )
+    ),
+    FormResponse(
+        id = "fr3",
+        formId = "default_form",
+        ticketId = "t2",
+        responses = listOf(
+            FieldResponse(fieldId = "tags", value = listOf("teslimat")),
+            FieldResponse(fieldId = "type", value = listOf("Soru"))
+        )
+
     )
 )

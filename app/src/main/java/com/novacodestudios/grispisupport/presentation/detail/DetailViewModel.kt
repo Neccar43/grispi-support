@@ -1,11 +1,15 @@
 package com.novacodestudios.grispisupport.presentation.detail
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.navigation.toRoute
+import com.novacodestudios.grispisupport.presentation.detail.component.FieldResponse
+import com.novacodestudios.grispisupport.presentation.detail.component.Form
+import com.novacodestudios.grispisupport.presentation.detail.component.FormResponse
 import com.novacodestudios.grispisupport.presentation.model.Message
 import com.novacodestudios.grispisupport.presentation.model.Tag
 import com.novacodestudios.grispisupport.presentation.model.Ticket
@@ -13,6 +17,8 @@ import com.novacodestudios.grispisupport.presentation.model.TicketHistory
 import com.novacodestudios.grispisupport.presentation.model.User
 import com.novacodestudios.grispisupport.presentation.navigation.Screen
 import com.novacodestudios.grispisupport.presentation.util.allDummyUsers
+import com.novacodestudios.grispisupport.presentation.util.dummyFormResponses
+import com.novacodestudios.grispisupport.presentation.util.dummyForms
 import com.novacodestudios.grispisupport.presentation.util.dummyHistories
 import com.novacodestudios.grispisupport.presentation.util.dummyMessageList
 import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
@@ -38,7 +44,17 @@ class DetailViewModel @Inject constructor(
         state = state.copy(ticket = ticket, messageList = messages.sortedBy { it.sentAt })
         val histories =
             dummyHistories.filter { it.ticketId == id }.sortedByDescending { it.createdAt }
-        state = state.copy(ticketHistories = histories)
+
+        val selectedForm = dummyForms.find { it.id == ticket?.formId }
+        val formResponse = dummyFormResponses.find { it.id == ticket?.formResponseId }
+
+        state = state.copy(
+            ticketHistories = histories,
+            forms = dummyForms,
+            selectedForm = selectedForm,
+            formResponse = formResponse
+        )
+
 
     }
 
@@ -59,7 +75,32 @@ class DetailViewModel @Inject constructor(
                 searchTags(event.query)
             }
 
+            is DetailEvent.OnFormChange -> {
+                state = state.copy(selectedForm = event.form, formResponse = event.form.toResponse(state.ticket!!.id))
+            }
+
+            is DetailEvent.OnFieldResponseChange -> {
+                Log.d(TAG, "OnFieldResponseChange: ${event.fieldId} ${event.value}")
+                state.formResponse?.let {
+                    changeResponse(it, event.fieldId, event.value)
+                } ?:run {
+                    Log.d(TAG, "OnFieldResponseChange: form response not found")
+                    val formResponse = state.selectedForm?.toResponse(state.ticket!!.id)
+                    state = state.copy(formResponse = formResponse)
+                    formResponse?.let { changeResponse(it, event.fieldId, event.value)}
+                }
+            }
         }
+    }
+
+    private fun changeResponse(formResponse: FormResponse, fieldId: String, value: List<String>) {
+        Log.d(TAG, "OnFieldResponseChange: found form response ${formResponse.id}")
+        val newFieldResponse =
+            formResponse.responses.first { it.fieldId == fieldId }
+                .copy(value = value)
+        state =
+            state.copy(formResponse = formResponse.copy(responses = formResponse.responses.map { if (it.fieldId == fieldId) newFieldResponse else it }))
+
     }
 
     private fun searchUsers(query: String) {
@@ -107,12 +148,30 @@ data class DetailState(
     val userQuery: String = "",
     val tagQuery: String = "",
     val ticketHistories: List<TicketHistory> = emptyList(),
-
-    )
+    val forms: List<Form> = emptyList(),
+    val selectedForm: Form? = null,
+    val formResponse: FormResponse? = null,
+)
 
 sealed interface DetailEvent {
     data class OnActiveTabChange(val tab: DetailTabs) : DetailEvent
     data class OnReplyTextChange(val text: String) : DetailEvent
     data class OnUserQueryChange(val query: String) : DetailEvent
     data class OnTagQueryChange(val query: String) : DetailEvent
+    data class OnFormChange(val form: Form) : DetailEvent
+    data class OnFieldResponseChange(val fieldId: String, val value: List<String>) : DetailEvent
 }
+
+private const val TAG = "DetailViewModel"
+
+fun Form.toResponse(ticketId: String) = FormResponse(
+    id = "fr_${System.currentTimeMillis()}",
+    formId = this.id,
+    responses = this.fields.map {
+        FieldResponse(
+            fieldId = it.id,
+            value = emptyList()
+        )
+    },
+    ticketId = ticketId,
+)

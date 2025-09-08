@@ -49,19 +49,28 @@ fun isSameWeek(cal1: Calendar, cal2: Calendar): Boolean {
 }
 
 // yeni(sarı) açık(kırmızı) beklemede(mor) çözülmüş(yeşil) askıda(siyah)
+//fun TicketStatus.toColor() = when (this) {
+//    TicketStatus.OPEN -> Color(0xFFD32F2F) // kırmızı
+//    TicketStatus.IN_PROGRESS -> Color(0xFFFFA000) // kaldırılacak
+//    TicketStatus.ON_HOLD -> Color(0xFF1976D2)  // mor
+//     TicketStatus.PENDING -> Color(0xFF000000) // siyah
+//    TicketStatus.RESOLVED -> Color(0xFF9E9E9E) // yeşil
+//}
+
 fun TicketStatus.toColor() = when (this) {
-    TicketStatus.OPEN -> Color(0xFFD32F2F) // kırmızı
-    TicketStatus.IN_PROGRESS -> Color(0xFFFFA000) // kaldırılacak
-    TicketStatus.ON_HOLD -> Color(0xFF1976D2)  // mor
-    // TicketStatus.PENDING -> Color(0xFF000000) // siyah
-    TicketStatus.RESOLVED -> Color(0xFF9E9E9E) // yeşil
+    TicketStatus.NEW -> Color(0xFFE6D267)      // Yumuşak sarı
+    TicketStatus.OPEN -> Color(0xFFD26767)     // Pastel kırmızı
+    TicketStatus.PENDING -> Color(0xFF6650A4)  // Mor (primary)
+    TicketStatus.RESOLVED -> Color(0xFF5A8C6D) // Doğal yeşil
+    TicketStatus.ON_HOLD -> Color(0xFF333333)  // Koyu gri / siyaha yakın
 }
 
 fun TicketStatus.toUiName() = when (this) {
     TicketStatus.OPEN -> "Açık"
-    TicketStatus.IN_PROGRESS -> "Devam Ediyor"
-    //  TicketStatus.PENDING -> "Askıda"
+    //TicketStatus.IN_PROGRESS -> "Devam Ediyor"
+      TicketStatus.PENDING -> "Askıda"
     TicketStatus.ON_HOLD -> "Beklemede"
     TicketStatus.RESOLVED -> "Çözüldü"
     // TicketStatus.CLOSED -> "Kapalı"
+    TicketStatus.NEW -> "Yeni"
 }
