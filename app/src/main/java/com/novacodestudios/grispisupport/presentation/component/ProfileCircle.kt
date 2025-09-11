@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -25,7 +26,8 @@ fun ProfileCircle(name: String, size: Dp, fontSize: TextUnit = 20.sp) {
     ) {
         Text(
             text = name.firstOrNull()?.uppercase() ?: "?",
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            //color = MaterialTheme.colorScheme.onPrimaryContainer,
+            color = Color.White,
             fontSize = fontSize,
             style = LocalTextStyle.current.copy(lineHeight = fontSize)
         )

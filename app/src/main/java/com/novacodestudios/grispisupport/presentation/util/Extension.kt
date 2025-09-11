@@ -58,11 +58,11 @@ fun isSameWeek(cal1: Calendar, cal2: Calendar): Boolean {
 //}
 
 fun TicketStatus.toColor() = when (this) {
-    TicketStatus.NEW -> Color(0xFFE6D267)      // Yumuşak sarı
-    TicketStatus.OPEN -> Color(0xFFD26767)     // Pastel kırmızı
-    TicketStatus.PENDING -> Color(0xFF6650A4)  // Mor (primary)
-    TicketStatus.RESOLVED -> Color(0xFF5A8C6D) // Doğal yeşil
-    TicketStatus.ON_HOLD -> Color(0xFF333333)  // Koyu gri / siyaha yakın
+    TicketStatus.NEW -> Color(0xFFFA8C16)      // Yumuşak sarı fa8c16
+    TicketStatus.OPEN -> Color(0xFFFA541C)     // Pastel kırmızı fa541c
+    TicketStatus.PENDING -> Color(0xFF722ed1)  // Mor (primary) 722ed1 622c91
+    TicketStatus.RESOLVED -> Color(0xFF389e0d) // Doğal yeşil 389e0d
+    TicketStatus.ON_HOLD -> Color(0xFF000000)  // Koyu gri / siyaha yakın
 }
 
 fun TicketStatus.toUiName() = when (this) {
