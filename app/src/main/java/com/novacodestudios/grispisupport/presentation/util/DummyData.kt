@@ -1,5 +1,6 @@
 package com.novacodestudios.grispisupport.presentation.util
 
+import com.novacodestudios.grispisupport.presentation.detail.component.FieldCondition
 import com.novacodestudios.grispisupport.presentation.detail.component.FieldResponse
 import com.novacodestudios.grispisupport.presentation.detail.component.FieldType
 import com.novacodestudios.grispisupport.presentation.detail.component.Form
@@ -353,6 +354,8 @@ val dummyForms = listOf(
                 type = FieldType.MULTI_SELECT,
                 options = listOf("Önemli", "Finans", "Teknik"),
                 required = false,
+                order = 1,
+                condition = null
             ),
             FormField(
                 id = "type",
@@ -360,6 +363,8 @@ val dummyForms = listOf(
                 type = FieldType.SINGLE_SELECT,
                 options = listOf("Soru", "Olay", "Problem", "Görev"),
                 required = true,
+                order = 2,
+                condition = null
             )
         )
     ),
@@ -373,18 +378,24 @@ val dummyForms = listOf(
                 type = FieldType.MULTI_SELECT,
                 options = listOf("Hesap", "Şifre", "Destek"),
                 required = false,
+                order = 1,
+                condition = null
             ),
             FormField(
                 id = "username",
                 label = "Üye Kullanıcı Adı",
                 type = FieldType.TEXT,
                 required = true,
+                order = 2,
+                condition = null
             ),
             FormField(
                 id = "next_call_date",
                 label = "Sonraki Arama Tarihi",
                 type = FieldType.DATE,
                 required = false,
+                order = 3,
+                condition = null
             ),
             FormField(
                 id = "request_type",
@@ -392,6 +403,8 @@ val dummyForms = listOf(
                 type = FieldType.SINGLE_SELECT,
                 options = listOf("Şifremi Unuttum", "Hesabıma Giriş Yapamıyorum", "Diğer"),
                 required = true,
+                order = 4,
+                condition = null
             )
         )
     ),
@@ -404,12 +417,16 @@ val dummyForms = listOf(
                 label = "Gönderici Kurum Adı",
                 type = FieldType.TEXT,
                 required = true,
+                order = 1,
+                condition = null
             ),
             FormField(
                 id = "send_to_backoffice",
                 label = "Backoffice Kontrolüne Gönderilecek",
                 type = FieldType.CHECKBOX,
                 required = false,
+                order = 2,
+                condition = null
             ),
             FormField(
                 id = "order_status",
@@ -417,46 +434,95 @@ val dummyForms = listOf(
                 type = FieldType.SINGLE_SELECT,
                 options = listOf("Hazırlanıyor", "Yolda", "Teslim Edildi", "İade Edildi"),
                 required = true,
+                order = 3,
+                condition = null
             ),
             FormField(
                 id = "tracking_code",
                 label = "Kargo Takip Kodu",
                 type = FieldType.TEXT,
                 required = false,
+                order = 4,
+                condition = null
             ),
             FormField(
                 id = "origin_branch",
                 label = "Başlangıç Şubesi",
                 type = FieldType.TEXT,
                 required = false,
+                order = 5,
+                condition = null
             ),
             FormField(
                 id = "destination_branch",
                 label = "Varış Şubesi",
                 type = FieldType.TEXT,
                 required = false,
-                // value = "Ankara"
+                order = 6,
+                condition = null
             ),
             FormField(
                 id = "driver_name",
                 label = "Sürücü Adı",
                 type = FieldType.TEXT,
                 required = false,
-                // value = "Ahmet Yılmaz"
+                order = 7,
+                condition = null
             ),
             FormField(
                 id = "order_number",
                 label = "Sipariş Numarası",
                 type = FieldType.TEXT,
                 required = false,
-                // value = "ORD-20250905"
+                order = 8,
+                condition = null
             ),
             FormField(
                 id = "shipping_date",
                 label = "Ürünün Kargoya Verilme Tarihi",
                 type = FieldType.DATE,
                 required = false,
-                // value = "2025-09-05"
+                order = 9,
+                condition = null
+            )
+        )
+    ),
+    Form(
+        id = "codition_form",
+        name = "Koşullu Form",
+        fields = listOf(
+            FormField(
+                id = "issue_type",
+                label = "Sorun Türü",
+                type = FieldType.SINGLE_SELECT,
+                options = listOf("Teknik", "Finans", "Diğer"),
+                required = true,
+                order = 1,
+                condition = null
+            ),
+            FormField(
+                id = "technical_issue_details",
+                label = "Teknik Sorun Detayları",
+                type = FieldType.TEXT,
+                required = true,
+                order = 2,
+                condition = FieldCondition(fieldId ="issue_type" ,expectedValues = listOf("Teknik"))
+            ),
+            FormField(
+                id = "financial_issue_details",
+                label = "Finansal Sorun Detayları",
+                type = FieldType.TEXT,
+                required = true,
+                order = 3,
+                condition = FieldCondition(fieldId ="issue_type" ,expectedValues = listOf("Finans"))
+            ),
+            FormField(
+                id = "other_issue_details",
+                label = "Diğer Sorun Detayları",
+                type = FieldType.TEXT,
+                required = true,
+                order = 4,
+                condition = FieldCondition(fieldId ="issue_type" ,expectedValues = listOf("Diğer"))
             )
         )
     )

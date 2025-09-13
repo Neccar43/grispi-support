@@ -413,6 +413,12 @@ fun DetailSection(
         items(
             items = state.selectedForm?.fields ?: emptyList(),
             key = { "${state.selectedForm?.id}_${it.id}" }) { field ->
+            if(field.condition != null) {
+                val conditionFieldResponse = state.formResponse?.responses?.find { it.fieldId == field.condition.fieldId }
+                if (conditionFieldResponse == null || conditionFieldResponse.value.none { it in field.condition.expectedValues }) {
+                    return@items
+                }
+            }
             when (field.type) {
                 FieldType.CHECKBOX -> {
                     var isChecked by remember { mutableStateOf(false) }
@@ -895,6 +901,12 @@ data class FormField(
     val type: FieldType,
     val options: List<String>? = null,
     val required: Boolean,
+    val order: Int,
+    val condition: FieldCondition? = null
+)
+data class FieldCondition(
+    val fieldId: String,            // Hangi alana bağlı
+    val expectedValues: List<String> // Hangi değer(ler) seçilince görünsün
 )
 
 enum class FieldType {
