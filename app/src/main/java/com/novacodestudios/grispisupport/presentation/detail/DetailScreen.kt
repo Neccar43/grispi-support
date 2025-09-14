@@ -50,6 +50,7 @@ fun DetailScreen(
     viewModel: DetailViewModel = hiltViewModel(),
     navigateUp: () -> Unit,
     navigateProfile: (String) -> Unit,
+    navigateMacro: (String) -> Unit,
 ) {
     val snackbarHostState =
         remember { SnackbarHostState() }
@@ -67,7 +68,8 @@ fun DetailScreen(
         snackbarHostState = snackbarHostState,
         onEvent = viewModel::onEvent,
         navigateUp = navigateUp,
-        navigateProfile = navigateProfile
+        navigateProfile = navigateProfile,
+        navigateMacro = navigateMacro
     )
 }
 
@@ -79,6 +81,7 @@ fun DetailScreenContent(
     onEvent: (DetailEvent) -> Unit,
     navigateUp: () -> Unit,
     navigateProfile: (String) -> Unit,
+    navigateMacro: (String) -> Unit,
 ) {
     if (state.ticket == null) {
         // TODO: Handle et
@@ -169,10 +172,12 @@ fun DetailScreenContent(
                             .union(NavigationBarDefaults.windowInsets)
                             .only(WindowInsetsSides.Bottom)
                     ),
-                replyValue = state.replyText,
-                onReplyChange = { onEvent(DetailEvent.OnReplyTextChange(it)) },
-                ticket = state.ticket,
-                onFocusChange = { onEvent(DetailEvent.OnActiveTabChange(DetailTabs.Conversation)) },
+//                replyValue = state.replyText,
+//                onReplyChange = { onEvent(DetailEvent.OnReplyTextChange(it)) },
+//                onFocusChange = { onEvent(DetailEvent.OnActiveTabChange(DetailTabs.Conversation)) },
+                state = state,
+                onEvent = onEvent,
+                navigateMacro = navigateMacro
             )
         }
     }
@@ -194,7 +199,8 @@ private fun DetailScreenPreview() {
             snackbarHostState = SnackbarHostState(),
             onEvent = {},
             navigateUp = {},
-            navigateProfile = {}
+            navigateProfile = {},
+            navigateMacro = {}
         )
     }
 }

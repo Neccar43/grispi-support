@@ -29,4 +29,7 @@ sealed interface Screen {
     @Serializable
     data class FilteredTickets(val userId: String,val filter: UserTicketFilter ) : Screen
 
+    @Serializable
+    data class Macro(val ticketId: String) : Screen
+
 }

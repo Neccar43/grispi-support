@@ -14,6 +14,7 @@ import com.novacodestudios.grispisupport.presentation.model.Message
 import com.novacodestudios.grispisupport.presentation.model.Tag
 import com.novacodestudios.grispisupport.presentation.model.Ticket
 import com.novacodestudios.grispisupport.presentation.model.TicketHistory
+import com.novacodestudios.grispisupport.presentation.model.TicketStatus
 import com.novacodestudios.grispisupport.presentation.model.User
 import com.novacodestudios.grispisupport.presentation.navigation.Screen
 import com.novacodestudios.grispisupport.presentation.util.allDummyUsers
@@ -41,7 +42,7 @@ class DetailViewModel @Inject constructor(
         val id = savedStateHandle.toRoute<Screen.Detail>().id
         val ticket = dummyTicketList.find { it.id == id }
         val messages = dummyMessageList.filter { it.ticketId == id }
-        state = state.copy(ticket = ticket, messageList = messages.sortedBy { it.sentAt })
+        state = state.copy(ticket = ticket, messageList = messages.sortedBy { it.sentAt }, oldTicket = ticket)
         val histories =
             dummyHistories.filter { it.ticketId == id }.sortedByDescending { it.createdAt }
 
@@ -90,6 +91,12 @@ class DetailViewModel @Inject constructor(
                     formResponse?.let { changeResponse(it, event.fieldId, event.value)}
                 }
             }
+
+            is DetailEvent.OnStatusChange -> state = state.copy(
+                ticket = state.ticket?.copy(
+                    status = event.status,
+                )
+            )
         }
     }
 
@@ -139,6 +146,7 @@ class DetailViewModel @Inject constructor(
 
 data class DetailState(
     val isLoading: Boolean = false,
+    val oldTicket: Ticket? = null,
     val ticket: Ticket? = null,
     val activeTab: DetailTabs = DetailTabs.Conversation,
     val replyText: String = "",
@@ -151,7 +159,9 @@ data class DetailState(
     val forms: List<Form> = emptyList(),
     val selectedForm: Form? = null,
     val formResponse: FormResponse? = null,
-)
+){
+    val numberOfChange= 1
+}
 
 sealed interface DetailEvent {
     data class OnActiveTabChange(val tab: DetailTabs) : DetailEvent
@@ -160,6 +170,7 @@ sealed interface DetailEvent {
     data class OnTagQueryChange(val query: String) : DetailEvent
     data class OnFormChange(val form: Form) : DetailEvent
     data class OnFieldResponseChange(val fieldId: String, val value: List<String>) : DetailEvent
+    data class OnStatusChange(val status: TicketStatus) : DetailEvent
 }
 
 private const val TAG = "DetailViewModel"

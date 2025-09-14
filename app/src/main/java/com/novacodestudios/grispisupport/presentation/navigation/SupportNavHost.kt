@@ -50,6 +50,9 @@ fun SupportNavHost(modifier: Modifier = Modifier, appState: AppState) {
                 navigateUp = navigateUp,
                 navigateProfile = {
                     appState.navController.navigate(Screen.Profile(it))
+                },
+                navigateMacro = {
+                    appState.navController.navigate(Screen.Macro(ticketId = it))
                 }
             )
         }
