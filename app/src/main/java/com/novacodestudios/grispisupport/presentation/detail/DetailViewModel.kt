@@ -10,6 +10,7 @@ import androidx.navigation.toRoute
 import com.novacodestudios.grispisupport.presentation.detail.component.FieldResponse
 import com.novacodestudios.grispisupport.presentation.detail.component.Form
 import com.novacodestudios.grispisupport.presentation.detail.component.FormResponse
+import com.novacodestudios.grispisupport.presentation.model.Channel
 import com.novacodestudios.grispisupport.presentation.model.Message
 import com.novacodestudios.grispisupport.presentation.model.Tag
 import com.novacodestudios.grispisupport.presentation.model.Ticket
@@ -97,6 +98,9 @@ class DetailViewModel @Inject constructor(
                     status = event.status,
                 )
             )
+            is DetailEvent.OnChannelChange -> state = state.copy(
+                selectedChannel = event.channel
+            )
         }
     }
 
@@ -159,6 +163,7 @@ data class DetailState(
     val forms: List<Form> = emptyList(),
     val selectedForm: Form? = null,
     val formResponse: FormResponse? = null,
+    val selectedChannel : Channel = Channel.PUBLIC_RESPONSE
 ){
     val numberOfChange= 1
 }
@@ -171,6 +176,7 @@ sealed interface DetailEvent {
     data class OnFormChange(val form: Form) : DetailEvent
     data class OnFieldResponseChange(val fieldId: String, val value: List<String>) : DetailEvent
     data class OnStatusChange(val status: TicketStatus) : DetailEvent
+    data class OnChannelChange(val channel: Channel) : DetailEvent
 }
 
 private const val TAG = "DetailViewModel"

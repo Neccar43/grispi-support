@@ -1,18 +1,13 @@
 package com.novacodestudios.grispisupport.presentation.detail.component
 
 import android.Manifest
-import android.R
-import android.app.Activity
-import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -37,7 +31,6 @@ import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.CardDefaults
@@ -53,10 +46,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,9 +60,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import coil3.compose.rememberAsyncImagePainter
 import com.novacodestudios.grispisupport.presentation.detail.DetailEvent
 import com.novacodestudios.grispisupport.presentation.detail.DetailState
@@ -79,10 +68,12 @@ import com.novacodestudios.grispisupport.presentation.detail.DetailTabs
 import com.novacodestudios.grispisupport.presentation.model.Channel
 import com.novacodestudios.grispisupport.presentation.model.TicketStatus
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
+import com.novacodestudios.grispisupport.presentation.theme.yellowContainer
+import com.novacodestudios.grispisupport.presentation.theme.yellowOnContainer
+import com.novacodestudios.grispisupport.presentation.theme.yellowPrimary
 import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import com.novacodestudios.grispisupport.presentation.util.toColor
 import com.novacodestudios.grispisupport.presentation.util.toUiName
-import kotlinx.coroutines.launch
 import java.io.File
 
 @Composable
@@ -92,7 +83,7 @@ fun ReplyCard(
     onEvent: (DetailEvent) -> Unit,
     navigateMacro: (String) -> Unit,
 ) {
-    var isFocused by remember { mutableStateOf(false ) }
+    var isFocused by remember { mutableStateOf(true ) }
     val focusRequester = remember { FocusRequester() }
 
     val outerPadding = remember(isFocused) { if (isFocused) 16.dp else 0.dp }
@@ -105,6 +96,20 @@ fun ReplyCard(
             capturedUris = capturedUris + it // listeye ekle
         }
     }
+    val (containerColor, contentColor,primary) = if (state.selectedChannel == Channel.INTERNAL_NOTE) {
+        Triple(
+            yellowContainer,
+            yellowOnContainer,
+            yellowPrimary
+        )
+    } else {
+        val defaults = CardDefaults.elevatedCardColors()
+        Triple(
+            defaults.containerColor,
+            defaults.contentColor,
+            MaterialTheme.colorScheme.primary
+        )
+    }
 
     LaunchedEffect(isFocused) {
         if (isFocused) {
@@ -114,7 +119,11 @@ fun ReplyCard(
     }
     ElevatedCard(
         modifier = modifier,
-        shape = RectangleShape
+        shape = RectangleShape,
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = containerColor,
+            contentColor = contentColor
+        ),
     ) {
         Column(
             modifier = Modifier
@@ -126,7 +135,7 @@ fun ReplyCard(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             var expanded by remember { mutableStateOf(false) }
-            var option by remember { mutableStateOf(Channel.PUBLIC_RESPONSE) }
+            //var option by remember { mutableStateOf(Channel.PUBLIC_RESPONSE) }
             if (isFocused) {
                 Box {
                     Row(
@@ -139,14 +148,14 @@ fun ReplyCard(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = option.title,
-                                color = MaterialTheme.colorScheme.primary,
+                                text = state.selectedChannel.title,
+                                color = primary,
                                 style = MaterialTheme.typography.bodyMedium
                             )
                             Icon(
                                 Icons.Default.KeyboardArrowDown,
                                 null,
-                                tint = MaterialTheme.colorScheme.primary,
+                                tint = primary,
                             )
 
                         }
@@ -161,7 +170,7 @@ fun ReplyCard(
                         ).forEach { newOption ->
                             DropdownMenuItem(
                                 text = { Text(newOption.title) },
-                                onClick = { option = newOption;expanded = false }
+                                onClick = { onEvent(DetailEvent.OnChannelChange(newOption)); expanded = false }
                             )
                         }
                     }
@@ -178,7 +187,7 @@ fun ReplyCard(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(capturedUris) { uri ->
-                            CapturedImageWithCloseButton(
+                            ImageWithCloseButton(
                                 imageUri = uri,
                                 onClose = { capturedUris = capturedUris - uri },
                                 onClickImage = {  }
@@ -240,7 +249,7 @@ fun ReplyCard(
                     modifier = Modifier
                         .clickable { isExpanded = true }
                         .background(
-                            color = CardDefaults.cardColors().containerColor,
+                            color = if (state.selectedChannel == Channel.INTERNAL_NOTE) Color(0xFFedddc6) else MaterialTheme.colorScheme.surfaceVariant,
                             shape = CircleShape
                         )
                         .padding(6.dp),
@@ -289,7 +298,7 @@ fun ReplyCard(
                     FilledIconButton(
                         onClick = {},
                         enabled = state.replyText.isNotBlank(),
-                        // colors = IconButtonDefaults.iconButtonColors().copy(contentColor = MaterialTheme.colorScheme.primary)
+                        colors = IconButtonDefaults.filledIconButtonColors().copy(containerColor = primary)
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Send, contentDescription = null,
@@ -309,7 +318,8 @@ private fun RCP() {
         ReplyCard(
             state = DetailState(
                 ticket = dummyTicketList.first(),
-                replyText = "Merhaba, size nasıl yardımcı olabilirim?"
+                replyText = "Merhaba, size nasıl yardımcı olabilirim?",
+               selectedChannel = Channel.INTERNAL_NOTE
             ),
             onEvent = {},
             navigateMacro = {}
@@ -338,11 +348,13 @@ fun rememberCameraLauncher(
     val imageFile = remember {
         File(context.cacheDir, "captured_image.jpg")
     }
-    val imageUri = FileProvider.getUriForFile(
-        context,
-        "${context.packageName}.provider",
-        imageFile
-    )
+//    val imageUri = FileProvider.getUriForFile(
+//        context,
+//        "${context.packageName}.provider",
+//        imageFile
+//    )
+
+    val imageUri=Uri.EMPTY
 
     // Kamera açıcı launcher
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -369,7 +381,7 @@ fun rememberCameraLauncher(
 }
 
 @Composable
-fun CapturedImageWithCloseButton(
+fun ImageWithCloseButton(
     imageUri: Uri,
     onClose: () -> Unit,
     onClickImage: () -> Unit

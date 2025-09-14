@@ -5,6 +5,10 @@ import androidx.compose.ui.graphics.Color
 //val Secondary = Color(0xFF9367C4) // Primary’nin daha açık/soft tonu
 //val Tertiary = Color(0xFFE1BEE7)
 
+val yellowContainer = Color(0xFFfff0db) // for internal notes
+val yellowPrimary = Color(0xFFe4a765) // for internal notes
+val yellowOnContainer = Color(0xFF967c60) // for internal notes
+
 val primaryLight = Color(0xFF4A0D79)
 val onPrimaryLight = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFF622C91)
