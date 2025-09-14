@@ -20,7 +20,7 @@ fun SupportNavHost(modifier: Modifier = Modifier, appState: AppState) {
     NavHost(
         modifier = modifier,
         navController = appState.navController,
-        startDestination = Screen.SignIn,
+        startDestination = Screen.Detail("t1"),
         enterTransition = enterTransition(),
         exitTransition = exitTransition(),
         popEnterTransition = popEnterTransition(),

@@ -1,8 +1,10 @@
 package com.novacodestudios.grispisupport.presentation.detail.component
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -42,12 +45,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,6 +66,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import coil3.compose.rememberAsyncImagePainter
 import com.novacodestudios.grispisupport.presentation.detail.DetailEvent
 import com.novacodestudios.grispisupport.presentation.detail.DetailState
@@ -83,20 +89,28 @@ fun ReplyCard(
     onEvent: (DetailEvent) -> Unit,
     navigateMacro: (String) -> Unit,
 ) {
-    var isFocused by remember { mutableStateOf(true ) }
+    val context = LocalContext.current
+    var isFocused by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
 
     val outerPadding = remember(isFocused) { if (isFocused) 16.dp else 0.dp }
     val ticket = state.ticket ?: return
 
-    var capturedUris by remember { mutableStateOf(listOf<Uri>()) }
+    var selectedFiles by rememberSaveable { mutableStateOf(listOf<Uri>()) }
 
     val openCamera = rememberCameraLauncher { uri ->
         uri?.let {
-            capturedUris = capturedUris + it // listeye ekle
+            selectedFiles = selectedFiles + it // listeye ekle
         }
     }
-    val (containerColor, contentColor,primary) = if (state.selectedChannel == Channel.INTERNAL_NOTE) {
+
+    val openFilePicker = rememberFilePickerLauncher { uri ->
+        uri?.let {
+            selectedFiles = selectedFiles + it
+        }
+    }
+
+    val (containerColor, contentColor, primary) = if (state.selectedChannel == Channel.INTERNAL_NOTE) {
         Triple(
             yellowContainer,
             yellowOnContainer,
@@ -170,7 +184,10 @@ fun ReplyCard(
                         ).forEach { newOption ->
                             DropdownMenuItem(
                                 text = { Text(newOption.title) },
-                                onClick = { onEvent(DetailEvent.OnChannelChange(newOption)); expanded = false }
+                                onClick = {
+                                    onEvent(DetailEvent.OnChannelChange(newOption)); expanded =
+                                    false
+                                }
                             )
                         }
                     }
@@ -181,17 +198,27 @@ fun ReplyCard(
                     placeholder = "Yanıt yazın...",
                     modifier = Modifier.focusRequester(focusRequester)
                 )
-                if (capturedUris.isNotEmpty()){
+                if (selectedFiles.isNotEmpty()) {
                     LazyRow(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        items(capturedUris) { uri ->
-                            ImageWithCloseButton(
-                                imageUri = uri,
-                                onClose = { capturedUris = capturedUris - uri },
-                                onClickImage = {  }
-                            )
+                        items(selectedFiles) { uri ->
+                            val mimeType = context.getMimeType(uri) ?: ""
+                            if (mimeType.startsWith("image/")) {
+                                ImageWithCloseButton(
+                                    imageUri = uri,
+                                    onClose = { selectedFiles = selectedFiles - uri },
+                                    onClickImage = { }
+                                )
+                            } else {
+                                FileChipWithCloseButton(
+                                    fileUri = uri,
+                                    onClose = { selectedFiles = selectedFiles - uri },
+                                    onClickFile = { }
+                                )
+                            }
+
                         }
                     }
                 }
@@ -217,7 +244,7 @@ fun ReplyCard(
                     Icon(Icons.Default.CameraAlt, null)
                 }
                 IconButton(onClick = {
-                    // TODO: dosyalar açılacak
+                    openFilePicker()
                 }) {
                     Icon(Icons.Default.Attachment, null)
                 }
@@ -249,7 +276,9 @@ fun ReplyCard(
                     modifier = Modifier
                         .clickable { isExpanded = true }
                         .background(
-                            color = if (state.selectedChannel == Channel.INTERNAL_NOTE) Color(0xFFedddc6) else MaterialTheme.colorScheme.surfaceVariant,
+                            color = if (state.selectedChannel == Channel.INTERNAL_NOTE) Color(
+                                0xFFedddc6
+                            ) else MaterialTheme.colorScheme.surfaceVariant,
                             shape = CircleShape
                         )
                         .padding(6.dp),
@@ -298,7 +327,8 @@ fun ReplyCard(
                     FilledIconButton(
                         onClick = {},
                         enabled = state.replyText.isNotBlank(),
-                        colors = IconButtonDefaults.filledIconButtonColors().copy(containerColor = primary)
+                        colors = IconButtonDefaults.filledIconButtonColors()
+                            .copy(containerColor = primary)
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Send, contentDescription = null,
@@ -310,6 +340,9 @@ fun ReplyCard(
     }
 }
 
+fun Context.getMimeType(uri: Uri): String? {
+    return contentResolver.getType(uri)
+}
 
 @Preview
 @Composable
@@ -319,7 +352,7 @@ private fun RCP() {
             state = DetailState(
                 ticket = dummyTicketList.first(),
                 replyText = "Merhaba, size nasıl yardımcı olabilirim?",
-               selectedChannel = Channel.INTERNAL_NOTE
+                //selectedChannel = Channel.INTERNAL_NOTE
             ),
             onEvent = {},
             navigateMacro = {}
@@ -348,13 +381,13 @@ fun rememberCameraLauncher(
     val imageFile = remember {
         File(context.cacheDir, "captured_image.jpg")
     }
-//    val imageUri = FileProvider.getUriForFile(
-//        context,
-//        "${context.packageName}.provider",
-//        imageFile
-//    )
+    val imageUri = FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.provider",
+        imageFile
+    )
 
-    val imageUri=Uri.EMPTY
+ //   val imageUri = Uri.EMPTY
 
     // Kamera açıcı launcher
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -388,7 +421,7 @@ fun ImageWithCloseButton(
 ) {
     BadgedBox(
         modifier = Modifier
-           .height(50.dp),
+            .height(60.dp),
         badge = {
             FilledIconButton(
                 onClick = onClose,
@@ -408,5 +441,97 @@ fun ImageWithCloseButton(
                 .fillMaxSize()
                 .clickable { onClickImage() }
         )
+    }
+}
+
+@Composable
+fun rememberFilePickerLauncher(
+    onFilePicked: (Uri?) -> Unit
+): () -> Unit {
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            onFilePicked(uri)
+        }
+    )
+
+    return {
+        filePickerLauncher.launch("*/*")
+    }
+}
+
+@Composable
+fun FileChipWithCloseButton(
+    fileUri: Uri,
+    onClose: () -> Unit,
+    onClickFile: () -> Unit
+) {
+    val context = LocalContext.current
+    val meta = remember(fileUri) { queryFileMeta(context, fileUri) }
+    val fileName = meta?.first ?: (fileUri.lastPathSegment ?: "Dosya")
+    val fileSize = formatFileSize(meta?.second ?: -1L)
+    BadgedBox(
+        modifier = Modifier
+            .height(60.dp),
+        badge = {
+            FilledIconButton(
+                onClick = onClose,
+                modifier = Modifier.size(16.dp),
+            ) {
+                Icon(
+                    Icons.Default.Close,
+                    null,
+                )
+            }
+        }
+    ) {
+        OutlinedCard(
+            modifier = Modifier
+                .widthIn(min = 120.dp, max = 180.dp) // dar-uzun kontrolü
+                .clickable { onClickFile() }
+        ) {
+            Column(
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp)
+            ) {
+                Text(
+                    text = fileName,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = fileSize,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    }
+}
+
+
+fun queryFileMeta(context: Context, uri: Uri): Pair<String, Long>? {
+    val cursor = context.contentResolver.query(uri, null, null, null, null)
+    cursor?.use {
+        val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        val sizeIndex = it.getColumnIndex(OpenableColumns.SIZE)
+        if (it.moveToFirst()) {
+            val name = if (nameIndex != -1) it.getString(nameIndex) else "Dosya"
+            val size = if (sizeIndex != -1) it.getLong(sizeIndex) else -1L
+            return name to size
+        }
+    }
+    return null
+}
+
+fun formatFileSize(size: Long): String {
+    if (size <= 0) return "Bilinmiyor"
+    val kb = size / 1024.0
+    return when {
+        kb < 1024 -> String.format("%.0f KB", kb)
+        kb < 1024 * 1024 -> String.format("%.1f MB", kb / 1024)
+        else -> String.format("%.1f GB", kb / (1024 * 1024))
     }
 }
