@@ -44,6 +44,9 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemColors
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -64,10 +67,13 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import coil3.compose.rememberAsyncImagePainter
+import com.novacodestudios.grispisupport.presentation.component.LargeProfileCircle
 import com.novacodestudios.grispisupport.presentation.detail.DetailEvent
 import com.novacodestudios.grispisupport.presentation.detail.DetailState
 import com.novacodestudios.grispisupport.presentation.detail.DetailTabs
@@ -124,6 +130,7 @@ fun ReplyCard(
             MaterialTheme.colorScheme.primary
         )
     }
+    var isMentionMenuExpanded by remember { mutableStateOf(false) }
 
     LaunchedEffect(isFocused) {
         if (isFocused) {
@@ -131,215 +138,247 @@ fun ReplyCard(
             onEvent(DetailEvent.OnActiveTabChange(DetailTabs.Conversation))
         }
     }
-    ElevatedCard(
-        modifier = modifier,
-        shape = RectangleShape,
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = containerColor,
-            contentColor = contentColor
-        ),
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(horizontal = outerPadding)
-                .padding(top = outerPadding)
-                .then(
-                    if (!isFocused) Modifier.padding(bottom = outerPadding) else Modifier
-                ),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            var expanded by remember { mutableStateOf(false) }
-            //var option by remember { mutableStateOf(Channel.PUBLIC_RESPONSE) }
-            if (isFocused) {
-                Box {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text("Şu yolla yanıtla: ", style = MaterialTheme.typography.bodyMedium)
+    Box{
+        ElevatedCard(
+            modifier = modifier,
+            shape = RectangleShape,
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = containerColor,
+                contentColor = contentColor
+            ),
+        )
+        {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = outerPadding)
+                    .padding(top = outerPadding)
+                    .then(
+                        if (!isFocused) Modifier.padding(bottom = outerPadding) else Modifier
+                    ),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                var expanded by remember { mutableStateOf(false) }
+                if (isFocused) {
+                    Box {
                         Row(
-                            modifier = Modifier
-                                .clickable { expanded = true },
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = state.selectedChannel.title,
-                                color = primary,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            Icon(
-                                Icons.Default.KeyboardArrowDown,
-                                null,
-                                tint = primary,
-                            )
+                            Text("Şu yolla yanıtla: ", style = MaterialTheme.typography.bodyMedium)
+                            Row(
+                                modifier = Modifier
+                                    .clickable { expanded = true },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = state.selectedChannel.title,
+                                    color = primary,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Icon(
+                                    Icons.Default.KeyboardArrowDown,
+                                    null,
+                                    tint = primary,
+                                )
 
+                            }
+                        }
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            properties = PopupProperties(focusable = false),
+                        ) {
+                            listOf(
+                                Channel.PUBLIC_RESPONSE,
+                                Channel.INTERNAL_NOTE
+                            ).forEach { newOption ->
+                                DropdownMenuItem(
+                                    text = { Text(newOption.title) },
+                                    onClick = {
+                                        onEvent(DetailEvent.OnChannelChange(newOption)); expanded = false
+                                    }
+                                )
+                            }
                         }
                     }
-                    DropdownMenu(
-                        expanded = expanded,
-                        onDismissRequest = { expanded = false }
+                    StdBasicTextField(
+                        value = state.replyText,
+                        onValueChange = {
+                            if (it.lastOrNull() == '@') {
+                                isMentionMenuExpanded = true
+                            }
+                            onEvent(DetailEvent.OnReplyTextChange(it))
+                        },
+                        placeholder = "Yanıt yazın...",
+                        modifier = Modifier.focusRequester(focusRequester)
+                    )
+                    if (selectedFiles.isNotEmpty()) {
+                        LazyRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            items(selectedFiles) { uri ->
+                                val mimeType = context.getMimeType(uri) ?: ""
+                                if (mimeType.startsWith("image/")) {
+                                    ImageWithCloseButton(
+                                        imageUri = uri,
+                                        onClose = { selectedFiles = selectedFiles - uri },
+                                        onClickImage = { }
+                                    )
+                                } else {
+                                    FileChipWithCloseButton(
+                                        fileUri = uri,
+                                        onClose = { selectedFiles = selectedFiles - uri },
+                                        onClickFile = { }
+                                    )
+                                }
+
+                            }
+                        }
+                    }
+
+                }
+            }
+            if (isFocused) {
+                Spacer(modifier = Modifier.size(16.dp))
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(onClick = {
+                    navigateMacro(ticket.id)
+                }) {
+                    Icon(Icons.Default.Bolt, null)
+                }
+                if (isFocused) {
+                    IconButton(onClick = {
+                        openCamera()
+                    }) {
+                        Icon(Icons.Default.CameraAlt, null)
+                    }
+                    IconButton(onClick = {
+                        openFilePicker()
+                    }) {
+                        Icon(Icons.Default.Attachment, null)
+                    }
+                    IconButton(onClick = {
+                        // TODO: mention menu açılacak
+                        // TODO: @Kişi kısmı primary color olacak
+                        isMentionMenuExpanded = true
+                        onEvent(DetailEvent.OnReplyTextChange(state.replyText + "@"))
+                    }) {
+                        Icon(Icons.Default.AlternateEmail, null)
+                    }
+                }
+                if (!isFocused) {
+                    StdBasicTextField(
+                        value = state.replyText,
+                        onValueChange = { onEvent(DetailEvent.OnReplyTextChange(it)) },
+                        placeholder = "Yanıt yazın...",
+                        modifier = Modifier.onFocusChanged { focusState ->
+                            if (focusState.isFocused) {
+                                isFocused = true
+                            }
+                        }
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+                var isExpanded by remember { mutableStateOf(false) }
+                Box {
+                    Row(
+                        modifier = Modifier
+                            .clickable { isExpanded = true }
+                            .background(
+                                color = if (state.selectedChannel == Channel.INTERNAL_NOTE) Color(
+                                    0xFFedddc6
+                                ) else MaterialTheme.colorScheme.surfaceVariant,
+                                shape = CircleShape
+                            ).padding(6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        listOf(
-                            Channel.PUBLIC_RESPONSE,
-                            Channel.INTERNAL_NOTE
-                        ).forEach { newOption ->
+                        Box(
+                            modifier = Modifier
+                                .size(10.dp)
+                                .background(color = ticket.status.toColor(), shape = CircleShape)
+                        )
+                        Text(
+                            text = ticket.status.toUiName(),
+                            style = MaterialTheme.typography.labelSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Icon(Icons.Default.ArrowDropDown, null, modifier = Modifier.size(16.dp))
+                    }
+                    DropdownMenu(
+                        expanded = isExpanded,
+                        onDismissRequest = { isExpanded = false },
+                        properties = PopupProperties(focusable = false),
+                    ) {
+                        TicketStatus.entries.forEach {
                             DropdownMenuItem(
-                                text = { Text(newOption.title) },
+                                text = { Text(it.toUiName()) },
                                 onClick = {
-                                    onEvent(DetailEvent.OnChannelChange(newOption)); expanded =
-                                    false
+                                    onEvent(DetailEvent.OnStatusChange(it)); isExpanded = false
                                 }
                             )
                         }
                     }
                 }
-                StdBasicTextField(
-                    value = state.replyText,
-                    onValueChange = { onEvent(DetailEvent.OnReplyTextChange(it)) },
-                    placeholder = "Yanıt yazın...",
-                    modifier = Modifier.focusRequester(focusRequester)
-                )
-                if (selectedFiles.isNotEmpty()) {
-                    LazyRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        items(selectedFiles) { uri ->
-                            val mimeType = context.getMimeType(uri) ?: ""
-                            if (mimeType.startsWith("image/")) {
-                                ImageWithCloseButton(
-                                    imageUri = uri,
-                                    onClose = { selectedFiles = selectedFiles - uri },
-                                    onClickImage = { }
-                                )
-                            } else {
-                                FileChipWithCloseButton(
-                                    fileUri = uri,
-                                    onClose = { selectedFiles = selectedFiles - uri },
-                                    onClickFile = { }
-                                )
+                Spacer(modifier = Modifier.padding(end = 8.dp))
+                if (isFocused && state.replyText.isNotBlank()) {
+                    BadgedBox(
+                        badge = {
+                            if (state.numberOfChange > 0) {
+                                Badge {
+                                    Text(state.numberOfChange.toString())
+                                }
                             }
-
+                        },
+                        modifier = Modifier.padding(end = 8.dp),
+                    ) {
+                        FilledIconButton(
+                            onClick = {},
+                            enabled = state.replyText.isNotBlank(),
+                            colors = IconButtonDefaults.filledIconButtonColors()
+                                .copy(containerColor = primary)
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.Send, contentDescription = null,
+                            )
                         }
                     }
                 }
-
             }
         }
-        if (isFocused) {
-            Spacer(modifier = Modifier.size(16.dp))
-        }
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically
+        DropdownMenu(
+            expanded = isMentionMenuExpanded,
+            onDismissRequest = { isMentionMenuExpanded = false },
+            modifier = Modifier.fillMaxWidth(),
+            properties = PopupProperties(focusable = false)
         ) {
-            IconButton(onClick = {
-                navigateMacro(ticket.id)
-            }) {
-                Icon(Icons.Default.Bolt, null)
-            }
-            if (isFocused) {
-                IconButton(onClick = {
-                    openCamera()
-                }) {
-                    Icon(Icons.Default.CameraAlt, null)
-                }
-                IconButton(onClick = {
-                    openFilePicker()
-                }) {
-                    Icon(Icons.Default.Attachment, null)
-                }
-                IconButton(onClick = {
-                    // TODO: mention menu açılacak
-                    // TODO: @Kişi kısmı primary color olacak
-                    onEvent(DetailEvent.OnReplyTextChange(state.replyText + " @"))
-                }) {
-                    Icon(Icons.Default.AlternateEmail, null)
-                }
-            }
-            if (!isFocused) {
-                StdBasicTextField(
-                    value = state.replyText,
-                    onValueChange = { onEvent(DetailEvent.OnReplyTextChange(it)) },
-                    placeholder = "Yanıt yazın...",
-                    modifier = Modifier.onFocusChanged { focusState ->
-                        if (focusState.isFocused) {
-                            isFocused = true
-                        }
+            state.agentUser.forEach {
+                DropdownMenuItem(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = {
+                        ListItem(
+                            leadingContent = { LargeProfileCircle(it.name) },
+                            headlineContent = { Text(it.name) },
+                            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                        )
+
+                    },
+                    onClick = {
+                        onEvent(DetailEvent.OnReplyTextChange(state.replyText + it.name))
+                        isMentionMenuExpanded = false
                     }
                 )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-            var isExpanded by remember { mutableStateOf(false) }
-            Box {
-                Row(
-                    modifier = Modifier
-                        .clickable { isExpanded = true }
-                        .background(
-                            color = if (state.selectedChannel == Channel.INTERNAL_NOTE) Color(
-                                0xFFedddc6
-                            ) else MaterialTheme.colorScheme.surfaceVariant,
-                            shape = CircleShape
-                        )
-                        .padding(6.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(10.dp)
-                            .background(color = ticket.status.toColor(), shape = CircleShape)
-                    )
-                    Text(
-                        text = ticket.status.toUiName(),
-                        style = MaterialTheme.typography.labelSmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Icon(Icons.Default.ArrowDropDown, null, modifier = Modifier.size(16.dp))
-                }
-                DropdownMenu(
-                    expanded = isExpanded,
-                    onDismissRequest = { isExpanded = false }
-                ) {
-                    TicketStatus.entries.forEach {
-                        DropdownMenuItem(
-                            text = { Text(it.toUiName()) },
-                            onClick = {
-                                onEvent(DetailEvent.OnStatusChange(it)); isExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.padding(end = 8.dp))
-            if (isFocused && state.replyText.isNotBlank()) {
-                BadgedBox(
-                    badge = {
-                        if (state.numberOfChange > 0) {
-                            Badge {
-                                Text(state.numberOfChange.toString())
-                            }
-                        }
-                    },
-                    modifier = Modifier.padding(end = 8.dp),
-                ) {
-                    FilledIconButton(
-                        onClick = {},
-                        enabled = state.replyText.isNotBlank(),
-                        colors = IconButtonDefaults.filledIconButtonColors()
-                            .copy(containerColor = primary)
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Send, contentDescription = null,
-                        )
-                    }
-                }
             }
         }
     }
 }
-
+//Text(it.name)
 fun Context.getMimeType(uri: Uri): String? {
     return contentResolver.getType(uri)
 }
@@ -387,7 +426,7 @@ fun rememberCameraLauncher(
         imageFile
     )
 
- //   val imageUri = Uri.EMPTY
+    //   val imageUri = Uri.EMPTY
 
     // Kamera açıcı launcher
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -492,7 +531,9 @@ fun FileChipWithCloseButton(
         ) {
             Column(
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxSize().padding(horizontal = 8.dp)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 8.dp)
             ) {
                 Text(
                     text = fileName,

@@ -17,6 +17,7 @@ import com.novacodestudios.grispisupport.presentation.model.Ticket
 import com.novacodestudios.grispisupport.presentation.model.TicketHistory
 import com.novacodestudios.grispisupport.presentation.model.TicketStatus
 import com.novacodestudios.grispisupport.presentation.model.User
+import com.novacodestudios.grispisupport.presentation.model.UserRole
 import com.novacodestudios.grispisupport.presentation.navigation.Screen
 import com.novacodestudios.grispisupport.presentation.util.allDummyUsers
 import com.novacodestudios.grispisupport.presentation.util.dummyFormResponses
@@ -50,11 +51,14 @@ class DetailViewModel @Inject constructor(
         val selectedForm = dummyForms.find { it.id == ticket?.formId }
         val formResponse = dummyFormResponses.find { it.id == ticket?.formResponseId }
 
+        val agents = allDummyUsers.filter { user -> user.role== UserRole.AGENT }
+
         state = state.copy(
             ticketHistories = histories,
             forms = dummyForms,
             selectedForm = selectedForm,
-            formResponse = formResponse
+            formResponse = formResponse,
+            agentUser = agents
         )
 
 
@@ -163,7 +167,8 @@ data class DetailState(
     val forms: List<Form> = emptyList(),
     val selectedForm: Form? = null,
     val formResponse: FormResponse? = null,
-    val selectedChannel : Channel = Channel.PUBLIC_RESPONSE
+    val selectedChannel : Channel = Channel.PUBLIC_RESPONSE,
+    val agentUser:List<User> = emptyList()
 ){
     val numberOfChange= 1
 }
