@@ -1,31 +1,49 @@
 package com.novacodestudios.grispisupport.presentation.detail.component
 
 import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material3.Card
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil3.compose.rememberAsyncImagePainter
 import com.novacodestudios.grispisupport.presentation.component.SmallProfileCircle
 import com.novacodestudios.grispisupport.presentation.list.component.ReceiverMessageBubbleCard
 import com.novacodestudios.grispisupport.presentation.list.component.SenderMessageBubbleCard
+import com.novacodestudios.grispisupport.presentation.model.Attachment
+import com.novacodestudios.grispisupport.presentation.model.AttachmentType
 import com.novacodestudios.grispisupport.presentation.model.ConversationItem
 import com.novacodestudios.grispisupport.presentation.model.Message
 import com.novacodestudios.grispisupport.presentation.model.Ticket
@@ -116,6 +134,180 @@ fun ConversationSection(
 
 @Composable
 private fun MessageContent(item: ConversationItem.MessageItem) {
+    val attachments = item.message.attachments
+
+    when (attachments.size) {
+        0 -> {
+
+        }
+
+        1 -> {
+//            Box(
+//                modifier = Modifier
+//                    .size(245.dp)
+//                    .background(color = Color.LightGray, shape = MaterialTheme.shapes.small)
+//            )
+            AttachmentBox(
+                modifier = Modifier
+                    .size(245.dp),
+                attachment = item.message.attachments.first(),
+            )
+        }
+
+        2 -> {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+//                repeat(2) {
+//                    Box(
+//                        modifier = Modifier
+//                            .width(120.dp)
+//                            .height(245.dp)
+//                            .background(color = Color.LightGray, shape = MaterialTheme.shapes.small)
+//
+//                    )
+//                }
+                attachments.forEach {
+                    AttachmentBox(
+                        modifier = Modifier
+                            .width(120.dp)
+                            .height(245.dp),
+                        attachment = it,
+                    )
+                }
+
+            }
+        }
+
+        3 -> {
+//            Row(
+//                horizontalArrangement = Arrangement.spacedBy(4.dp)
+//            ) {
+//                Box(
+//                    modifier = Modifier
+//                        .width(120.dp)
+//                        .height(245.dp)
+//                        .background(color = Color.LightGray, shape = MaterialTheme.shapes.small)
+//
+//                )
+//                Column(
+//                    verticalArrangement = Arrangement.spacedBy(4.dp)
+//                ) {
+//                    Box(
+//                        modifier = Modifier
+//                            .size(120.dp)
+//                            .background(color = Color.LightGray, shape = MaterialTheme.shapes.small)
+//                    )
+//                    Box(
+//                        modifier = Modifier
+//                            .size(120.dp)
+//                            .background(color = Color.LightGray, shape = MaterialTheme.shapes.small)
+//                    )
+//                }
+//            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                AttachmentBox(
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(245.dp),
+                    attachment = attachments[0],
+
+                    )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    AttachmentBox(
+                        modifier = Modifier
+                            .size(120.dp),
+                        attachment = attachments[1],
+                    )
+                    AttachmentBox(
+                        modifier = Modifier
+                            .size(120.dp),
+                        attachment = attachments[2],
+                    )
+                }
+            }
+        }
+
+        4 -> {
+            FlowRow(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+//                repeat(4) {
+//                    Box(
+//                        modifier = Modifier
+//                            .size(120.dp)
+//                            .background(color = Color.LightGray, shape = MaterialTheme.shapes.small)
+//                    )
+//                }
+
+                attachments.forEach {
+                    AttachmentBox(
+                        modifier = Modifier
+                            .size(120.dp),
+                        attachment = it,
+                    )
+                }
+            }
+        }
+
+        else -> {
+            FlowRow(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+//                repeat(3) {
+//                    Box(
+//                        modifier = Modifier
+//                            .size(120.dp)
+//                            .background(color = Color.LightGray, shape = MaterialTheme.shapes.small)
+//                    )
+//                }
+//                Box(
+//                    modifier = Modifier
+//                        .size(120.dp)
+//                        .background(color = Color.LightGray, shape = MaterialTheme.shapes.small)
+//                ) {
+//                    Text(
+//                        text = "+${attachments.size - 4}",
+//                        style = MaterialTheme.typography.headlineMedium,
+//                        color = Color.White,
+//                        modifier = Modifier.align(Alignment.Center)
+//                    )
+//                }
+                attachments.take(3).forEach {
+                    AttachmentBox(
+                        modifier = Modifier
+                            .size(120.dp),
+                        attachment = it,
+                    )
+                }
+                Box {
+                    AttachmentBox(
+                        modifier = Modifier
+                            .size(120.dp)
+                            .background(
+                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                                shape = MaterialTheme.shapes.small
+                            ),
+                        attachment = attachments[3],
+                    )
+                    Text(
+                        text = "+${attachments.size - 4}",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = Color.White,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            }
+        }
+    }
+
+
     Text(
         text = item.message.content,
         style = MaterialTheme.typography.bodyLarge,
@@ -128,6 +320,67 @@ private fun MessageContent(item: ConversationItem.MessageItem) {
     )
 }
 
+@Composable
+fun AttachmentBox(modifier: Modifier = Modifier, attachment: Attachment) {
+    when (attachment.type) {
+        AttachmentType.IMAGE -> {
+            Image(
+                painter = rememberAsyncImagePainter(attachment.url),
+                contentDescription = null,
+                modifier = modifier
+                    .clip(MaterialTheme.shapes.small)
+                    .background(Color.Transparent),
+                contentScale = ContentScale.Crop
+            )
+
+        }
+
+        AttachmentType.FILE -> {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                        shape = MaterialTheme.shapes.small
+                    )
+            ) {
+                Icon(
+                    Icons.Outlined.Description,
+                    null,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(
+                                topStart = 0.dp,
+                                topEnd = 0.dp,
+                                bottomStart = 8.dp,
+                                bottomEnd = 8.dp
+                            )
+                        )
+                        .padding(4.dp),
+                ) {
+                    Text(
+                        text = attachment.name ?: "Dosya",
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = attachment.size?.let { "${it / 1024} KB" } ?: "",
+                        style = MaterialTheme.typography.bodySmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+        }
+    }
+}
 
 @Composable
 private fun MessageBubble(

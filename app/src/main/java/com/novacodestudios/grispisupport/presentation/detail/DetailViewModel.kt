@@ -1,5 +1,6 @@
 package com.novacodestudios.grispisupport.presentation.detail
 
+import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,6 +11,7 @@ import androidx.navigation.toRoute
 import com.novacodestudios.grispisupport.presentation.detail.component.FieldResponse
 import com.novacodestudios.grispisupport.presentation.detail.component.Form
 import com.novacodestudios.grispisupport.presentation.detail.component.FormResponse
+import com.novacodestudios.grispisupport.presentation.model.Attachment
 import com.novacodestudios.grispisupport.presentation.model.Channel
 import com.novacodestudios.grispisupport.presentation.model.Message
 import com.novacodestudios.grispisupport.presentation.model.Tag
@@ -20,6 +22,7 @@ import com.novacodestudios.grispisupport.presentation.model.User
 import com.novacodestudios.grispisupport.presentation.model.UserRole
 import com.novacodestudios.grispisupport.presentation.navigation.Screen
 import com.novacodestudios.grispisupport.presentation.util.allDummyUsers
+import com.novacodestudios.grispisupport.presentation.util.currentUser
 import com.novacodestudios.grispisupport.presentation.util.dummyFormResponses
 import com.novacodestudios.grispisupport.presentation.util.dummyForms
 import com.novacodestudios.grispisupport.presentation.util.dummyHistories
@@ -105,6 +108,29 @@ class DetailViewModel @Inject constructor(
             is DetailEvent.OnChannelChange -> state = state.copy(
                 selectedChannel = event.channel
             )
+
+            is DetailEvent.OnSendReply -> {
+                if (state.replyText.isBlank()) {
+                    return
+                }
+                val newMessage = Message(
+                    id = "m_${System.currentTimeMillis()}",
+                    ticketId = state.ticket!!.id,
+                    senderId = currentUser.id, // TODO: giriş yapan kullanıcı olacak
+                    content = state.replyText,
+                    sentAt = System.currentTimeMillis(),
+                    attachments = event.attachment
+                )
+                state = state.copy(
+                    messageList = state.messageList + newMessage,
+                    replyText = "",
+                    ticket = state.ticket?.copy(
+                        lastMessageContent = newMessage.content,
+                        updatedAt = System.currentTimeMillis()
+                    )
+                )
+            }
+
         }
     }
 
@@ -168,9 +194,26 @@ data class DetailState(
     val selectedForm: Form? = null,
     val formResponse: FormResponse? = null,
     val selectedChannel : Channel = Channel.PUBLIC_RESPONSE,
-    val agentUser:List<User> = emptyList()
+    val agentUser:List<User> = emptyList(),
 ){
-    val numberOfChange= 1
+//    val numberOfChange= ticket?.let { ticket ->
+//        var count = 0
+//        if(replyText.isNotBlank()) count++
+//        // TODO: mention olduğunda count++ yapılacak
+//        if (ticket.status != oldTicket?.status) count++
+//        // TODO: form alanlarında her bir değişiklik olduğunda count++ yapılacak
+//        if (ticket.subject != oldTicket?.subject) count++
+//        if (ticket.requester.id != oldTicket?.requester?.id) count++
+//        if (ticket.assignee?.id != oldTicket?.assignee?.id) count++
+//        if (ticket.followers.map { it.id }.toSet() != oldTicket?.followers?.map { it.id }?.toSet()) count++
+//        if (ticket.status != oldTicket?.status) count++
+//        if (ticket.type != oldTicket?.type) count++
+//        if (ticket.priority != oldTicket?.priority) count++
+//        if (ticket.tags.map { it.id }.toSet() != oldTicket?.tags?.map { it.id }?.toSet()) count++
+//        count
+//    } ?:0
+
+    val numberOfChange=1
 }
 
 sealed interface DetailEvent {
@@ -182,6 +225,7 @@ sealed interface DetailEvent {
     data class OnFieldResponseChange(val fieldId: String, val value: List<String>) : DetailEvent
     data class OnStatusChange(val status: TicketStatus) : DetailEvent
     data class OnChannelChange(val channel: Channel) : DetailEvent
+    data class OnSendReply(val attachment: List<Attachment>) : DetailEvent
 }
 
 private const val TAG = "DetailViewModel"

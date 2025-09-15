@@ -6,6 +6,8 @@ import com.novacodestudios.grispisupport.presentation.detail.component.FieldType
 import com.novacodestudios.grispisupport.presentation.detail.component.Form
 import com.novacodestudios.grispisupport.presentation.detail.component.FormField
 import com.novacodestudios.grispisupport.presentation.detail.component.FormResponse
+import com.novacodestudios.grispisupport.presentation.model.Attachment
+import com.novacodestudios.grispisupport.presentation.model.AttachmentType
 import com.novacodestudios.grispisupport.presentation.model.Channel
 import com.novacodestudios.grispisupport.presentation.model.Message
 import com.novacodestudios.grispisupport.presentation.model.Notification
@@ -40,14 +42,88 @@ val messagesT1 = listOf(
         "t1",
         "u1",
         "Merhaba, siparişim hala elime ulaşmadı.",
-        System.currentTimeMillis() - 3 * 86400000 + 3600000
+        System.currentTimeMillis() - 3 * 86400000 + 3600000,
+        /*attachments = listOf(
+            Attachment(
+                id = "a1",
+                type = AttachmentType.FILE,
+                url = "https://via.placeholder.com/150",
+                name = "screenshot.png",
+                size = 204800,
+            ),
+            Attachment(
+                id = "a2",
+                type = AttachmentType.FILE,
+                url = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+                name = "document.pdf",
+                size = 1024000,
+            ),
+            Attachment(
+                id = "a3",
+                type = AttachmentType.FILE,
+                url = "https://via.placeholder.com/200",
+                name = "photo.jpg",
+                size = 512000,
+            ),
+            Attachment(
+                id = "a4",
+                type = AttachmentType.IMAGE,
+                url = "https://via.placeholder.com/300",
+                name = "image.png",
+                size = 307200,
+            ),
+            Attachment(
+                id = "a5",
+                type = AttachmentType.IMAGE,
+                url = "https://file-examples-com.github.io/uploads/2017/02/file_example_XLS_10.xls",
+                name = "spreadsheet.xls",
+                size = 204800,
+            )
+        )*/
     ),
     Message(
         "m2",
         "t1",
         "u2",
         "Merhaba Ahmet Bey, hemen kontrol ediyorum.",
-        System.currentTimeMillis() - 3 * 86400000 + 7200000
+        System.currentTimeMillis() - 3 * 86400000 + 7200000,
+        /*attachments = listOf(
+            Attachment(
+                id = "a1",
+                type = AttachmentType.IMAGE,
+                url = "https://via.placeholder.com/150",
+                name = "screenshot.png",
+                size = 204800,
+            ),
+            Attachment(
+                id = "a2",
+                type = AttachmentType.FILE,
+                url = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+                name = "document.pdf",
+                size = 1024000,
+            ),
+            Attachment(
+                id = "a3",
+                type = AttachmentType.FILE,
+                url = "https://via.placeholder.com/200",
+                name = "photo.jpg",
+                size = 512000,
+            ),
+            Attachment(
+                id = "a4",
+                type = AttachmentType.FILE,
+                url = "https://via.placeholder.com/300",
+                name = "image.png",
+                size = 307200,
+            ),
+            Attachment(
+                id = "a5",
+                type = AttachmentType.FILE,
+                url = "https://file-examples-com.github.io/uploads/2017/02/file_example_XLS_10.xls",
+                name = "spreadsheet.xls",
+                size = 204800,
+            )
+        )*/
     ),
     Message(
         "m3",

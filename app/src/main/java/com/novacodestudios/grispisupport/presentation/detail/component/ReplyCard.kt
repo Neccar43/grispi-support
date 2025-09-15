@@ -77,6 +77,8 @@ import com.novacodestudios.grispisupport.presentation.component.LargeProfileCirc
 import com.novacodestudios.grispisupport.presentation.detail.DetailEvent
 import com.novacodestudios.grispisupport.presentation.detail.DetailState
 import com.novacodestudios.grispisupport.presentation.detail.DetailTabs
+import com.novacodestudios.grispisupport.presentation.model.Attachment
+import com.novacodestudios.grispisupport.presentation.model.AttachmentType
 import com.novacodestudios.grispisupport.presentation.model.Channel
 import com.novacodestudios.grispisupport.presentation.model.TicketStatus
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
@@ -87,6 +89,7 @@ import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import com.novacodestudios.grispisupport.presentation.util.toColor
 import com.novacodestudios.grispisupport.presentation.util.toUiName
 import java.io.File
+import java.util.UUID
 
 @Composable
 fun ReplyCard(
@@ -179,7 +182,6 @@ fun ReplyCard(
                                     null,
                                     tint = primary,
                                 )
-
                             }
                         }
                         DropdownMenu(
@@ -231,11 +233,9 @@ fun ReplyCard(
                                         onClickFile = { }
                                     )
                                 }
-
                             }
                         }
                     }
-
                 }
             }
             if (isFocused) {
@@ -262,7 +262,6 @@ fun ReplyCard(
                         Icon(Icons.Default.Attachment, null)
                     }
                     IconButton(onClick = {
-                        // TODO: mention menu açılacak
                         // TODO: @Kişi kısmı primary color olacak
                         isMentionMenuExpanded = true
                         onEvent(DetailEvent.OnReplyTextChange(state.replyText + "@"))
@@ -339,7 +338,13 @@ fun ReplyCard(
                         modifier = Modifier.padding(end = 8.dp),
                     ) {
                         FilledIconButton(
-                            onClick = {},
+                            onClick = {
+                                onEvent(DetailEvent.OnSendReply(
+                                    selectedFiles.map { it.toAttachment(context) }
+                                ))
+                              //  isFocused = false
+                                selectedFiles = emptyList()
+                            },
                             enabled = state.replyText.isNotBlank(),
                             colors = IconButtonDefaults.filledIconButtonColors()
                                 .copy(containerColor = primary)
@@ -378,7 +383,6 @@ fun ReplyCard(
         }
     }
 }
-//Text(it.name)
 fun Context.getMimeType(uri: Uri): String? {
     return contentResolver.getType(uri)
 }
@@ -575,4 +579,19 @@ fun formatFileSize(size: Long): String {
         kb < 1024 * 1024 -> String.format("%.1f MB", kb / 1024)
         else -> String.format("%.1f GB", kb / (1024 * 1024))
     }
+}
+
+fun Uri.toAttachment(context: Context): Attachment {
+    val (name, size) = queryFileMeta(context, this) ?: ("Bilinmiyor" to -1L)
+
+    val mimeType = context.contentResolver.getType(this) ?: "application/octet-stream"
+    val type = if (mimeType.startsWith("image/")) AttachmentType.IMAGE else AttachmentType.FILE
+
+    return Attachment(
+        id = UUID.randomUUID().toString(),
+        type = type,
+        url = this.toString(),
+        name = name,
+        size = size
+    )
 }
