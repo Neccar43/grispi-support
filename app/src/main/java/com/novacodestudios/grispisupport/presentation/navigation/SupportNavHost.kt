@@ -9,6 +9,7 @@ import com.novacodestudios.grispisupport.presentation.detail.DetailScreen
 import com.novacodestudios.grispisupport.presentation.feedback.FeedbackScreen
 import com.novacodestudios.grispisupport.presentation.filteredtickets.FilteredTicketsScreen
 import com.novacodestudios.grispisupport.presentation.list.ListScreen
+import com.novacodestudios.grispisupport.presentation.macro.MacroScreen
 import com.novacodestudios.grispisupport.presentation.notification.NotificationScreen
 import com.novacodestudios.grispisupport.presentation.profile.ProfileScreen
 import com.novacodestudios.grispisupport.presentation.settings.SettingsScreen
@@ -93,6 +94,19 @@ fun SupportNavHost(modifier: Modifier = Modifier, appState: AppState) {
             FilteredTicketsScreen(
                 navigateUp = navigateUp,
                 navigateDetail = { appState.navController.navigate(Screen.Detail(it)) }
+            )
+        }
+
+        composable<Screen.Macro> {
+            MacroScreen(
+                navigateUp = navigateUp,
+                navigateDetail = { ticketId, macro ->
+                    appState.navController.navigate(Screen.Detail(ticketId, macroId = macro.id)){
+                        popUpTo(Screen.Detail(ticketId)){
+                            inclusive = true
+                        }
+                    }
+                }
             )
         }
     }

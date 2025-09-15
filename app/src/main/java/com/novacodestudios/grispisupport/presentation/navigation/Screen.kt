@@ -12,7 +12,7 @@ sealed interface Screen {
     data object List : Screen
 
     @Serializable
-    data class Detail(val id: String) : Screen
+    data class Detail(val id: String,val macroId: String?=null) : Screen
 
     @Serializable
     data object Notification : Screen

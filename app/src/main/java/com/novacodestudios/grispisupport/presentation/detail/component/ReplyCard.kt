@@ -66,6 +66,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
@@ -102,8 +103,9 @@ fun ReplyCard(
     navigateMacro: (String) -> Unit,
 ) {
     val context = LocalContext.current
-    var isFocused by remember { mutableStateOf(false) }
+    var isFocused by remember { mutableStateOf(state.replyText.isNotBlank()) }
     val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
 
     val outerPadding = remember(isFocused) { if (isFocused) 16.dp else 0.dp }
     val ticket = state.ticket ?: return
@@ -138,6 +140,14 @@ fun ReplyCard(
         if (isFocused) {
             focusRequester.requestFocus()
             onEvent(DetailEvent.OnActiveTabChange(DetailTabs.Conversation))
+        }
+    }
+    LaunchedEffect(state.activeTab) {
+        if (state.activeTab!= DetailTabs.Conversation){
+            focusManager.clearFocus(force = true)
+            isFocused=false
+        }else{
+            isFocused=state.replyText.isNotBlank()
         }
     }
     Box{

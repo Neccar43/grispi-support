@@ -13,17 +13,24 @@ import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -31,6 +38,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.novacodestudios.grispisupport.presentation.detail.component.ConversationSection
 import com.novacodestudios.grispisupport.presentation.detail.component.DetailSection
@@ -143,7 +152,7 @@ fun DetailScreenContent(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(bottom = 8.dp),
-                           // .verticalScroll(rememberScrollState()),
+                        // .verticalScroll(rememberScrollState()),
                         state = state,
                         onEvent = onEvent
                     )
@@ -172,9 +181,6 @@ fun DetailScreenContent(
                             .union(NavigationBarDefaults.windowInsets)
                             .only(WindowInsetsSides.Bottom)
                     ),
-//                replyValue = state.replyText,
-//                onReplyChange = { onEvent(DetailEvent.OnReplyTextChange(it)) },
-//                onFocusChange = { onEvent(DetailEvent.OnActiveTabChange(DetailTabs.Conversation)) },
                 state = state,
                 onEvent = onEvent,
                 navigateMacro = navigateMacro

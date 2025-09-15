@@ -37,7 +37,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -202,13 +201,13 @@ fun ConversationSection(
                             )
                         },
                     )
-                        Image(
-                            painter = rememberAsyncImagePainter(selectedAttachment?.url),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            contentScale = ContentScale.FillWidth
-                        )
+                    Image(
+                        painter = rememberAsyncImagePainter(selectedAttachment?.url),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        contentScale = ContentScale.FillWidth
+                    )
                 }
             }
 
@@ -264,7 +263,9 @@ fun ConversationSection(
                                         modifier = Modifier
                                             .height(500.dp)
                                             .background(
-                                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                                                color = MaterialTheme.colorScheme.primaryContainer.copy(
+                                                    alpha = 0.2f
+                                                ),
                                                 shape = MaterialTheme.shapes.small
                                             )
                                             .clickable { onAttachmentClick(attachment) }
@@ -274,12 +275,13 @@ fun ConversationSection(
                                             null,
                                             modifier = Modifier.weight(1f)
                                         )
-
                                         Column(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .background(
-                                                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                                                    color = MaterialTheme.colorScheme.primaryContainer.copy(
+                                                        alpha = 0.2f
+                                                    ),
                                                     shape = RoundedCornerShape(
                                                         topStart = 0.dp,
                                                         topEnd = 0.dp,
@@ -296,7 +298,8 @@ fun ConversationSection(
                                                 overflow = TextOverflow.Ellipsis
                                             )
                                             Text(
-                                                text = attachment.size?.let { "${it / 1024} KB" } ?: "",
+                                                text = attachment.size?.let { "${it / 1024} KB" }
+                                                    ?: "",
                                                 style = MaterialTheme.typography.bodySmall,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
@@ -634,7 +637,8 @@ fun AttachmentBox(
                                 bottomStart = 8.dp,
                                 bottomEnd = 8.dp
                             )
-                        ).padding(4.dp),
+                        )
+                        .padding(4.dp),
                 ) {
                     Text(
                         text = attachment.name ?: "Dosya",

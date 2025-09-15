@@ -11,6 +11,7 @@ import androidx.navigation.toRoute
 import com.novacodestudios.grispisupport.presentation.detail.component.FieldResponse
 import com.novacodestudios.grispisupport.presentation.detail.component.Form
 import com.novacodestudios.grispisupport.presentation.detail.component.FormResponse
+import com.novacodestudios.grispisupport.presentation.macro.dummyMacros
 import com.novacodestudios.grispisupport.presentation.model.Attachment
 import com.novacodestudios.grispisupport.presentation.model.Channel
 import com.novacodestudios.grispisupport.presentation.model.Message
@@ -44,7 +45,8 @@ class DetailViewModel @Inject constructor(
     val eventFlow = _eventFlow.asSharedFlow()
 
     init {
-        val id = savedStateHandle.toRoute<Screen.Detail>().id
+        val route = savedStateHandle.toRoute<Screen.Detail>()
+        val id = route.id
         val ticket = dummyTicketList.find { it.id == id }
         val messages = dummyMessageList.filter { it.ticketId == id }
         state = state.copy(ticket = ticket, messageList = messages.sortedBy { it.sentAt }, oldTicket = ticket)
@@ -63,6 +65,12 @@ class DetailViewModel @Inject constructor(
             formResponse = formResponse,
             agentUser = agents
         )
+        route.macroId?.let { macroId ->
+            val macro = dummyMacros.find { it.id == macroId }
+            state = state.copy(
+                replyText = macro?.actions?.find { it.field =="comment" }?.value ?: ""
+            )
+        }
 
 
     }
