@@ -119,7 +119,8 @@ class DetailViewModel @Inject constructor(
                     senderId = currentUser.id, // TODO: giriş yapan kullanıcı olacak
                     content = state.replyText,
                     sentAt = System.currentTimeMillis(),
-                    attachments = event.attachment
+                    attachments = event.attachment,
+                    isInternal = state.selectedChannel == Channel.INTERNAL_NOTE
                 )
                 state = state.copy(
                     messageList = state.messageList + newMessage,

@@ -6,7 +6,8 @@ data class Message(
     val senderId: String,
     val content: String,
     val sentAt: Long,
-    val attachments: List<Attachment> = emptyList()
+    val attachments: List<Attachment> = emptyList(),
+    val isInternal: Boolean = false
 )
 
 data class Attachment(

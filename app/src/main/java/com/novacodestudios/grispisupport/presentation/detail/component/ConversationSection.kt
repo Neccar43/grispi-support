@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -22,13 +23,21 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -40,13 +49,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import coil3.compose.rememberAsyncImagePainter
+import com.novacodestudios.grispisupport.presentation.component.LargeProfileCircle
 import com.novacodestudios.grispisupport.presentation.component.SmallProfileCircle
 import com.novacodestudios.grispisupport.presentation.list.component.ReceiverMessageBubbleCard
 import com.novacodestudios.grispisupport.presentation.list.component.SenderMessageBubbleCard
@@ -56,11 +66,15 @@ import com.novacodestudios.grispisupport.presentation.model.ConversationItem
 import com.novacodestudios.grispisupport.presentation.model.Message
 import com.novacodestudios.grispisupport.presentation.model.Ticket
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
+import com.novacodestudios.grispisupport.presentation.theme.yellowContainer
+import com.novacodestudios.grispisupport.presentation.theme.yellowOnContainer
+import com.novacodestudios.grispisupport.presentation.util.currentUser
 import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import com.novacodestudios.grispisupport.presentation.util.formatMessageDate
 import com.novacodestudios.grispisupport.presentation.util.formatMessageTime
 import com.novacodestudios.grispisupport.presentation.util.messagesT1
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConversationSection(
     modifier: Modifier = Modifier,
@@ -73,9 +87,20 @@ fun ConversationSection(
     SideEffect {
         Log.d(TAG, "itemsWithLastSender: $itemsWithLastSender")
     }
+    var selectedAttachment by remember { mutableStateOf<Attachment?>(null) }
+    var selectedAttachments by remember { mutableStateOf<List<Attachment>>(emptyList()) }
+    val onAttachmentClick = { attachment: Attachment ->
+        if (attachment.type == AttachmentType.IMAGE) {
+            selectedAttachment = attachment
+        }
+    }
+    val onPlusClick = { attachments: List<Attachment> ->
+        selectedAttachments = attachments
+    }
     Column(
         modifier = modifier
-    ) {
+    )
+    {
         LazyColumn(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -106,31 +131,47 @@ fun ConversationSection(
                         val isSameSender = item.message.senderId == lastSenderId
                         val messagePadding = if (isSameSender) 4.dp else 12.dp
 
-                        Row(
-                            modifier = Modifier.padding(top = messagePadding)
-                        ) {
-                            if (!isRequester) {
-                                Spacer(modifier = Modifier.weight(0.2f))
-                            }
-                            if (isRequester && !isSameSender) {
-                                SmallProfileCircle(name = ticket.requester.name)
-                            }
-                            if (isRequester && isSameSender) {
-                                Spacer(modifier = Modifier.width(24.dp + 8.dp))
-                            }
-
-                            // Mesaj balonlarının farklı durumları
-                            MessageBubble(
-                                isRequester = isRequester,
-                                isSameSender = isSameSender,
-                                content = { MessageContent(item) },
-                                modifier = Modifier.weight(0.8f)
+                        if (item.message.isInternal) {
+                            InternalNoteCard(
+                                item = item,
+                                modifier = Modifier.padding(top = 8.dp, end = 8.dp),
+                                onAttachmentClick = onAttachmentClick,
+                                onPlusClick = onPlusClick
                             )
+                        } else {
+                            Row(
+                                modifier = Modifier.padding(top = messagePadding)
+                            ) {
+                                if (!isRequester) {
+                                    Spacer(modifier = Modifier.weight(0.2f))
+                                }
+                                if (isRequester && !isSameSender) {
+                                    SmallProfileCircle(name = ticket.requester.name)
+                                }
+                                if (isRequester && isSameSender) {
+                                    Spacer(modifier = Modifier.width(24.dp + 8.dp))
+                                }
 
-                            if (isRequester) {
-                                Spacer(modifier = Modifier.weight(0.2f))
+                                // Mesaj balonlarının farklı durumları
+                                MessageBubble(
+                                    isRequester = isRequester,
+                                    isSameSender = isSameSender,
+                                    content = {
+                                        MessageContent(
+                                            item = item,
+                                            onAttachmentClick = onAttachmentClick,
+                                            onPlusClick = onPlusClick
+                                        )
+                                    },
+                                    modifier = Modifier.weight(0.8f),
+                                )
+
+                                if (isRequester) {
+                                    Spacer(modifier = Modifier.weight(0.2f))
+                                }
                             }
                         }
+
                     }
                 }
             }
@@ -138,12 +179,148 @@ fun ConversationSection(
             item { Spacer(modifier = Modifier.padding(top = 1.dp)) }
         }
     }
+
+    if (selectedAttachment != null) {
+        Dialog(
+            onDismissRequest = { selectedAttachment = null },
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+        ) {
+            Surface {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    TopAppBar(
+                        navigationIcon = {
+                            IconButton(onClick = { selectedAttachment = null }) {
+                                Icon(Icons.Default.Close, null)
+                            }
+                        },
+                        title = {
+                            Text(
+                                text = "Siz",// TODO: user name gelecek
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
+                        },
+                    )
+                        Image(
+                            painter = rememberAsyncImagePainter(selectedAttachment?.url),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            contentScale = ContentScale.FillWidth
+                        )
+                }
+            }
+
+        }
+    }
+
+    if (selectedAttachments.isNotEmpty()) {
+        Dialog(
+            onDismissRequest = { selectedAttachments = emptyList() },
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+        ) {
+            Surface {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    TopAppBar(
+                        navigationIcon = {
+                            IconButton(onClick = { selectedAttachments = emptyList() }) {
+                                Icon(Icons.Default.Close, null)
+                            }
+                        },
+                        title = {
+                            Column {
+                                Text(
+                                    text = "Siz",// TODO: user name gelecek
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                                Text(
+                                    text = "${selectedAttachments.size} ek",
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
+                        }
+                    )
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        items(selectedAttachments, key = { it.id }) { attachment ->
+                            when (attachment.type) {
+                                AttachmentType.IMAGE -> {
+                                    Image(
+                                        painter = rememberAsyncImagePainter(attachment.url),
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .fillMaxSize(),
+                                        contentScale = ContentScale.FillWidth
+                                    )
+                                }
+
+                                AttachmentType.FILE -> {
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier
+                                            .height(500.dp)
+                                            .background(
+                                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                                                shape = MaterialTheme.shapes.small
+                                            )
+                                            .clickable { onAttachmentClick(attachment) }
+                                    ) {
+                                        Icon(
+                                            Icons.Outlined.Description,
+                                            null,
+                                            modifier = Modifier.weight(1f)
+                                        )
+
+                                        Column(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .background(
+                                                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                                                    shape = RoundedCornerShape(
+                                                        topStart = 0.dp,
+                                                        topEnd = 0.dp,
+                                                        bottomStart = 8.dp,
+                                                        bottomEnd = 8.dp
+                                                    )
+                                                )
+                                                .padding(4.dp),
+                                        ) {
+                                            Text(
+                                                text = attachment.name ?: "Dosya",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                            Text(
+                                                text = attachment.size?.let { "${it / 1024} KB" } ?: "",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 
 @SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
-private fun MessageContent(item: ConversationItem.MessageItem) {
+private fun MessageContent(
+    item: ConversationItem.MessageItem,
+    onAttachmentClick: (Attachment) -> Unit,
+    onPlusClick: (List<Attachment>) -> Unit
+) {
     BoxWithConstraints {
         val boxWidthDp = maxWidth
         val attachments = item.message.attachments
@@ -155,8 +332,11 @@ private fun MessageContent(item: ConversationItem.MessageItem) {
 
                 1 -> {
                     AttachmentBox(
-                        modifier = Modifier.fillMaxWidth().height(boxWidthDp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(boxWidthDp),
                         attachment = item.message.attachments.first(),
+                        onAttachmentClick = onAttachmentClick
                     )
                 }
 
@@ -168,9 +348,10 @@ private fun MessageContent(item: ConversationItem.MessageItem) {
                         attachments.forEach {
                             AttachmentBox(
                                 modifier = Modifier
-                                    .width(boxWidthDp/2)
+                                    .width(boxWidthDp / 2)
                                     .height(boxWidthDp),
                                 attachment = it,
+                                onAttachmentClick = onAttachmentClick
                             )
                         }
                     }
@@ -183,23 +364,26 @@ private fun MessageContent(item: ConversationItem.MessageItem) {
                     ) {
                         AttachmentBox(
                             modifier = Modifier
-                                .width(boxWidthDp/2)
+                                .width(boxWidthDp / 2)
                                 .height(boxWidthDp),
                             attachment = attachments[0],
+                            onAttachmentClick = onAttachmentClick
 
-                            )
+                        )
                         Column(
                             verticalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             AttachmentBox(
                                 modifier = Modifier
-                                    .size(boxWidthDp/2),
+                                    .size(boxWidthDp / 2),
                                 attachment = attachments[1],
+                                onAttachmentClick = onAttachmentClick
                             )
                             AttachmentBox(
                                 modifier = Modifier
-                                    .size(boxWidthDp/2),
+                                    .size(boxWidthDp / 2),
                                 attachment = attachments[2],
+                                onAttachmentClick = onAttachmentClick
                             )
                         }
                     }
@@ -214,8 +398,9 @@ private fun MessageContent(item: ConversationItem.MessageItem) {
                         attachments.forEach {
                             AttachmentBox(
                                 modifier = Modifier
-                                    .size((boxWidthDp/2) - 2.dp),
+                                    .size((boxWidthDp / 2) - 3.dp),
                                 attachment = it,
+                                onAttachmentClick = onAttachmentClick
                             )
                         }
                     }
@@ -230,19 +415,28 @@ private fun MessageContent(item: ConversationItem.MessageItem) {
                         attachments.take(3).forEach {
                             AttachmentBox(
                                 modifier = Modifier
-                                    .size((boxWidthDp/2) - 3.dp),
+                                    .size((boxWidthDp / 2) - 3.dp),
                                 attachment = it,
+                                onAttachmentClick = onAttachmentClick
                             )
                         }
                         Box {
                             AttachmentBox(
                                 modifier = Modifier
-                                    .size((boxWidthDp/2) - 3.dp)
-                                    .background(
-                                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                                        shape = MaterialTheme.shapes.small
-                                    ),
+                                    .size((boxWidthDp / 2) - 3.dp)
+                                    .clickable { onPlusClick(item.message.attachments) },
                                 attachment = attachments[3],
+                                onAttachmentClick = { onPlusClick(item.message.attachments) }
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .matchParentSize()
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primaryContainer.copy(
+                                            alpha = 0.3f
+                                        ),
+                                        shape = MaterialTheme.shapes.small
+                                    )
                             )
                             Text(
                                 text = "+${attachments.size - 4}",
@@ -272,8 +466,132 @@ private fun MessageContent(item: ConversationItem.MessageItem) {
     }
 }
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
-fun AttachmentBox(modifier: Modifier = Modifier, attachment: Attachment) {
+private fun InternalNoteContent(
+    item: ConversationItem.MessageItem,
+    onAttachmentClick: (Attachment) -> Unit,
+    onPlusClick: (List<Attachment>) -> Unit
+) {
+    BoxWithConstraints {
+        val boxWidthDp = maxWidth
+        val attachments = item.message.attachments
+        Column {
+            ListItem(
+                leadingContent = {
+                    LargeProfileCircle(currentUser.name) // TODO: gerçek kullanıcı bilgisi ile değiştir
+                },
+                headlineContent = { Text(currentUser.name) },
+                colors = ListItemDefaults.colors(
+                    containerColor = yellowContainer,
+                    headlineColor = yellowOnContainer
+                )
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                when (attachments.size) {
+                    0 -> {
+
+                    }
+
+                    in 1..2 -> {
+                        attachments.forEach {
+                            AttachmentBox(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(boxWidthDp / 4),
+                                attachment = it,
+                                onAttachmentClick = onAttachmentClick
+                            )
+                        }
+
+                    }
+
+
+                    else -> {
+                        attachments.take(2).forEach {
+                            AttachmentBox(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(boxWidthDp / 4),
+                                attachment = it,
+                                onAttachmentClick = onAttachmentClick
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .weight(0.4f)
+                                .height(boxWidthDp / 4)
+                                .background(
+                                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                                    shape = MaterialTheme.shapes.small
+                                )
+                                .clickable { onPlusClick(item.message.attachments) }
+                        ) {
+                            Text(
+                                text = "+${attachments.size - 2}",
+                                style = MaterialTheme.typography.headlineSmall,
+                                color = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+
+                    }
+                }
+            }
+
+            if (attachments.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(4.dp))
+            }
+
+            Text(
+                text = item.message.content,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            Text(
+                text = formatMessageTime(item.message.sentAt),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.End,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
+@Composable
+fun InternalNoteCard(
+    modifier: Modifier = Modifier,
+    item: ConversationItem.MessageItem,
+    onAttachmentClick: (Attachment) -> Unit,
+    onPlusClick: (List<Attachment>) -> Unit
+) {
+    ElevatedCard(
+        modifier = modifier,
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = internalNoteTriple.first,
+            contentColor = internalNoteTriple.second
+        ),
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(8.dp)
+        ) {
+            InternalNoteContent(
+                item = item,
+                onAttachmentClick = onAttachmentClick,
+                onPlusClick = onPlusClick
+            )
+        }
+    }
+}
+
+@Composable
+fun AttachmentBox(
+    modifier: Modifier = Modifier,
+    attachment: Attachment,
+    onAttachmentClick: (Attachment) -> Unit,
+) {
     when (attachment.type) {
         AttachmentType.IMAGE -> {
             Image(
@@ -281,7 +599,8 @@ fun AttachmentBox(modifier: Modifier = Modifier, attachment: Attachment) {
                 contentDescription = null,
                 modifier = modifier
                     .clip(MaterialTheme.shapes.small)
-                    .background(Color.Transparent),
+                    .background(Color.Transparent)
+                    .clickable { onAttachmentClick(attachment) },
                 contentScale = ContentScale.Crop
             )
 
@@ -295,7 +614,9 @@ fun AttachmentBox(modifier: Modifier = Modifier, attachment: Attachment) {
                         color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
                         shape = MaterialTheme.shapes.small
                     )
-            ) {
+                    .clickable { onAttachmentClick(attachment) }
+            )
+            {
                 Icon(
                     Icons.Outlined.Description,
                     null,
@@ -313,8 +634,7 @@ fun AttachmentBox(modifier: Modifier = Modifier, attachment: Attachment) {
                                 bottomStart = 8.dp,
                                 bottomEnd = 8.dp
                             )
-                        )
-                        .padding(4.dp),
+                        ).padding(4.dp),
                 ) {
                     Text(
                         text = attachment.name ?: "Dosya",

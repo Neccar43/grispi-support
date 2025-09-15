@@ -123,11 +123,7 @@ fun ReplyCard(
     }
 
     val (containerColor, contentColor, primary) = if (state.selectedChannel == Channel.INTERNAL_NOTE) {
-        Triple(
-            yellowContainer,
-            yellowOnContainer,
-            yellowPrimary
-        )
+        internalNoteTriple
     } else {
         val defaults = CardDefaults.elevatedCardColors()
         Triple(
@@ -594,3 +590,9 @@ fun Uri.toAttachment(context: Context): Attachment {
         size = size
     )
 }
+
+val internalNoteTriple= Triple(
+    yellowContainer,
+    yellowOnContainer,
+    yellowPrimary
+)

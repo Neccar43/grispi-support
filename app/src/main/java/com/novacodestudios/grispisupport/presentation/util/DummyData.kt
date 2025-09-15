@@ -36,6 +36,44 @@ val user4 = User("u4", "Zeynep Demir", "zeynep@example.com", UserRole.END_USER)
 val user5 = User("u5", "Ali Sever", "ali@zendesk.com", UserRole.AGENT)
 
 val allDummyUsers = listOf(user1, user2, user3, user4, user5)
+val  dummyAttachments = listOf(
+    Attachment(
+        id = "a1",
+        type = AttachmentType.FILE,
+        url = "https://via.placeholder.com/150",
+        name = "screenshot.png",
+        size = 204800,
+    ),
+    Attachment(
+        id = "a2",
+        type = AttachmentType.FILE,
+        url = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        name = "document.pdf",
+        size = 1024000,
+    ),
+    Attachment(
+        id = "a3",
+        type = AttachmentType.FILE,
+        url = "https://via.placeholder.com/200",
+        name = "photo.jpg",
+        size = 512000,
+    ),
+    Attachment(
+        id = "a4",
+        type = AttachmentType.FILE,
+        url = "https://via.placeholder.com/300",
+        name = "image.png",
+        size = 307200,
+    ),
+    Attachment(
+        id = "a5",
+        type = AttachmentType.FILE,
+        url = "https://via.placeholder.com/300",
+        name = "image.png",
+        size = 307200,
+    ),
+
+    )
 val messagesT1 = listOf(
     Message(
         "m1",
@@ -71,14 +109,16 @@ val messagesT1 = listOf(
         "t1",
         "u2",
         "Ne demek. Biz teşekkür ederiz.",
-        System.currentTimeMillis() - 2 * 86400000 + 5000000
+        System.currentTimeMillis() - 2 * 86400000 + 5000000,
+      //  attachments = dummyAttachments
     ),
     Message(
         "m7",
         "t1",
         "u2",
         "Bizi puanlamayı unutmayın.",
-        System.currentTimeMillis() - 2 * 86400000 + 5100000
+        System.currentTimeMillis() - 2 * 86400000 + 5100000,
+        //attachments = dummyAttachments.take(5)
     ),
 )
 val messagesT2 = listOf(
@@ -153,45 +193,6 @@ val messagesT5 = listOf(
     )
 )
 val dummyMessageList = messagesT1 + messagesT2 + messagesT3 + messagesT4 + messagesT5
-
-val  dummyAttachments = listOf(
-    Attachment(
-        id = "a1",
-        type = AttachmentType.FILE,
-        url = "https://via.placeholder.com/150",
-        name = "screenshot.png",
-        size = 204800,
-    ),
-    Attachment(
-        id = "a2",
-        type = AttachmentType.FILE,
-        url = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-        name = "document.pdf",
-        size = 1024000,
-    ),
-    Attachment(
-        id = "a3",
-        type = AttachmentType.FILE,
-        url = "https://via.placeholder.com/200",
-        name = "photo.jpg",
-        size = 512000,
-    ),
-    Attachment(
-        id = "a4",
-        type = AttachmentType.FILE,
-        url = "https://via.placeholder.com/300",
-        name = "image.png",
-        size = 307200,
-    ),
-    Attachment(
-        id = "a4",
-        type = AttachmentType.FILE,
-        url = "https://via.placeholder.com/300",
-        name = "image.png",
-        size = 307200,
-    ),
-
-    )
 val dummyTicketList = listOf(
     Ticket(
         id = "t1",
