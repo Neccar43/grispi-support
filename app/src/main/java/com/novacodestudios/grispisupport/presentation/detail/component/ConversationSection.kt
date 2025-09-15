@@ -1,15 +1,18 @@
 package com.novacodestudios.grispisupport.presentation.detail.component
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,12 +31,17 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -132,192 +140,136 @@ fun ConversationSection(
     }
 }
 
+
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 private fun MessageContent(item: ConversationItem.MessageItem) {
-    val attachments = item.message.attachments
+    BoxWithConstraints {
+        val boxWidthDp = maxWidth
+        val attachments = item.message.attachments
+        Column {
+            when (attachments.size) {
+                0 -> {
 
-    when (attachments.size) {
-        0 -> {
+                }
 
-        }
+                1 -> {
+                    AttachmentBox(
+                        modifier = Modifier.fillMaxWidth().height(boxWidthDp),
+                        attachment = item.message.attachments.first(),
+                    )
+                }
 
-        1 -> {
-//            Box(
-//                modifier = Modifier
-//                    .size(245.dp)
-//                    .background(color = Color.LightGray, shape = MaterialTheme.shapes.small)
-//            )
-            AttachmentBox(
-                modifier = Modifier
-                    .size(245.dp),
-                attachment = item.message.attachments.first(),
+                2 -> {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        attachments.forEach {
+                            AttachmentBox(
+                                modifier = Modifier
+                                    .width(boxWidthDp/2)
+                                    .height(boxWidthDp),
+                                attachment = it,
+                            )
+                        }
+                    }
+                }
+
+                3 -> {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        AttachmentBox(
+                            modifier = Modifier
+                                .width(boxWidthDp/2)
+                                .height(boxWidthDp),
+                            attachment = attachments[0],
+
+                            )
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            AttachmentBox(
+                                modifier = Modifier
+                                    .size(boxWidthDp/2),
+                                attachment = attachments[1],
+                            )
+                            AttachmentBox(
+                                modifier = Modifier
+                                    .size(boxWidthDp/2),
+                                attachment = attachments[2],
+                            )
+                        }
+                    }
+                }
+
+                4 -> {
+                    FlowRow(
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        attachments.forEach {
+                            AttachmentBox(
+                                modifier = Modifier
+                                    .size((boxWidthDp/2) - 2.dp),
+                                attachment = it,
+                            )
+                        }
+                    }
+                }
+
+                else -> {
+                    FlowRow(
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        attachments.take(3).forEach {
+                            AttachmentBox(
+                                modifier = Modifier
+                                    .size((boxWidthDp/2) - 3.dp),
+                                attachment = it,
+                            )
+                        }
+                        Box {
+                            AttachmentBox(
+                                modifier = Modifier
+                                    .size((boxWidthDp/2) - 3.dp)
+                                    .background(
+                                        color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                                        shape = MaterialTheme.shapes.small
+                                    ),
+                                attachment = attachments[3],
+                            )
+                            Text(
+                                text = "+${attachments.size - 4}",
+                                style = MaterialTheme.typography.headlineMedium,
+                                color = Color.White,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                    }
+                }
+            }
+            if (attachments.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(4.dp))
+            }
+
+            Text(
+                text = item.message.content,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            Text(
+                text = formatMessageTime(item.message.sentAt),
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.End,
+                style = MaterialTheme.typography.bodySmall
             )
         }
-
-        2 -> {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-//                repeat(2) {
-//                    Box(
-//                        modifier = Modifier
-//                            .width(120.dp)
-//                            .height(245.dp)
-//                            .background(color = Color.LightGray, shape = MaterialTheme.shapes.small)
-//
-//                    )
-//                }
-                attachments.forEach {
-                    AttachmentBox(
-                        modifier = Modifier
-                            .width(120.dp)
-                            .height(245.dp),
-                        attachment = it,
-                    )
-                }
-
-            }
-        }
-
-        3 -> {
-//            Row(
-//                horizontalArrangement = Arrangement.spacedBy(4.dp)
-//            ) {
-//                Box(
-//                    modifier = Modifier
-//                        .width(120.dp)
-//                        .height(245.dp)
-//                        .background(color = Color.LightGray, shape = MaterialTheme.shapes.small)
-//
-//                )
-//                Column(
-//                    verticalArrangement = Arrangement.spacedBy(4.dp)
-//                ) {
-//                    Box(
-//                        modifier = Modifier
-//                            .size(120.dp)
-//                            .background(color = Color.LightGray, shape = MaterialTheme.shapes.small)
-//                    )
-//                    Box(
-//                        modifier = Modifier
-//                            .size(120.dp)
-//                            .background(color = Color.LightGray, shape = MaterialTheme.shapes.small)
-//                    )
-//                }
-//            }
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                AttachmentBox(
-                    modifier = Modifier
-                        .width(120.dp)
-                        .height(245.dp),
-                    attachment = attachments[0],
-
-                    )
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    AttachmentBox(
-                        modifier = Modifier
-                            .size(120.dp),
-                        attachment = attachments[1],
-                    )
-                    AttachmentBox(
-                        modifier = Modifier
-                            .size(120.dp),
-                        attachment = attachments[2],
-                    )
-                }
-            }
-        }
-
-        4 -> {
-            FlowRow(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-//                repeat(4) {
-//                    Box(
-//                        modifier = Modifier
-//                            .size(120.dp)
-//                            .background(color = Color.LightGray, shape = MaterialTheme.shapes.small)
-//                    )
-//                }
-
-                attachments.forEach {
-                    AttachmentBox(
-                        modifier = Modifier
-                            .size(120.dp),
-                        attachment = it,
-                    )
-                }
-            }
-        }
-
-        else -> {
-            FlowRow(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-//                repeat(3) {
-//                    Box(
-//                        modifier = Modifier
-//                            .size(120.dp)
-//                            .background(color = Color.LightGray, shape = MaterialTheme.shapes.small)
-//                    )
-//                }
-//                Box(
-//                    modifier = Modifier
-//                        .size(120.dp)
-//                        .background(color = Color.LightGray, shape = MaterialTheme.shapes.small)
-//                ) {
-//                    Text(
-//                        text = "+${attachments.size - 4}",
-//                        style = MaterialTheme.typography.headlineMedium,
-//                        color = Color.White,
-//                        modifier = Modifier.align(Alignment.Center)
-//                    )
-//                }
-                attachments.take(3).forEach {
-                    AttachmentBox(
-                        modifier = Modifier
-                            .size(120.dp),
-                        attachment = it,
-                    )
-                }
-                Box {
-                    AttachmentBox(
-                        modifier = Modifier
-                            .size(120.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                                shape = MaterialTheme.shapes.small
-                            ),
-                        attachment = attachments[3],
-                    )
-                    Text(
-                        text = "+${attachments.size - 4}",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = Color.White,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-            }
-        }
     }
-
-
-    Text(
-        text = item.message.content,
-        style = MaterialTheme.typography.bodyLarge,
-    )
-    Text(
-        text = formatMessageTime(item.message.sentAt),
-        modifier = Modifier.fillMaxWidth(),
-        textAlign = TextAlign.End,
-        style = MaterialTheme.typography.bodySmall
-    )
 }
 
 @Composable

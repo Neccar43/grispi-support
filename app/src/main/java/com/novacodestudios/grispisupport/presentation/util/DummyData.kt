@@ -43,43 +43,6 @@ val messagesT1 = listOf(
         "u1",
         "Merhaba, siparişim hala elime ulaşmadı.",
         System.currentTimeMillis() - 3 * 86400000 + 3600000,
-        /*attachments = listOf(
-            Attachment(
-                id = "a1",
-                type = AttachmentType.FILE,
-                url = "https://via.placeholder.com/150",
-                name = "screenshot.png",
-                size = 204800,
-            ),
-            Attachment(
-                id = "a2",
-                type = AttachmentType.FILE,
-                url = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-                name = "document.pdf",
-                size = 1024000,
-            ),
-            Attachment(
-                id = "a3",
-                type = AttachmentType.FILE,
-                url = "https://via.placeholder.com/200",
-                name = "photo.jpg",
-                size = 512000,
-            ),
-            Attachment(
-                id = "a4",
-                type = AttachmentType.IMAGE,
-                url = "https://via.placeholder.com/300",
-                name = "image.png",
-                size = 307200,
-            ),
-            Attachment(
-                id = "a5",
-                type = AttachmentType.IMAGE,
-                url = "https://file-examples-com.github.io/uploads/2017/02/file_example_XLS_10.xls",
-                name = "spreadsheet.xls",
-                size = 204800,
-            )
-        )*/
     ),
     Message(
         "m2",
@@ -87,57 +50,20 @@ val messagesT1 = listOf(
         "u2",
         "Merhaba Ahmet Bey, hemen kontrol ediyorum.",
         System.currentTimeMillis() - 3 * 86400000 + 7200000,
-        /*attachments = listOf(
-            Attachment(
-                id = "a1",
-                type = AttachmentType.IMAGE,
-                url = "https://via.placeholder.com/150",
-                name = "screenshot.png",
-                size = 204800,
-            ),
-            Attachment(
-                id = "a2",
-                type = AttachmentType.FILE,
-                url = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-                name = "document.pdf",
-                size = 1024000,
-            ),
-            Attachment(
-                id = "a3",
-                type = AttachmentType.FILE,
-                url = "https://via.placeholder.com/200",
-                name = "photo.jpg",
-                size = 512000,
-            ),
-            Attachment(
-                id = "a4",
-                type = AttachmentType.FILE,
-                url = "https://via.placeholder.com/300",
-                name = "image.png",
-                size = 307200,
-            ),
-            Attachment(
-                id = "a5",
-                type = AttachmentType.FILE,
-                url = "https://file-examples-com.github.io/uploads/2017/02/file_example_XLS_10.xls",
-                name = "spreadsheet.xls",
-                size = 204800,
-            )
-        )*/
     ),
     Message(
         "m3",
         "t1",
         "u2",
         "Kargo şirketiyle görüştüm, bugün teslim edilmesi bekleniyor.",
-        System.currentTimeMillis() - 2 * 86400000 + 3600000
+        System.currentTimeMillis() - 2 * 86400000 + 3600000,
     ),
     Message(
         "m4",
         "t1",
         "u1",
         "Tamamdır. Halloldu.",
-        System.currentTimeMillis() - 2 * 86400000 + 4600000
+        System.currentTimeMillis() - 2 * 86400000 + 4600000,
     ),
     Message("m5", "t1", "u1", "Teşekkürler.", System.currentTimeMillis() - 2 * 86400000 + 4700000),
     Message(
@@ -227,6 +153,45 @@ val messagesT5 = listOf(
     )
 )
 val dummyMessageList = messagesT1 + messagesT2 + messagesT3 + messagesT4 + messagesT5
+
+val  dummyAttachments = listOf(
+    Attachment(
+        id = "a1",
+        type = AttachmentType.FILE,
+        url = "https://via.placeholder.com/150",
+        name = "screenshot.png",
+        size = 204800,
+    ),
+    Attachment(
+        id = "a2",
+        type = AttachmentType.FILE,
+        url = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+        name = "document.pdf",
+        size = 1024000,
+    ),
+    Attachment(
+        id = "a3",
+        type = AttachmentType.FILE,
+        url = "https://via.placeholder.com/200",
+        name = "photo.jpg",
+        size = 512000,
+    ),
+    Attachment(
+        id = "a4",
+        type = AttachmentType.FILE,
+        url = "https://via.placeholder.com/300",
+        name = "image.png",
+        size = 307200,
+    ),
+    Attachment(
+        id = "a4",
+        type = AttachmentType.FILE,
+        url = "https://via.placeholder.com/300",
+        name = "image.png",
+        size = 307200,
+    ),
+
+    )
 val dummyTicketList = listOf(
     Ticket(
         id = "t1",

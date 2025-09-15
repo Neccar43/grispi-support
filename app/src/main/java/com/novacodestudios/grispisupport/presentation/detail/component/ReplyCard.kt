@@ -3,6 +3,7 @@ package com.novacodestudios.grispisupport.presentation.detail.component
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.widget.Toast
@@ -89,6 +90,8 @@ import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import com.novacodestudios.grispisupport.presentation.util.toColor
 import com.novacodestudios.grispisupport.presentation.util.toUiName
 import java.io.File
+import java.util.Date
+import java.util.Locale
 import java.util.UUID
 
 @Composable
@@ -383,6 +386,7 @@ fun ReplyCard(
         }
     }
 }
+
 fun Context.getMimeType(uri: Uri): String? {
     return contentResolver.getType(uri)
 }
@@ -410,7 +414,6 @@ fun rememberCameraLauncher(
 ): () -> Unit {
     val context = LocalContext.current
 
-    // Runtime permission launcher
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { granted ->
@@ -420,42 +423,38 @@ fun rememberCameraLauncher(
         }
     )
 
-    // Fotoğraf kaydedilecek geçici dosya
-    val imageFile = remember {
-        File(context.cacheDir, "captured_image.jpg")
-    }
-    val imageUri = FileProvider.getUriForFile(
-        context,
-        "${context.packageName}.provider",
-        imageFile
-    )
+    var currentUri: Uri? by remember { mutableStateOf(null) }
 
-    //   val imageUri = Uri.EMPTY
-
-    // Kamera açıcı launcher
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { success ->
-            if (success) onImageCaptured(imageUri) else onImageCaptured(null)
+            if (success) onImageCaptured(currentUri) else onImageCaptured(null)
         }
     )
 
-    // Dışarıya dönecek fonksiyon
     return {
         if (ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            // izin varsa → kamera aç
-            cameraLauncher.launch(imageUri)
+            val imageFile = createImageFile(context)
+            currentUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.provider",
+                imageFile
+            )
+            cameraLauncher.launch(currentUri!!)
         } else {
-            // izin yoksa → izin iste
             permissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
 }
 
+fun createImageFile(context: Context): File {
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+    return File(context.cacheDir, "captured_image_$timeStamp.jpg")
+}
 @Composable
 fun ImageWithCloseButton(
     imageUri: Uri,
