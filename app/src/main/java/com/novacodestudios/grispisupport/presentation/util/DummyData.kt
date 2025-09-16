@@ -1,5 +1,6 @@
 package com.novacodestudios.grispisupport.presentation.util
 
+import com.novacodestudios.grispisupport.presentation.detail.component.ConditionType
 import com.novacodestudios.grispisupport.presentation.detail.component.FieldCondition
 import com.novacodestudios.grispisupport.presentation.detail.component.FieldResponse
 import com.novacodestudios.grispisupport.presentation.detail.component.FieldType
@@ -36,7 +37,7 @@ val user4 = User("u4", "Zeynep Demir", "zeynep@example.com", UserRole.END_USER)
 val user5 = User("u5", "Ali Sever", "ali@zendesk.com", UserRole.AGENT)
 
 val allDummyUsers = listOf(user1, user2, user3, user4, user5)
-val  dummyAttachments = listOf(
+val dummyAttachments = listOf(
     Attachment(
         id = "a1",
         type = AttachmentType.FILE,
@@ -110,7 +111,7 @@ val messagesT1 = listOf(
         "u2",
         "Ne demek. Biz teşekkür ederiz.",
         System.currentTimeMillis() - 2 * 86400000 + 5000000,
-      //  attachments = dummyAttachments
+        //  attachments = dummyAttachments
     ),
     Message(
         "m7",
@@ -395,7 +396,7 @@ val dummyForms = listOf(
                 label = "Etiketler",
                 type = FieldType.MULTI_SELECT,
                 options = listOf("Önemli", "Finans", "Teknik"),
-                required = false,
+                baseRequired = false,
                 order = 1,
                 condition = null
             ),
@@ -404,7 +405,7 @@ val dummyForms = listOf(
                 label = "Tür",
                 type = FieldType.SINGLE_SELECT,
                 options = listOf("Soru", "Olay", "Problem", "Görev"),
-                required = true,
+                baseRequired = true,
                 order = 2,
                 condition = null
             )
@@ -419,7 +420,7 @@ val dummyForms = listOf(
                 label = "Etiketler",
                 type = FieldType.MULTI_SELECT,
                 options = listOf("Hesap", "Şifre", "Destek"),
-                required = false,
+                baseRequired = false,
                 order = 1,
                 condition = null
             ),
@@ -427,7 +428,7 @@ val dummyForms = listOf(
                 id = "username",
                 label = "Üye Kullanıcı Adı",
                 type = FieldType.TEXT,
-                required = true,
+                baseRequired = true,
                 order = 2,
                 condition = null
             ),
@@ -435,7 +436,7 @@ val dummyForms = listOf(
                 id = "next_call_date",
                 label = "Sonraki Arama Tarihi",
                 type = FieldType.DATE,
-                required = false,
+                baseRequired = false,
                 order = 3,
                 condition = null
             ),
@@ -444,7 +445,7 @@ val dummyForms = listOf(
                 label = "Kullanıcı Talep Tipi",
                 type = FieldType.SINGLE_SELECT,
                 options = listOf("Şifremi Unuttum", "Hesabıma Giriş Yapamıyorum", "Diğer"),
-                required = true,
+                baseRequired = true,
                 order = 4,
                 condition = null
             )
@@ -458,7 +459,7 @@ val dummyForms = listOf(
                 id = "sender",
                 label = "Gönderici Kurum Adı",
                 type = FieldType.TEXT,
-                required = true,
+                baseRequired = true,
                 order = 1,
                 condition = null
             ),
@@ -466,7 +467,7 @@ val dummyForms = listOf(
                 id = "send_to_backoffice",
                 label = "Backoffice Kontrolüne Gönderilecek",
                 type = FieldType.CHECKBOX,
-                required = false,
+                baseRequired = false,
                 order = 2,
                 condition = null
             ),
@@ -475,7 +476,7 @@ val dummyForms = listOf(
                 label = "Sipariş Durumu",
                 type = FieldType.SINGLE_SELECT,
                 options = listOf("Hazırlanıyor", "Yolda", "Teslim Edildi", "İade Edildi"),
-                required = true,
+                baseRequired = true,
                 order = 3,
                 condition = null
             ),
@@ -483,7 +484,7 @@ val dummyForms = listOf(
                 id = "tracking_code",
                 label = "Kargo Takip Kodu",
                 type = FieldType.TEXT,
-                required = false,
+                baseRequired = false,
                 order = 4,
                 condition = null
             ),
@@ -491,7 +492,7 @@ val dummyForms = listOf(
                 id = "origin_branch",
                 label = "Başlangıç Şubesi",
                 type = FieldType.TEXT,
-                required = false,
+                baseRequired = false,
                 order = 5,
                 condition = null
             ),
@@ -499,7 +500,7 @@ val dummyForms = listOf(
                 id = "destination_branch",
                 label = "Varış Şubesi",
                 type = FieldType.TEXT,
-                required = false,
+                baseRequired = false,
                 order = 6,
                 condition = null
             ),
@@ -507,7 +508,7 @@ val dummyForms = listOf(
                 id = "driver_name",
                 label = "Sürücü Adı",
                 type = FieldType.TEXT,
-                required = false,
+                baseRequired = false,
                 order = 7,
                 condition = null
             ),
@@ -515,7 +516,7 @@ val dummyForms = listOf(
                 id = "order_number",
                 label = "Sipariş Numarası",
                 type = FieldType.TEXT,
-                required = false,
+                baseRequired = false,
                 order = 8,
                 condition = null
             ),
@@ -523,7 +524,7 @@ val dummyForms = listOf(
                 id = "shipping_date",
                 label = "Ürünün Kargoya Verilme Tarihi",
                 type = FieldType.DATE,
-                required = false,
+                baseRequired = false,
                 order = 9,
                 condition = null
             )
@@ -538,7 +539,7 @@ val dummyForms = listOf(
                 label = "Sorun Türü",
                 type = FieldType.SINGLE_SELECT,
                 options = listOf("Teknik", "Finans", "Diğer"),
-                required = true,
+                baseRequired = true,
                 order = 1,
                 condition = null
             ),
@@ -546,25 +547,53 @@ val dummyForms = listOf(
                 id = "technical_issue_details",
                 label = "Teknik Sorun Detayları",
                 type = FieldType.TEXT,
-                required = true,
+                baseRequired = true,
                 order = 2,
-                condition = FieldCondition(fieldId ="issue_type" ,expectedValues = listOf("Teknik"))
+                condition = FieldCondition(
+                    fieldId = "issue_type",
+                    expectedValues = listOf("Teknik")
+                )
             ),
             FormField(
                 id = "financial_issue_details",
                 label = "Finansal Sorun Detayları",
                 type = FieldType.TEXT,
-                required = true,
+                baseRequired = true,
                 order = 3,
-                condition = FieldCondition(fieldId ="issue_type" ,expectedValues = listOf("Finans"))
+                condition = FieldCondition(
+                    fieldId = "issue_type",
+                    expectedValues = listOf("Finans")
+                )
             ),
             FormField(
                 id = "other_issue_details",
                 label = "Diğer Sorun Detayları",
                 type = FieldType.TEXT,
-                required = true,
+                baseRequired = true,
                 order = 4,
-                condition = FieldCondition(fieldId ="issue_type" ,expectedValues = listOf("Diğer"))
+                condition = FieldCondition(fieldId = "issue_type", expectedValues = listOf("Diğer"))
+            ),
+            FormField(
+                id = "delivery_status",
+                label = "Teslimat Durumu",
+                type = FieldType.SINGLE_SELECT,
+                options = listOf("Beklemede", "Yolda", "Teslim Edildi", "İptal Edildi"),
+                baseRequired = false,
+                order = 5,
+                condition = null
+            ),
+
+            FormField(
+                id = "delivery_date",
+                label = "Teslimat Tarihi",
+                type = FieldType.DATE,
+                baseRequired = false,
+                order = 6,
+                condition = FieldCondition(
+                    fieldId = "delivery_status",
+                    expectedValues = listOf("Teslim Edildi"),
+                    type = ConditionType.REQUIRE
+                )
             )
         )
     )

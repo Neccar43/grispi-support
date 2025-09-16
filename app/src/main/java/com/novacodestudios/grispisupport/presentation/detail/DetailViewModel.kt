@@ -1,6 +1,5 @@
 package com.novacodestudios.grispisupport.presentation.detail
 
-import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,9 +8,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.novacodestudios.grispisupport.presentation.detail.component.ConditionType
 import com.novacodestudios.grispisupport.presentation.detail.component.FieldResponse
 import com.novacodestudios.grispisupport.presentation.detail.component.Form
 import com.novacodestudios.grispisupport.presentation.detail.component.FormResponse
+import com.novacodestudios.grispisupport.presentation.detail.component.isRequired
 import com.novacodestudios.grispisupport.presentation.macro.dummyMacros
 import com.novacodestudios.grispisupport.presentation.model.Attachment
 import com.novacodestudios.grispisupport.presentation.model.Channel
@@ -51,14 +52,18 @@ class DetailViewModel @Inject constructor(
         val id = route.id
         val ticket = dummyTicketList.find { it.id == id }
         val messages = dummyMessageList.filter { it.ticketId == id }
-        state = state.copy(ticket = ticket, messageList = messages.sortedBy { it.sentAt }, oldTicket = ticket)
+        state = state.copy(
+            ticket = ticket,
+            messageList = messages.sortedBy { it.sentAt },
+            oldTicket = ticket
+        )
         val histories =
             dummyHistories.filter { it.ticketId == id }.sortedByDescending { it.createdAt }
 
         val selectedForm = dummyForms.find { it.id == ticket?.formId }
         val formResponse = dummyFormResponses.find { it.id == ticket?.formResponseId }
 
-        val agents = allDummyUsers.filter { user -> user.role== UserRole.AGENT }
+        val agents = allDummyUsers.filter { user -> user.role == UserRole.AGENT }
 
         state = state.copy(
             ticketHistories = histories,
@@ -70,7 +75,7 @@ class DetailViewModel @Inject constructor(
         route.macroId?.let { macroId ->
             val macro = dummyMacros.find { it.id == macroId }
             state = state.copy(
-                replyText = macro?.actions?.find { it.field =="comment" }?.value ?: ""
+                replyText = macro?.actions?.find { it.field == "comment" }?.value ?: ""
             )
         }
 
@@ -95,18 +100,21 @@ class DetailViewModel @Inject constructor(
             }
 
             is DetailEvent.OnFormChange -> {
-                state = state.copy(selectedForm = event.form, formResponse = event.form.toResponse(state.ticket!!.id))
+                state = state.copy(
+                    selectedForm = event.form,
+                    formResponse = event.form.toResponse(state.ticket!!.id)
+                )
             }
 
             is DetailEvent.OnFieldResponseChange -> {
                 Log.d(TAG, "OnFieldResponseChange: ${event.fieldId} ${event.value}")
                 state.formResponse?.let {
                     changeResponse(it, event.fieldId, event.value)
-                } ?:run {
+                } ?: run {
                     Log.d(TAG, "OnFieldResponseChange: form response not found")
                     val formResponse = state.selectedForm?.toResponse(state.ticket!!.id)
                     state = state.copy(formResponse = formResponse)
-                    formResponse?.let { changeResponse(it, event.fieldId, event.value)}
+                    formResponse?.let { changeResponse(it, event.fieldId, event.value) }
                 }
             }
 
@@ -115,21 +123,23 @@ class DetailViewModel @Inject constructor(
                     status = event.status,
                 )
             )
+
             is DetailEvent.OnChannelChange -> state = state.copy(
                 selectedChannel = event.channel
             )
 
-            is DetailEvent.OnSendReply -> {
+            is DetailEvent.OnSendReply -> { // TODO: refactor edilecek
                 if (state.replyText.isBlank()) {
                     viewModelScope.launch {
                         _eventFlow.emit(UIEvent.ShowSnackBar("Yanıt metni boş olamaz"))
                     }
                     return
                 }
-                state.selectedForm?.let { selectedForm->
+                state.selectedForm?.let { selectedForm ->
                     selectedForm.fields.forEach { field ->
-                        val response = state.formResponse?.responses?.find { it.fieldId == field.id }
-                        if (field.required && (response == null || response.value.isEmpty())) {
+                        val response =
+                            state.formResponse?.responses?.find { it.fieldId == field.id }
+                        if ((field.isRequired(state.formResponse!!) && field.condition?.type != ConditionType.SHOW) && (response == null || response.value.isEmpty())) {
                             viewModelScope.launch {
                                 _eventFlow.emit(UIEvent.ClearFocus)
                                 _eventFlow.emit(
@@ -223,9 +233,9 @@ data class DetailState(
     val forms: List<Form> = emptyList(),
     val selectedForm: Form? = null,
     val formResponse: FormResponse? = null,
-    val selectedChannel : Channel = Channel.PUBLIC_RESPONSE,
-    val agentUser:List<User> = emptyList(),
-){
+    val selectedChannel: Channel = Channel.PUBLIC_RESPONSE,
+    val agentUser: List<User> = emptyList(),
+) {
 //    val numberOfChange= ticket?.let { ticket ->
 //        var count = 0
 //        if(replyText.isNotBlank()) count++
@@ -243,7 +253,7 @@ data class DetailState(
 //        count
 //    } ?:0
 
-    val numberOfChange=1
+    val numberOfChange = 1
 }
 
 sealed interface DetailEvent {

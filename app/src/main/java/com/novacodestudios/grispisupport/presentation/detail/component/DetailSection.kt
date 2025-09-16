@@ -7,18 +7,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DisplayMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -127,7 +121,7 @@ fun DetailSection(
         items(
             items = state.selectedForm?.fields ?: emptyList(),
             key = { "${state.selectedForm?.id}_${it.id}" }) { field ->
-            if (field.condition != null) {
+            if (field.condition != null && field.condition.type == ConditionType.SHOW) {
                 val conditionFieldResponse =
                     state.formResponse?.responses?.find { it.fieldId == field.condition.fieldId }
                 if (conditionFieldResponse == null || conditionFieldResponse.value.none { it in field.condition.expectedValues }) {
@@ -144,7 +138,7 @@ fun DetailSection(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { isChecked = !isChecked },
-                        isRequired = field.required
+                        isRequired = field.isRequired(state.formResponse!!)
                     )
                     HorizontalDivider()
                 }
@@ -159,7 +153,7 @@ fun DetailSection(
                     DetailItem(
                         title = field.label,
                         value = value?.joinToString { it } ?: "-",
-                        isRequired = field.required,
+                        isRequired = field.isRequired(state.formResponse!!),
                         modifier = Modifier.clickable { isDialogVisible = true }
                     )
                     HorizontalDivider()
@@ -638,15 +632,46 @@ data class FormField(
     val label: String,
     val type: FieldType,
     val options: List<String>? = null,
-    val required: Boolean,
+    val baseRequired: Boolean,
     val order: Int,
     val condition: FieldCondition? = null
 )
 
+/*
+alana gereklilik ekleme
+bir alanın bir değeri alabilmesi için başka bir alanın belirli bir değere sahip olması gerekebilir
+örneğin ticket durumunın kapatıldı olması için teslim tarinin doluşturulmuş olması gerekebilir
+
+alana koşul ekleme
+bir alanın gösterilmesi için başka bir alanın belirli bir değere sahip olması gerekebilir
+örneğin kullanıcı talep tipinin şifremi unuttum olması durumunda yeni şifre alanı gösterilsin
+
+ */
 data class FieldCondition(
-    val fieldId: String,            // Hangi alana bağlı
-    val expectedValues: List<String> // Hangi değer(ler) seçilince görünsün
+    val fieldId: String,
+    val expectedValues: List<String>,
+    val type: ConditionType = ConditionType.SHOW
 )
+
+enum class ConditionType {
+    SHOW,
+    REQUIRE
+}
+
+fun FormField.isRequired(formResponse: FormResponse): Boolean {
+    if (baseRequired) return true
+
+    val condition = condition ?: return false
+
+    if (condition.type != ConditionType.REQUIRE) return false
+
+    val relatedResponse = formResponse.responses
+        .find { it.fieldId == condition.fieldId }
+        ?: return false
+
+    return relatedResponse.value.any { it in condition.expectedValues }
+}
+
 
 enum class FieldType {
     TEXT,
