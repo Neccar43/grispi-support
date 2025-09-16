@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.novacodestudios.grispisupport.presentation.detail.component.FieldResponse
 import com.novacodestudios.grispisupport.presentation.detail.component.Form
@@ -32,6 +33,7 @@ import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -119,8 +121,26 @@ class DetailViewModel @Inject constructor(
 
             is DetailEvent.OnSendReply -> {
                 if (state.replyText.isBlank()) {
+                    viewModelScope.launch {
+                        _eventFlow.emit(UIEvent.ShowSnackBar("Yanıt metni boş olamaz"))
+                    }
                     return
                 }
+                state.selectedForm?.let { selectedForm->
+                    selectedForm.fields.forEach { field ->
+                        val response = state.formResponse?.responses?.find { it.fieldId == field.id }
+                        if (field.required && (response == null || response.value.isEmpty())) {
+                            viewModelScope.launch {
+                                _eventFlow.emit(UIEvent.ClearFocus)
+                                _eventFlow.emit(
+                                    UIEvent.ShowSnackBar("Lütfen ${field.label} alanını doldurun")
+                                )
+                            }
+                            return
+                        }
+                    }
+                }
+                Log.d(TAG, "OnSendReply: message gönderiliyor ${state.replyText}")
                 val newMessage = Message(
                     id = "m_${System.currentTimeMillis()}",
                     ticketId = state.ticket!!.id,
@@ -184,6 +204,7 @@ class DetailViewModel @Inject constructor(
 
     sealed interface UIEvent {
         data class ShowSnackBar(val message: String) : UIEvent
+        data object ClearFocus : UIEvent
     }
 }
 

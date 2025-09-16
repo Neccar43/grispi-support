@@ -28,6 +28,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -55,11 +57,15 @@ fun DetailScreen(
     val snackbarHostState =
         remember { SnackbarHostState() }
 
-    // val context = LocalContext.current
+     val context = LocalContext.current
+    val focusManager = LocalFocusManager.current
     LaunchedEffect(key1 = true) {
         viewModel.eventFlow.collectLatest { state ->
             when (state) {
                 is DetailViewModel.UIEvent.ShowSnackBar -> snackbarHostState.showSnackbar(state.message)
+                DetailViewModel.UIEvent.ClearFocus -> {
+                    focusManager.clearFocus(force = true)
+                }
             }
         }
     }

@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -18,6 +19,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -32,309 +35,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.novacodestudios.grispisupport.presentation.component.SipAlertDialog
 import com.novacodestudios.grispisupport.presentation.detail.DetailEvent
 import com.novacodestudios.grispisupport.presentation.detail.DetailState
 import com.novacodestudios.grispisupport.presentation.model.Priority
 import com.novacodestudios.grispisupport.presentation.model.Type
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
+import com.novacodestudios.grispisupport.presentation.util.dummyForms
 import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-
-@Composable
-fun DetailSection1(
-    modifier: Modifier = Modifier,
-    state: DetailState,
-    onEvent: (DetailEvent) -> Unit
-) {
-    var isSubjectDialogVisible by remember { mutableStateOf(false) }
-    var isRequesterDialogVisible by remember { mutableStateOf(false) }
-    var isAssigneeDialogVisible by remember { mutableStateOf(false) }
-    var isFollowersDialogVisible by remember { mutableStateOf(false) }
-    var isTicketsDialogVisible by remember { mutableStateOf(false) }
-    var isTypeDialogVisible by remember { mutableStateOf(false) }
-    var isPriorityDialogVisible by remember { mutableStateOf(false) }
-    val ticket = state.ticket ?: return
-    Column(
-        modifier = modifier
-    )
-    {
-        DetailItem(title = "Kayıt numarası", value = "#${ticket.number}", trailingContent = {
-            IconButton(onClick = {}) {
-                Icon(Icons.Default.ContentCopy, null)
-            }
-        })
-        HorizontalDivider()
-
-        DetailItem(
-            title = "Konu",
-            value = ticket.subject,
-            modifier = Modifier.clickable { isSubjectDialogVisible = true }
-        )
-        HorizontalDivider()
-
-        DetailItem(
-            title = "Talep Eden", value = ticket.requester.name,
-            modifier = Modifier.clickable { isRequesterDialogVisible = true })
-        HorizontalDivider()
-
-        DetailItem(
-            title = "Atanan", value = ticket.assignee?.name ?: "Henüz atanmadı",
-            modifier = Modifier.clickable { isAssigneeDialogVisible = true })
-        HorizontalDivider()
-
-        DetailItem(
-            title = "Takipçiler", value = ticket.followers.joinToString { it.name },
-            modifier = Modifier.clickable { isFollowersDialogVisible = true })
-        HorizontalDivider()
-
-//        DetailItem(title = "Form", value = ticket.form ?: "-")
-//        HorizontalDivider()
-
-        DetailItem(
-            title = "Etiketler",
-            value = if (ticket.tags.isNotEmpty()) ticket.tags.joinToString { it.name } else "Etiket yok",
-            modifier = Modifier.clickable { isTicketsDialogVisible = true }
-        )
-        HorizontalDivider()
-        DetailItem(
-            title = "Tür", value = ticket.type.toUiName(),
-            modifier = Modifier.clickable { isTypeDialogVisible = true })
-        HorizontalDivider()
-        DetailItem(
-            title = "Öncelik", value = ticket.priority.toUiName(),
-            modifier = Modifier.clickable { isPriorityDialogVisible = true })
-//        HorizontalDivider()
-
-//        DetailItem(title = "Harici URL", value = "-")
-//        HorizontalDivider()
-//
-//
-//
-//        DetailItem(title = "İç içe menüler", value = "-")
-//        HorizontalDivider()
-//
-//        var isChecked by remember { mutableStateOf(false) }
-//        DetailItem(
-//            title = "Onay kutusu yazısı",
-//            value = "-",
-//            trailingContent = { Switch(checked = isChecked, onCheckedChange = { isChecked = it }) })
-    }
-
-    if (isSubjectDialogVisible) {
-        SipAlertDialog(
-            modifier = Modifier,
-            onDismiss = { isSubjectDialogVisible = false },
-            title = "Konu",
-            text = {
-                TextField(
-                    value = ticket.subject,
-                    onValueChange = {},
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedContainerColor = Color.Transparent,
-                        errorContainerColor = Color.Transparent
-                    )
-                )
-            },
-            onConfirm = {},
-            confirmButtonText = "Tamam",
-            dismissButtonText = "İptal"
-        )
-    }
-
-    if (isRequesterDialogVisible) {
-        DetailDialog(
-            onDismiss = {
-                isRequesterDialogVisible = false
-                onEvent(DetailEvent.OnUserQueryChange(""))
-            },
-            title = "Talep Eden",
-            text = {
-                DialogList(
-                    placeholder = "Talep edeni ara",
-                    users = state.searchUsers,
-                    ticket = ticket,
-                    onClick = {
-                        isRequesterDialogVisible = false
-                        onEvent(DetailEvent.OnUserQueryChange(""))
-                    },
-                    selectedUsers = listOf(ticket.requester),
-                    value = state.userQuery,
-                    onValueChange = {
-                        onEvent(DetailEvent.OnUserQueryChange(it))
-                    },
-                )
-            },
-            onConfirm = {
-                onEvent(DetailEvent.OnUserQueryChange(""))
-            },
-        )
-    }
-
-    if (isAssigneeDialogVisible) {
-        DetailDialog(
-            onDismiss = {
-                isAssigneeDialogVisible = false
-                onEvent(DetailEvent.OnUserQueryChange(""))
-            },
-            title = "Atanan",
-            text = {
-                DialogList(
-                    placeholder = "Atananı ara",
-                    users = state.searchUsers,
-                    ticket = ticket,
-                    onClick = {
-                        isAssigneeDialogVisible = false
-                        onEvent(DetailEvent.OnUserQueryChange(""))
-                    },
-                    selectedUsers = ticket.assignee?.let { listOf(it) } ?: emptyList(),
-                    value = state.userQuery,
-                    onValueChange = {
-                        onEvent(DetailEvent.OnUserQueryChange(it))
-                    },
-                )
-            },
-            onConfirm = {
-                onEvent(DetailEvent.OnUserQueryChange(""))
-            },
-        )
-    }
-
-    if (isFollowersDialogVisible) {
-        DetailDialog(
-            onDismiss = {
-                isFollowersDialogVisible = false
-                onEvent(DetailEvent.OnUserQueryChange(""))
-            },
-            title = "Takipçiler",
-            text = {
-                DialogList(
-                    placeholder = "Takipçi ara",
-                    users = state.searchUsers,
-                    ticket = ticket,
-                    onClick = {
-                        isFollowersDialogVisible = false
-                        onEvent(DetailEvent.OnUserQueryChange(""))
-                    },
-                    selectedUsers = ticket.followers,
-                    value = state.userQuery,
-                    onValueChange = {
-                        onEvent(DetailEvent.OnUserQueryChange(it))
-                    },
-                )
-            },
-            onConfirm = {
-                onEvent(DetailEvent.OnUserQueryChange(""))
-            },
-        )
-    }
-
-    if (isTicketsDialogVisible) {
-        DetailDialog(
-            onDismiss = { isTicketsDialogVisible = false },
-            title = "Etiketler",
-            text = {
-                Column {
-                    TextField(
-                        value = state.tagQuery,
-                        placeholder = { Text("Etiket arama") },
-                        onValueChange = { onEvent(DetailEvent.OnTagQueryChange(it)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedContainerColor = Color.Transparent,
-                            errorContainerColor = Color.Transparent
-                        ),
-                        trailingIcon = {
-                            if (state.tagQuery.isNotEmpty()) {
-                                IconButton(onClick = { onEvent(DetailEvent.OnTagQueryChange("")) }) {
-                                    Icon(Icons.Default.Close, null)
-                                }
-                            }
-                        }
-                    )
-                    LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                        if (state.searchTags.isEmpty()) {
-                            items(ticket.tags) {
-                                AssistChip(
-                                    onClick = { },
-                                    label = { Text(it.name) },
-                                    trailingIcon = {
-                                        Icon(
-                                            imageVector = Icons.Default.Close,
-                                            contentDescription = null
-                                        )
-                                    }
-                                )
-                            }
-                        }
-                        items(items = state.searchTags, key = { it.id }) { tag ->
-                            AssistChip(
-                                onClick = { },
-                                label = { Text(tag.name) },
-                                trailingIcon = {
-                                    if (ticket.tags.any { it.id == tag.id }) {
-                                        Icon(
-                                            imageVector = Icons.Default.Close,
-                                            contentDescription = null
-                                        )
-                                    }
-
-                                }
-                            )
-                        }
-                    }
-                }
-            },
-            onConfirm = { onEvent(DetailEvent.OnTagQueryChange("")) },
-        )
-    }
-
-    if (isTypeDialogVisible) {
-        DetailDialog(
-            onDismiss = { isTypeDialogVisible = false },
-            title = "Tür",
-            text = {
-                var selectedType by remember { mutableStateOf(ticket.type) }
-                DialogRadioGroup(
-                    options = Type.entries.map { it.toUiName() },
-                    selectedOption = selectedType.toUiName(),
-                    onOptionSelected = {
-                        selectedType = Type.entries.first { type -> type.toUiName() == it }
-                        // onEvent(DetailEvent.OnTypeChange(selectedType))
-                    }
-                )
-            },
-            onConfirm = {},
-        )
-    }
-
-    if (isPriorityDialogVisible) {
-        DetailDialog(
-            onDismiss = { isPriorityDialogVisible = false },
-            title = "Öncelik",
-            text = {
-                var selectedPriority by remember { mutableStateOf(ticket.priority) }
-                DialogRadioGroup(
-                    options = Priority.entries.map { it.toUiName() },
-                    selectedOption = selectedPriority.toUiName(),
-                    onOptionSelected = {
-                        selectedPriority =
-                            Priority.entries.first { priority -> priority.toUiName() == it }
-                        // onEvent(DetailEvent.OnPriorityChange(selectedPriority))
-                    }
-                )
-            },
-            onConfirm = {}
-        )
-    }
-}
 
 fun Priority.toUiName(): String {
     return when (this) {
@@ -413,8 +127,9 @@ fun DetailSection(
         items(
             items = state.selectedForm?.fields ?: emptyList(),
             key = { "${state.selectedForm?.id}_${it.id}" }) { field ->
-            if(field.condition != null) {
-                val conditionFieldResponse = state.formResponse?.responses?.find { it.fieldId == field.condition.fieldId }
+            if (field.condition != null) {
+                val conditionFieldResponse =
+                    state.formResponse?.responses?.find { it.fieldId == field.condition.fieldId }
                 if (conditionFieldResponse == null || conditionFieldResponse.value.none { it in field.condition.expectedValues }) {
                     return@items
                 }
@@ -428,7 +143,8 @@ fun DetailSection(
                         onCheckedChange = { isChecked = it },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { isChecked = !isChecked }
+                            .clickable { isChecked = !isChecked },
+                        isRequired = field.required
                     )
                     HorizontalDivider()
                 }
@@ -443,6 +159,7 @@ fun DetailSection(
                     DetailItem(
                         title = field.label,
                         value = value?.joinToString { it } ?: "-",
+                        isRequired = field.required,
                         modifier = Modifier.clickable { isDialogVisible = true }
                     )
                     HorizontalDivider()
@@ -789,6 +506,7 @@ fun CheckBoxDialog(
                     var isChecked by remember { mutableStateOf(selectedOptions.contains(option)) }
                     DetailCheckBox(
                         title = option,
+                        isRequired = false,
                         checked = isChecked,
                         onCheckedChange = {
                             isChecked = it
@@ -821,18 +539,31 @@ fun DetailCheckBox(
     modifier: Modifier = Modifier,
     title: String,
     checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit
+    onCheckedChange: (Boolean) -> Unit,
+    isRequired: Boolean,
 ) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = modifier
     ) {
-        Checkbox(
-            checked = checked,
-            onCheckedChange = onCheckedChange
-        )
-        Text(text = title)
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = checked,
+                onCheckedChange = onCheckedChange
+            )
+            Text(text = title)
+        }
+        if (isRequired) {
+            Text(
+                modifier = Modifier.padding(start = 48.dp),
+                text = "* Zorunlu",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     }
+
 
 }
 
@@ -840,10 +571,17 @@ fun DetailCheckBox(
 @Composable
 private fun DSP() {
     GrispiSupportTheme {
-        DetailSection(
-            state = DetailState(ticket = dummyTicketList.first()),
-            onEvent = {}
-        )
+        Surface {
+            DetailSection(
+                state = DetailState(
+                    ticket = dummyTicketList.first(),
+                    forms = dummyForms,
+                    selectedForm = dummyForms.get(2),
+                    formResponse = null,
+                ),
+                onEvent = {}
+            )
+        }
     }
 }
 /*
@@ -904,6 +642,7 @@ data class FormField(
     val order: Int,
     val condition: FieldCondition? = null
 )
+
 data class FieldCondition(
     val fieldId: String,            // Hangi alana bağlı
     val expectedValues: List<String> // Hangi değer(ler) seçilince görünsün

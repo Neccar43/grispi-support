@@ -1,6 +1,7 @@
 package com.novacodestudios.grispisupport.presentation.detail.component
 
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -10,10 +11,21 @@ fun DetailItem(
     modifier: Modifier = Modifier,
     title: String,
     value: String,
-    trailingContent: @Composable (() -> Unit)? = null
+    trailingContent: @Composable (() -> Unit)? = null,
+    isRequired: Boolean = false
 ) {
     ListItem(
-        overlineContent = { Text(title) }, headlineContent = { Text(value) },
+        overlineContent = { Text(title) },
+        headlineContent = { Text(value) },
+        supportingContent = {
+            if (isRequired) {
+                Text(
+                    text = "* Zorunlu",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        },
         trailingContent = trailingContent,
         modifier = modifier
     )
