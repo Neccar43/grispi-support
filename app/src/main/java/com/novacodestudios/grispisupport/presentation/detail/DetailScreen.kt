@@ -11,26 +11,18 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -38,8 +30,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.novacodestudios.grispisupport.presentation.detail.component.ConversationSection
 import com.novacodestudios.grispisupport.presentation.detail.component.DetailSection
@@ -47,6 +37,7 @@ import com.novacodestudios.grispisupport.presentation.detail.component.DetailTop
 import com.novacodestudios.grispisupport.presentation.detail.component.ExtensionSection
 import com.novacodestudios.grispisupport.presentation.detail.component.HistorySection
 import com.novacodestudios.grispisupport.presentation.detail.component.ReplyCard
+import com.novacodestudios.grispisupport.presentation.detail.component.groupMessagesByDateWithPreviousSender
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
 import com.novacodestudios.grispisupport.presentation.util.dummyHistories
 import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
@@ -96,6 +87,9 @@ fun DetailScreenContent(
         // TODO: Handle et
         return
     }
+    val messagesByDate =
+        remember(state.messageList) { groupMessagesByDateWithPreviousSender(state.messageList) }
+    val lazyListState = rememberLazyListState()
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
@@ -142,17 +136,17 @@ fun DetailScreenContent(
                 when (DetailTabs.entries[page]) {
                     DetailTabs.Conversation -> ConversationSection(
                         ticket = state.ticket,
-                        messageList = state.messageList,
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(bottom = 8.dp)
+                            .padding(bottom = 8.dp),
+                        lazyListState = lazyListState,
+                        messagesByDate = messagesByDate
                     )
 
                     DetailTabs.Detail -> DetailSection(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(bottom = 8.dp),
-                        // .verticalScroll(rememberScrollState()),
                         state = state,
                         onEvent = onEvent
                     )
@@ -183,7 +177,17 @@ fun DetailScreenContent(
                     ),
                 state = state,
                 onEvent = onEvent,
-                navigateMacro = navigateMacro
+                navigateMacro = navigateMacro,
+                onScrollToConversationPage = {
+                    coroutineScope.launch {
+                        pagerState.animateScrollToPage(0)
+                    }
+                },
+                onScrollToLastItem = {
+                    coroutineScope.launch {
+                        lazyListState.animateScrollToItem(messagesByDate.size)
+                    }
+                }
             )
         }
     }

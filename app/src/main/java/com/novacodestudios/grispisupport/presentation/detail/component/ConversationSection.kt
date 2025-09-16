@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -73,18 +75,18 @@ import com.novacodestudios.grispisupport.presentation.util.formatMessageDate
 import com.novacodestudios.grispisupport.presentation.util.formatMessageTime
 import com.novacodestudios.grispisupport.presentation.util.messagesT1
 
+typealias MessagesByDateWithPreviousSender = List<Pair<ConversationItem, String?>>
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ConversationSection(
     modifier: Modifier = Modifier,
     ticket: Ticket,
-    messageList: List<Message>,
+    messagesByDate: MessagesByDateWithPreviousSender,
+    lazyListState: LazyListState
 ) {
-    val itemsWithLastSender =
-        remember(messageList) { groupMessagesByDateWithPreviousSender(messageList) }
-
     SideEffect {
-        Log.d(TAG, "itemsWithLastSender: $itemsWithLastSender")
+        Log.d(TAG, "itemsWithLastSender: $messagesByDate")
     }
     var selectedAttachment by remember { mutableStateOf<Attachment?>(null) }
     var selectedAttachments by remember { mutableStateOf<List<Attachment>>(emptyList()) }
@@ -103,10 +105,11 @@ fun ConversationSection(
         LazyColumn(
             modifier = Modifier
                 .padding(horizontal = 16.dp)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            state = lazyListState,
         ) {
 
-            items(itemsWithLastSender, key = { (item, _) ->
+            items(messagesByDate, key = { (item, _) ->
                 when (item) {
                     is ConversationItem.DateHeader -> "date_${item.label}"
                     is ConversationItem.MessageItem -> "message_${item.message.id}"
@@ -707,14 +710,18 @@ private fun ConversationSectionPreview() {
         Surface {
             ConversationSection(
                 ticket = dummyTicketList.first(),
-                messageList = messagesT1,
+                //messageList = messagesT1,
+                lazyListState = rememberLazyListState(),
+                messagesByDate = remember(messagesT1) {
+                    groupMessagesByDateWithPreviousSender(messagesT1)
+                }
             )
         }
     }
 }
 
 
-private fun groupMessagesByDateWithPreviousSender(messages: List<Message>): List<Pair<ConversationItem, String?>> {
+fun groupMessagesByDateWithPreviousSender(messages: List<Message>): List<Pair<ConversationItem, String?>> {
     if (messages.isEmpty()) return emptyList()
 
     val sortedMessages = messages.sortedBy { it.sentAt }

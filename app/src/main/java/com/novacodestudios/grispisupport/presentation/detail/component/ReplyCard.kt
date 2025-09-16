@@ -46,7 +46,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemColors
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -69,7 +68,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import androidx.core.content.ContextCompat
@@ -101,6 +99,8 @@ fun ReplyCard(
     state: DetailState,
     onEvent: (DetailEvent) -> Unit,
     navigateMacro: (String) -> Unit,
+    onScrollToConversationPage: () -> Unit,
+    onScrollToLastItem: () -> Unit,
 ) {
     val context = LocalContext.current
     var isFocused by remember { mutableStateOf(state.replyText.isNotBlank()) }
@@ -140,17 +140,20 @@ fun ReplyCard(
         if (isFocused) {
             focusRequester.requestFocus()
             onEvent(DetailEvent.OnActiveTabChange(DetailTabs.Conversation))
+            onScrollToConversationPage()
         }
     }
     LaunchedEffect(state.activeTab) {
-        if (state.activeTab!= DetailTabs.Conversation){
+        if (state.activeTab != DetailTabs.Conversation) {
             focusManager.clearFocus(force = true)
-            isFocused=false
-        }else{
-            isFocused=state.replyText.isNotBlank()
+            isFocused = false
+        } else {
+            isFocused = state.replyText.isNotBlank()
+            onEvent(DetailEvent.OnActiveTabChange(DetailTabs.Conversation))
+            onScrollToConversationPage()
         }
     }
-    Box{
+    Box {
         ElevatedCard(
             modifier = modifier,
             shape = RectangleShape,
@@ -205,7 +208,8 @@ fun ReplyCard(
                                 DropdownMenuItem(
                                     text = { Text(newOption.title) },
                                     onClick = {
-                                        onEvent(DetailEvent.OnChannelChange(newOption)); expanded = false
+                                        onEvent(DetailEvent.OnChannelChange(newOption)); expanded =
+                                        false
                                     }
                                 )
                             }
@@ -220,7 +224,9 @@ fun ReplyCard(
                             onEvent(DetailEvent.OnReplyTextChange(it))
                         },
                         placeholder = "Yanıt yazın...",
-                        modifier = Modifier.focusRequester(focusRequester)
+                        modifier = Modifier
+                            .focusRequester(focusRequester)
+                            .fillMaxWidth(),
                     )
                     if (selectedFiles.isNotEmpty()) {
                         LazyRow(
@@ -283,11 +289,14 @@ fun ReplyCard(
                         value = state.replyText,
                         onValueChange = { onEvent(DetailEvent.OnReplyTextChange(it)) },
                         placeholder = "Yanıt yazın...",
-                        modifier = Modifier.onFocusChanged { focusState ->
-                            if (focusState.isFocused) {
-                                isFocused = true
+                        modifier = Modifier
+                            .onFocusChanged { focusState ->
+                                if (focusState.isFocused) {
+                                    isFocused = true
+                                }
                             }
-                        }
+                            .fillMaxWidth(),
+                        singleLine = true,
                     )
                 }
 
@@ -302,7 +311,8 @@ fun ReplyCard(
                                     0xFFedddc6
                                 ) else MaterialTheme.colorScheme.surfaceVariant,
                                 shape = CircleShape
-                            ).padding(6.dp),
+                            )
+                            .padding(6.dp),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -348,18 +358,21 @@ fun ReplyCard(
                     ) {
                         FilledIconButton(
                             onClick = {
-                                onEvent(DetailEvent.OnSendReply(
+                                onEvent(
+                                    DetailEvent.OnSendReply(
                                     selectedFiles.map { it.toAttachment(context) }
                                 ))
-                              //  isFocused = false
+                                //  isFocused = false
                                 selectedFiles = emptyList()
+                                onScrollToLastItem()
                             },
                             enabled = state.replyText.isNotBlank(),
                             colors = IconButtonDefaults.filledIconButtonColors()
                                 .copy(containerColor = primary)
                         ) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.Send, contentDescription = null,
+                                imageVector = Icons.AutoMirrored.Filled.Send,
+                                contentDescription = null,
                             )
                         }
                     }
@@ -408,7 +421,9 @@ private fun RCP() {
                 //selectedChannel = Channel.INTERNAL_NOTE
             ),
             onEvent = {},
-            navigateMacro = {}
+            navigateMacro = {},
+            onScrollToConversationPage = {},
+            onScrollToLastItem = {}
         )
     }
 
@@ -461,6 +476,7 @@ fun createImageFile(context: Context): File {
     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
     return File(context.cacheDir, "captured_image_$timeStamp.jpg")
 }
+
 @Composable
 fun ImageWithCloseButton(
     imageUri: Uri,
@@ -601,7 +617,7 @@ fun Uri.toAttachment(context: Context): Attachment {
     )
 }
 
-val internalNoteTriple= Triple(
+val internalNoteTriple = Triple(
     yellowContainer,
     yellowOnContainer,
     yellowPrimary
