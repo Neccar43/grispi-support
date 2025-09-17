@@ -23,8 +23,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.novacodestudios.grispisupport.R
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
 import kotlinx.coroutines.flow.collectLatest
 
@@ -159,7 +161,7 @@ val dummyMacros = listOf(
 @Composable
 fun MacroTopBar(navigateUp: () -> Unit) {
     TopAppBar(
-        title = { Text("Makrolar") },
+        title = { Text(stringResource(R.string.macros)) },
         navigationIcon = {
             IconButton(onClick = navigateUp) {
                 Icon(

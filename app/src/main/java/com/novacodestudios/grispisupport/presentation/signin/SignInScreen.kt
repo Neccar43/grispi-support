@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -53,6 +54,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.novacodestudios.grispisupport.R
 import com.novacodestudios.grispisupport.presentation.component.GrspEmailField
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
 import kotlinx.coroutines.flow.collectLatest
@@ -135,7 +137,7 @@ fun SignInScreenContent(
                         modifier = Modifier.fillMaxWidth(),
                         value = state.email,
                         onValueChange = { onEvent(SignInEvent.OnEmailChange(it)) },
-                        placeholder = { Text("E-posta") },
+                        placeholder = { Text(stringResource(id = R.string.signin_email_placeholder)) },
                         //supportingText = {Text(text = state.domainError)},
                         // isError = state.domainError!=null,
                         singleLine = true,
@@ -155,7 +157,7 @@ fun SignInScreenContent(
                         modifier = Modifier.fillMaxWidth(),
                         value = state.password,
                         onValueChange = { onEvent(SignInEvent.OnPasswordChange(it)) },
-                        placeholder = { Text("Parola") },
+                        placeholder = { Text(stringResource(id = R.string.signin_password_placeholder)) },
 //                    supportingText = {Text(text = state.domainError?:"Grispi Support'ta oturum açmak için kullandığınız adres budur.")},
 //                    isError = state.domainError!=null,
                         singleLine = true,
@@ -177,7 +179,7 @@ fun SignInScreenContent(
                     TextButton(
                         onClick = {}
                     ) {
-                        Text("Parolamı Unuttum")
+                        Text(stringResource(id = R.string.signin_forgot_password))
                     }
                 }
             }
@@ -186,17 +188,17 @@ fun SignInScreenContent(
                     modifier = Modifier.fillMaxWidth(),
                     value = state.domain,
                     onValueChange = { onEvent(SignInEvent.OnDomainChange(it)) },
-                    placeholder = { Text("alt alan") },
+                    placeholder = { Text(stringResource(id = R.string.signin_subdomain_placeholder)) },
                     suffix = {
                         Text(
-                            text = ".grispi.com",
+                            text = stringResource(id = R.string.signin_domain_suffix),
                             style = MaterialTheme.typography.titleMedium
                         )
                     },
                     supportingText = {
                         Text(
                             text = state.domainError
-                                ?: "Grispi Support'ta oturum açmak için kullandığınız adres budur."
+                                ?: stringResource(id = R.string.signin_domain_helper)
                         )
                     },
                     isError = state.domainError != null,
@@ -215,7 +217,7 @@ fun SignInScreenContent(
                 onClick = { onEvent(SignInEvent.OnNextClick) },
                 enabled = state.domain.isNotBlank()
             ) {
-                Text("Sonraki")
+                Text(stringResource(id = R.string.signin_next_button))
             }
 
             TextButton(
@@ -225,7 +227,7 @@ fun SignInScreenContent(
                         .only(WindowInsetsSides.Bottom)
                 ),
                 onClick = {}) {
-                Text("GİZLİLİK POLİTİKASI")
+                Text(stringResource(id = R.string.signin_privacy_policy))
             }
         }
     }

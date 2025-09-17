@@ -26,8 +26,11 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.novacodestudios.grispisupport.R
 import com.novacodestudios.grispisupport.presentation.list.SortOptions
+import com.novacodestudios.grispisupport.presentation.list.toUiText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,7 +56,7 @@ fun SortSheet(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = "Sıralama ölçütü", style = MaterialTheme.typography.titleSmall)
+            Text(text = stringResource(R.string.sort_criterion), style = MaterialTheme.typography.titleSmall)
             SingleChoiceSegmentedButtonRow(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -64,7 +67,7 @@ fun SortSheet(
                     ),
                     onClick = { onAscendingChange(true) },
                     selected = isAscending,
-                    label = { Text("Artan") },
+                    label = { Text(stringResource(R.string.sort_ascending)) },
                     icon = { Icon(Icons.Default.ArrowUpward, null) }
                 )
                 SegmentedButton(
@@ -74,7 +77,7 @@ fun SortSheet(
                     ),
                     onClick = { onAscendingChange(false) },
                     selected = !isAscending,
-                    label = { Text("Azalan") },
+                    label = { Text(stringResource(R.string.sort_descending)) },
                     icon = { Icon(Icons.Default.ArrowDownward, null) }
                 )
 
@@ -95,7 +98,7 @@ fun SortSheet(
                                 tint = if (currentSortOptions == sortOptions) LocalContentColor.current else Color.Transparent
                             )
                         },
-                        headlineContent = { Text(sortOptions.title) },
+                        headlineContent = { Text(sortOptions.toUiText()) },
                         colors = ListItemDefaults.colors(containerColor = BottomSheetDefaults.ContainerColor)
                     )
                 }

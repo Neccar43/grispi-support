@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.novacodestudios.grispisupport.presentation.component.LargeProfileCircle
 import com.novacodestudios.grispisupport.presentation.model.Ticket
+import com.novacodestudios.grispisupport.presentation.model.toUiText
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,7 +44,7 @@ fun DetailTopBar(
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(ticket.requester.name, style = MaterialTheme.typography.bodySmall)
                         Text(
-                            text = ticket.channel.title,
+                            text = ticket.channel.toUiText(),
                             color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.labelSmall
                         )

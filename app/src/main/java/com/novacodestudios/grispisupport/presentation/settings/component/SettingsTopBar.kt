@@ -8,12 +8,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.novacodestudios.grispisupport.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsTopBar(navigateUp: () -> Unit) {
     TopAppBar(
-        title = { Text("Ayarlar") },
+        title = { Text(stringResource(R.string.settings)) },
         navigationIcon = {
             IconButton(onClick = navigateUp) {
                 Icon(

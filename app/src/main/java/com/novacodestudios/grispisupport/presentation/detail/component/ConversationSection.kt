@@ -1,6 +1,7 @@
 package com.novacodestudios.grispisupport.presentation.detail.component
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -50,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -708,12 +710,13 @@ private fun MessageBubble(
 private fun ConversationSectionPreview() {
     GrispiSupportTheme {
         Surface {
+            val context =LocalContext.current
             ConversationSection(
                 ticket = dummyTicketList.first(),
                 //messageList = messagesT1,
                 lazyListState = rememberLazyListState(),
                 messagesByDate = remember(messagesT1) {
-                    groupMessagesByDateWithPreviousSender(messagesT1)
+                    groupMessagesByDateWithPreviousSender(messagesT1,context)
                 }
             )
         }
@@ -721,7 +724,7 @@ private fun ConversationSectionPreview() {
 }
 
 
-fun groupMessagesByDateWithPreviousSender(messages: List<Message>): List<Pair<ConversationItem, String?>> {
+fun groupMessagesByDateWithPreviousSender(messages: List<Message>,context: Context): List<Pair<ConversationItem, String?>> {
     if (messages.isEmpty()) return emptyList()
 
     val sortedMessages = messages.sortedBy { it.sentAt }
@@ -731,7 +734,7 @@ fun groupMessagesByDateWithPreviousSender(messages: List<Message>): List<Pair<Co
     var lastSenderId: String? = null
 
     for (message in sortedMessages) {
-        val currentDateKey = formatMessageDate(message.sentAt)
+        val currentDateKey = formatMessageDate(message.sentAt,context)
         if (lastDateKey != currentDateKey) {
             result.add(ConversationItem.DateHeader(currentDateKey) to null)
             lastDateKey = currentDateKey

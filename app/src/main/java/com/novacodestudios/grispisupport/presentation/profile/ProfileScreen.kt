@@ -16,8 +16,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.novacodestudios.grispisupport.R
 import com.novacodestudios.grispisupport.presentation.component.GrspTextField
 import com.novacodestudios.grispisupport.presentation.component.SipAlertDialog
 import com.novacodestudios.grispisupport.presentation.model.UserRole
@@ -83,61 +85,61 @@ fun ProfileScreenContent(
         ) {
             HorizontalDivider()
             ProfileItem(
-                title = "Ad soyad",
+                title = stringResource(id = R.string.full_name),
                 subtitle = state.user.name,
                 onClick = {isNameDialogVisible=true}
             )
             ProfileItem(
-                title = "E-posta",
+                title = stringResource(id = R.string.email),
                 subtitle = state.user.email,
             )
             if (state.user.id==currentUser.id){ // sadece kendi profiline girince gözüksün yada ayarlar ekrnaına taşı
                 SettingsItem(
-                    headlineText = "Şifreyi sıfırla",
+                    headlineText = stringResource(id = R.string.reset_password),
                     onClick = {}
                 )
             }
 
             ProfileItem(
-                title = "Telefon",
+                title = stringResource(id = R.string.phone),
                 subtitle = state.user.phone ?: "-",
             )
             ProfileItem(
-                title = "Dil",
-                subtitle = "Türkçe"
+                title = stringResource(id = R.string.language),
+                subtitle = stringResource(id = R.string.turkish)
             )
             HorizontalDivider()
             ProfileItem(
-                title = "Rol",
+                title = stringResource(id = R.string.role),
                 subtitle = state.user.role.toUiString()
             )
             ProfileItem(
-                title = "Organizasyon",
+                title = stringResource(id = R.string.organization),
                 subtitle = state.user.organization ?: "-"
             )
             ProfileItem(
-                title = "Gruplar",
+                title = stringResource(id = R.string.groups),
                 subtitle = state.user.groups.joinToString(", ").ifEmpty { "-" }
             )
 
             HorizontalDivider()
             ProfileItem(
-                title = "Atandı",
+                title = stringResource(id = R.string.assigned_tickets),
                 subtitle = dummyTicketList.count { it.assignee?.id == state.user.id }.toString(),
                 onClick = { navigateFilteredTickets(state.user.id, UserTicketFilter.ASSIGNEE) }
             )
             ProfileItem(
-                title = "Talep ettiği",
+                title = stringResource(id = R.string.requested_tickets),
                 subtitle = dummyTicketList.count { it.requester.id == state.user.id }.toString(),
                 onClick = { navigateFilteredTickets(state.user.id, UserTicketFilter.REQUEST) }
             )
             ProfileItem(
-                title = "Takip ettiği",
+                title = stringResource(id = R.string.followed_tickets),
                 subtitle = dummyTicketList.count { it.followers.any { f-> f.id==state.user.id } }.toString(),
                 onClick = { navigateFilteredTickets(state.user.id, UserTicketFilter.FOLLOW) }
             )
             ProfileItem(
-                title = "Bilgilendirilenler",
+                title = stringResource(id = R.string.mentioned_tickets),
                 subtitle = "2",
                 onClick = { navigateFilteredTickets(state.user.id, UserTicketFilter.MENTION) }
             )
@@ -146,20 +148,20 @@ fun ProfileScreenContent(
         if (isNameDialogVisible){
             SipAlertDialog(
                 onDismiss = { isNameDialogVisible = false },
-                title = "Ad soyad",
+                title = stringResource(id = R.string.full_name),
                 text = {
                     GrspTextField(
                         value = state.name,
                         onValueChange = { onEvent(ProfileEvent.OnNameChange(it)) },
-                        placeholder = "Ad soyad"
+                        placeholder = stringResource(id = R.string.full_name)
                     )
                 },
-                confirmButtonText = "Tamam",
+                confirmButtonText = stringResource(id = R.string.ok),
                 onConfirm = {
                     onEvent(ProfileEvent.OnConfirmName)
                     isNameDialogVisible = false
                 },
-                dismissButtonText = "İptal",
+                dismissButtonText = stringResource(id = R.string.cancel),
             )
         }
     }
@@ -189,9 +191,10 @@ private fun PSP() {
 }
 
 
+@Composable
 fun UserRole.toUiString(): String {
     return when (this) {
-        UserRole.END_USER -> "Son kullanıcı"
-        UserRole.AGENT -> "Temsilci"
+        UserRole.END_USER -> stringResource(id = R.string.role_end_user)
+        UserRole.AGENT -> stringResource(id = R.string.role_agent)
     }
 }

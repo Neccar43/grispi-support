@@ -14,8 +14,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.novacodestudios.grispisupport.R
 import com.novacodestudios.grispisupport.presentation.list.component.ListTopBar
 import com.novacodestudios.grispisupport.presentation.list.component.SortSheet
 import com.novacodestudios.grispisupport.presentation.list.component.StdSearchBarWithAnimation
@@ -100,7 +102,7 @@ fun ListScreenContent(
         query = state.query ?: "",
         onQueryChange = { onEvent(ListEvent.OnQueryChanged(it)) },
         onSearch = { onEvent(ListEvent.OnSearchClicked) },
-        placeholderText = "Kayıtlar, Kullanıcılar veya Organizasyon birimlerini arayın",
+        placeholderText = stringResource(R.string.search_placeholder),
     ) {
         state.searchTickets.forEach { ticket ->
             TicketItem(
@@ -111,14 +113,26 @@ fun ListScreenContent(
     }
 }
 
-enum class SortOptions(val title: String) {
-    DEFAULT("Varsayılan"),
-    REQUESTED("Talep edilen"),
-    ASSIGNED("Atanan"),
-    CREATED_DATE("Oluşturma tarihi"),
-    UPDATED_DATE("Güncelleme tarihi"),
-    PRIORITY("Öncelik"),
-    STATUS("Durum")
+enum class SortOptions {
+    DEFAULT,
+    REQUESTED,
+    ASSIGNED,
+    CREATED_DATE,
+    UPDATED_DATE,
+    PRIORITY,
+    STATUS
+}
+@Composable
+fun SortOptions.toUiText(): String {
+    return when (this) {
+        SortOptions.DEFAULT -> stringResource(R.string.sort_default)
+        SortOptions.REQUESTED -> stringResource(R.string.sort_requested)
+        SortOptions.ASSIGNED -> stringResource(R.string.sort_assigned)
+        SortOptions.CREATED_DATE -> stringResource(R.string.sort_created_date)
+        SortOptions.UPDATED_DATE -> stringResource(R.string.sort_updated_date)
+        SortOptions.PRIORITY -> stringResource(R.string.sort_priority)
+        SortOptions.STATUS -> stringResource(R.string.sort_status)
+    }
 }
 
 @Preview

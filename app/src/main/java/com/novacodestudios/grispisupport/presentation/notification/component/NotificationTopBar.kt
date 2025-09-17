@@ -9,12 +9,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.novacodestudios.grispisupport.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotificationTopBar(notificationSize: Int, navigateUp: () -> Unit, markAllAsRead: () -> Unit) {
     TopAppBar(
-        title = { Text("Bildirimler ($notificationSize)") },
+        title = { Text(stringResource(R.string.notifications) + " ($notificationSize)") },
         navigationIcon = {
             IconButton(onClick = navigateUp) {
                 Icon(

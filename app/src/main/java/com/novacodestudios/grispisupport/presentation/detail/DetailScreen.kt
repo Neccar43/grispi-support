@@ -30,9 +30,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.novacodestudios.grispisupport.R
 import com.novacodestudios.grispisupport.presentation.detail.component.ConversationSection
 import com.novacodestudios.grispisupport.presentation.detail.component.DetailSection
 import com.novacodestudios.grispisupport.presentation.detail.component.DetailTopBar
@@ -57,7 +59,6 @@ fun DetailScreen(
     val snackbarHostState =
         remember { SnackbarHostState() }
 
-     val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     LaunchedEffect(key1 = true) {
         viewModel.eventFlow.collectLatest { state ->
@@ -93,8 +94,9 @@ fun DetailScreenContent(
         // TODO: Handle et
         return
     }
+    val context = LocalContext.current
     val messagesByDate =
-        remember(state.messageList) { groupMessagesByDateWithPreviousSender(state.messageList) }
+        remember(state.messageList) { groupMessagesByDateWithPreviousSender(state.messageList,context) }
     val lazyListState = rememberLazyListState()
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -131,7 +133,7 @@ fun DetailScreenContent(
                                 onEvent(DetailEvent.OnActiveTabChange(tab))
                             }
                         },
-                        text = { Text(tab.title) }
+                        text = { Text(tab.toUiText()) }
                     )
                 }
             }
@@ -221,11 +223,20 @@ private fun DetailScreenPreview() {
     }
 }
 
-enum class DetailTabs(val title: String) {
-    Conversation("Sohbet"),
-    Detail("Detay"),
-    Extension("Uygulama"),
-    History("Geçmiş")
+enum class DetailTabs {
+    Conversation,
+    Detail,
+    Extension,
+    History
+}
+@Composable
+fun DetailTabs.toUiText(): String {
+    return when (this) {
+        DetailTabs.Conversation -> stringResource(R.string.tab_conversation)
+        DetailTabs.Detail -> stringResource(R.string.tab_detail)
+        DetailTabs.Extension -> stringResource(R.string.tab_extension)
+        DetailTabs.History -> stringResource(R.string.tab_history)
+    }
 }
 
 

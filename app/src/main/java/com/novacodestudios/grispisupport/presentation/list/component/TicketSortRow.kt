@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.novacodestudios.grispisupport.presentation.list.SortOptions
+import com.novacodestudios.grispisupport.presentation.list.toUiText
 
 @Composable
 fun TicketSortRow(sortOptions: SortOptions, onClick: () -> Unit) {
@@ -37,7 +38,7 @@ fun TicketSortRow(sortOptions: SortOptions, onClick: () -> Unit) {
             tint = MaterialTheme.colorScheme.primary
         )
         Text(
-            text = sortOptions.title,
+            text = sortOptions.toUiText(),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.primary
         )

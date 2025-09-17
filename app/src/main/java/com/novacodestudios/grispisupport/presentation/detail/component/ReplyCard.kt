@@ -66,6 +66,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -73,6 +74,7 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import coil3.compose.rememberAsyncImagePainter
+import com.novacodestudios.grispisupport.R
 import com.novacodestudios.grispisupport.presentation.component.LargeProfileCircle
 import com.novacodestudios.grispisupport.presentation.detail.DetailEvent
 import com.novacodestudios.grispisupport.presentation.detail.DetailState
@@ -81,6 +83,7 @@ import com.novacodestudios.grispisupport.presentation.model.Attachment
 import com.novacodestudios.grispisupport.presentation.model.AttachmentType
 import com.novacodestudios.grispisupport.presentation.model.Channel
 import com.novacodestudios.grispisupport.presentation.model.TicketStatus
+import com.novacodestudios.grispisupport.presentation.model.toUiText
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
 import com.novacodestudios.grispisupport.presentation.theme.yellowContainer
 import com.novacodestudios.grispisupport.presentation.theme.yellowOnContainer
@@ -178,14 +181,14 @@ fun ReplyCard(
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Şu yolla yanıtla: ", style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.reply_with), style = MaterialTheme.typography.bodyMedium)
                             Row(
                                 modifier = Modifier
                                     .clickable { expanded = true },
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = state.selectedChannel.title,
+                                    text = state.selectedChannel.toUiText(),
                                     color = primary,
                                     style = MaterialTheme.typography.bodyMedium
                                 )
@@ -206,7 +209,7 @@ fun ReplyCard(
                                 Channel.INTERNAL_NOTE
                             ).forEach { newOption ->
                                 DropdownMenuItem(
-                                    text = { Text(newOption.title) },
+                                    text = { Text(newOption.toUiText()) },
                                     onClick = {
                                         onEvent(DetailEvent.OnChannelChange(newOption)); expanded =
                                         false
@@ -223,7 +226,7 @@ fun ReplyCard(
                             }
                             onEvent(DetailEvent.OnReplyTextChange(it))
                         },
-                        placeholder = "Yanıt yazın...",
+                        placeholder = stringResource(R.string.write_response),
                         modifier = Modifier
                             .focusRequester(focusRequester)
                             .fillMaxWidth(),
@@ -288,7 +291,7 @@ fun ReplyCard(
                     StdBasicTextField(
                         value = state.replyText,
                         onValueChange = { onEvent(DetailEvent.OnReplyTextChange(it)) },
-                        placeholder = "Yanıt yazın...",
+                        placeholder = stringResource(R.string.write_response),
                         modifier = Modifier
                             .onFocusChanged { focusState ->
                                 if (focusState.isFocused) {
@@ -439,7 +442,7 @@ fun rememberCameraLauncher(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { granted ->
             if (!granted) {
-                Toast.makeText(context, "Kamera izni gerekli", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.camera_permission_required), Toast.LENGTH_SHORT).show()
             }
         }
     )
@@ -532,7 +535,7 @@ fun FileChipWithCloseButton(
 ) {
     val context = LocalContext.current
     val meta = remember(fileUri) { queryFileMeta(context, fileUri) }
-    val fileName = meta?.first ?: (fileUri.lastPathSegment ?: "Dosya")
+    val fileName = meta?.first ?: (fileUri.lastPathSegment ?: stringResource(R.string.file))
     val fileSize = formatFileSize(meta?.second ?: -1L)
     BadgedBox(
         modifier = Modifier
@@ -584,7 +587,7 @@ fun queryFileMeta(context: Context, uri: Uri): Pair<String, Long>? {
         val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
         val sizeIndex = it.getColumnIndex(OpenableColumns.SIZE)
         if (it.moveToFirst()) {
-            val name = if (nameIndex != -1) it.getString(nameIndex) else "Dosya"
+            val name = if (nameIndex != -1) it.getString(nameIndex) else context.getString(R.string.file)
             val size = if (sizeIndex != -1) it.getLong(sizeIndex) else -1L
             return name to size
         }
@@ -603,7 +606,7 @@ fun formatFileSize(size: Long): String {
 }
 
 fun Uri.toAttachment(context: Context): Attachment {
-    val (name, size) = queryFileMeta(context, this) ?: ("Bilinmiyor" to -1L)
+    val (name, size) = queryFileMeta(context, this) ?: (context.getString(R.string.unknown) to -1L)
 
     val mimeType = context.contentResolver.getType(this) ?: "application/octet-stream"
     val type = if (mimeType.startsWith("image/")) AttachmentType.IMAGE else AttachmentType.FILE

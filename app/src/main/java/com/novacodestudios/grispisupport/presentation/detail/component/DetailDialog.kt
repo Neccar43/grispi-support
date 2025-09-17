@@ -3,8 +3,10 @@ package com.novacodestudios.grispisupport.presentation.detail.component
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import com.novacodestudios.grispisupport.R
 import com.novacodestudios.grispisupport.presentation.component.SipAlertDialog
 
 @Composable
@@ -20,8 +22,8 @@ fun DetailDialog(
         title = title,
         text = text,
         onConfirm = onConfirm,
-        confirmButtonText = "Tamam",
-        dismissButtonText = "İptal",
+        confirmButtonText = stringResource(R.string.ok),
+        dismissButtonText = stringResource(R.string.cancel),
         properties = DialogProperties(usePlatformDefaultWidth = false)
     )
 

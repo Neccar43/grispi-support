@@ -5,6 +5,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.novacodestudios.grispisupport.R
 
 @Composable
 fun DetailItem(
@@ -20,7 +22,7 @@ fun DetailItem(
         supportingContent = {
             if (isRequired) {
                 Text(
-                    text = "* Zorunlu",
+                    text = stringResource(R.string.required),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodySmall
                 )

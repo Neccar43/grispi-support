@@ -1,6 +1,10 @@
 package com.novacodestudios.grispisupport.presentation.util
 
+import android.content.Context
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import com.novacodestudios.grispisupport.R
 import com.novacodestudios.grispisupport.presentation.model.TicketStatus
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -17,7 +21,7 @@ fun formatMessageTime(timestamp: Long): String {
     return dateFormat.format(Date(timestamp))
 }
 
-fun formatMessageDate(timestamp: Long): String {
+fun formatMessageDate(timestamp: Long,context: Context): String {
     val now = Calendar.getInstance()
     val date = Calendar.getInstance().apply { timeInMillis = timestamp }
 
@@ -25,8 +29,8 @@ fun formatMessageDate(timestamp: Long): String {
     val dayFormat = SimpleDateFormat("EEEE", Locale.getDefault()) // Pazartesi, Salı vs.
 
     return when {
-        isSameDay(now, date) -> "Bugün"
-        isYesterday(now, date) -> "Dün"
+        isSameDay(now, date) -> context.getString(R.string.today)
+        isYesterday(now, date) -> context.getString(R.string.yesterday)
         isSameWeek(now, date) -> dayFormat.format(date.time) // örn: "Perşembe"
         else -> dateFormat.format(date.time)                // örn: "27 Temmuz 2025"
     }
@@ -65,12 +69,13 @@ fun TicketStatus.toColor() = when (this) {
     TicketStatus.ON_HOLD -> Color(0xFF000000)  // Koyu gri / siyaha yakın
 }
 
+@Composable
 fun TicketStatus.toUiName() = when (this) {
-    TicketStatus.OPEN -> "Açık"
+    TicketStatus.OPEN -> stringResource(R.string.status_open)
     //TicketStatus.IN_PROGRESS -> "Devam Ediyor"
-      TicketStatus.PENDING -> "Askıda"
-    TicketStatus.ON_HOLD -> "Beklemede"
-    TicketStatus.RESOLVED -> "Çözüldü"
+      TicketStatus.PENDING -> stringResource(R.string.status_suspended)
+    TicketStatus.ON_HOLD -> stringResource(R.string.status_on_hold)
+    TicketStatus.RESOLVED -> stringResource(R.string.status_resolved)
     // TicketStatus.CLOSED -> "Kapalı"
-    TicketStatus.NEW -> "Yeni"
+    TicketStatus.NEW -> stringResource(R.string.status_new)
 }

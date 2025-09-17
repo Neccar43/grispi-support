@@ -14,10 +14,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
+import com.novacodestudios.grispisupport.R
 import com.novacodestudios.grispisupport.presentation.component.LargeProfileCircle
 import com.novacodestudios.grispisupport.presentation.model.Channel
 import com.novacodestudios.grispisupport.presentation.model.Priority
@@ -25,6 +27,7 @@ import com.novacodestudios.grispisupport.presentation.model.Tag
 import com.novacodestudios.grispisupport.presentation.model.Ticket
 import com.novacodestudios.grispisupport.presentation.model.TicketStatus
 import com.novacodestudios.grispisupport.presentation.model.Type
+import com.novacodestudios.grispisupport.presentation.model.toUiText
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
 import com.novacodestudios.grispisupport.presentation.util.toColor
 import com.novacodestudios.grispisupport.presentation.util.toUiName
@@ -58,7 +61,7 @@ fun TicketItem(ticket: Ticket, onClick: () -> Unit) {
                     modifier = Modifier.weight(1f)
                 )
                 Text(
-                    text = ticket.channel.title,
+                    text = ticket.channel.toUiText(),
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.weight(1f)
                 )
@@ -115,9 +118,9 @@ private fun TicketItemPreview() {
                 assignee = user2,
                 followers = listOf(user5),
                 tags = listOf(
-                    Tag(1, "yeni")
+                    Tag(1, stringResource(R.string.tag_new))
                 ),
-                formId = "Geri Bildirim",
+                formId = stringResource(R.string.form_feedback),
                 status = TicketStatus.PENDING,
                 createdAt = System.currentTimeMillis() - 7 * 86400000,
                 updatedAt = System.currentTimeMillis() - 6 * 86400000,

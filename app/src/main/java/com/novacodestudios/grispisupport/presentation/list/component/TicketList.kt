@@ -9,9 +9,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.novacodestudios.grispisupport.R
 import com.novacodestudios.grispisupport.presentation.model.Ticket
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
 import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
@@ -30,7 +32,7 @@ fun TicketList(tickets: List<Ticket>, onTicketClick: (Ticket) -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp),
-                text = "Listenin sonu",
+                text = stringResource(R.string.end_of_list),
                 textAlign = TextAlign.Center,
                 color = Color.Gray
             )

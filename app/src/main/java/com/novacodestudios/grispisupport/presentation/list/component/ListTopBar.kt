@@ -25,8 +25,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.novacodestudios.grispisupport.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,7 +65,7 @@ fun ListMenu() {
             modifier = Modifier.clickable { expanded = !expanded }
         ) {
             Text(
-                text = option.title,
+                text = option.toUiText(),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
@@ -79,7 +81,7 @@ fun ListMenu() {
                 DropdownMenuItem(
                     text = {
                         Text(
-                            newOption.title,
+                            newOption.toUiText(),
                             color = if (newOption == ListMenuOption.SUSPENDED_RECORDS) MaterialTheme.colorScheme.error else Color.Unspecified
                         )
                     },
@@ -88,21 +90,35 @@ fun ListMenu() {
             }
             DropdownMenuItem(
                 leadingIcon = { Icon(Icons.Default.Edit, null) },
-                text = { Text("Görünümleri düzenle") },
+                text = { Text(stringResource(R.string.edit_views)) },
                 onClick = { }
             )
         }
     }
 }
+enum class ListMenuOption {
+    UNSOLVED_RECORDS,
+    UNASSIGNED_RECORDS,
+    ALL_UNSOLVED_RECORDS,
+    RECENTLY_UPDATED,
+    NEW_IN_GROUPS,
+    PENDING_RECORDS,
+    RECENTLY_SOLVED,
+    UNSOLVED_IN_GROUPS,
+    SUSPENDED_RECORDS
+}
 
-enum class ListMenuOption(val title: String) {
-    UNSOLVED_RECORDS("Çözülmemiş kayıtlarınız"),
-    UNASSIGNED_RECORDS("Atanmamış kayıtlar"),
-    ALL_UNSOLVED_RECORDS("Tüm çözülmemiş kayıtlar"),
-    RECENTLY_UPDATED("Yakında güncellenmiş kayıtlar"),
-    NEW_IN_GROUPS("Gruplarınızdaki yeni kayıtlar"),
-    PENDING_RECORDS("Beklemedeki kayıtlar"),
-    RECENTLY_SOLVED("Yakında çözülmüş kayıtlar"),
-    UNSOLVED_IN_GROUPS("Gruplarınızdaki çözülmemiş kayıtlar"),
-    SUSPENDED_RECORDS("Askıya alınmış kayıtlar")
+@Composable
+fun ListMenuOption.toUiText(): String {
+    return when (this) {
+        ListMenuOption.UNSOLVED_RECORDS -> stringResource(R.string.unsolved_records)
+        ListMenuOption.UNASSIGNED_RECORDS -> stringResource(R.string.unassigned_records)
+        ListMenuOption.ALL_UNSOLVED_RECORDS -> stringResource(R.string.all_unsolved_records)
+        ListMenuOption.RECENTLY_UPDATED -> stringResource(R.string.recently_updated)
+        ListMenuOption.NEW_IN_GROUPS -> stringResource(R.string.new_in_groups)
+        ListMenuOption.PENDING_RECORDS -> stringResource(R.string.pending_records)
+        ListMenuOption.RECENTLY_SOLVED -> stringResource(R.string.recently_solved)
+        ListMenuOption.UNSOLVED_IN_GROUPS -> stringResource(R.string.unsolved_in_groups)
+        ListMenuOption.SUSPENDED_RECORDS -> stringResource(R.string.suspended_records)
+    }
 }

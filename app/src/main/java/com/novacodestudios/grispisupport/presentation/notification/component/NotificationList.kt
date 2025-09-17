@@ -15,9 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.novacodestudios.grispisupport.R
 import com.novacodestudios.grispisupport.presentation.component.LargeProfileCircle
 import com.novacodestudios.grispisupport.presentation.model.Notification
 import java.text.SimpleDateFormat
@@ -42,7 +44,7 @@ fun NotificationList(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp),
-                text = "Listenin sonu",
+                text = stringResource(R.string.end_of_list),
                 textAlign = TextAlign.Center,
                 color = Color.Gray
             )
@@ -76,7 +78,7 @@ private fun NotificationItem(
         overlineContent = {
             Row {
                 Text(
-                    "${notification.user.name} bir yorum ekledi",
+                    "${notification.user.name} bir yorum ekledi", // TODO: string resource olarak ekle
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f)
