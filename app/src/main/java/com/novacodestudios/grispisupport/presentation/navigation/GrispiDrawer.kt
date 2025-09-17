@@ -90,7 +90,7 @@ private fun ProfileSection(
         )
         Text(
             text = user.name,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.titleMedium
         )
         Text(
             text = user.email,
