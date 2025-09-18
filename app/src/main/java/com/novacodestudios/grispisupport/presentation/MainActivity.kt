@@ -46,15 +46,18 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val TAG = "MainActivity"
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var preferences: Preferences
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         lifecycleScope.launch {
-            val langCode=preferences.getData(Keys.LANGUAGE)?.let { LanguageOption.valueOf(it).toLanguageCode() } ?: return@launch
+            val langCode = preferences.getData(Keys.LANGUAGE)
+                ?.let { LanguageOption.valueOf(it).toLanguageCode() } ?: return@launch
             setAppLanguageForLegacy(this@MainActivity, langCode)
             Log.d(TAG, "onCreate: Language code: $langCode")
         }
@@ -99,27 +102,28 @@ class AppState(
     @Composable
     fun isSelected(item: NavigationItem) = currentDestination?.hasRoute(item.route::class) == true
 
-    val navItems @Composable get() = listOf(
-        NavigationItem(
-            title = stringResource(R.string.notifications),
-            selectedIcon = Icons.Filled.Notifications,
-            unSelectedIcon = Icons.Outlined.Notifications,
-            route = Screen.Notification
-        ),
-        NavigationItem(
-            title = stringResource(R.string.feedback),
-            selectedIcon = Icons.Filled.Feedback,
-            unSelectedIcon = Icons.Outlined.Feedback,
-            route = Screen.Feedback
-        ),
-        NavigationItem(
-            title = stringResource(R.string.settings),
-            selectedIcon = Icons.Filled.Settings,
-            unSelectedIcon = Icons.Outlined.Settings,
-            route = Screen.Settings
-        ),
+    val navItems
+        @Composable get() = listOf(
+            NavigationItem(
+                title = stringResource(R.string.notifications),
+                selectedIcon = Icons.Filled.Notifications,
+                unSelectedIcon = Icons.Outlined.Notifications,
+                route = Screen.Notification
+            ),
+            NavigationItem(
+                title = stringResource(R.string.feedback),
+                selectedIcon = Icons.Filled.Feedback,
+                unSelectedIcon = Icons.Outlined.Feedback,
+                route = Screen.Feedback
+            ),
+            NavigationItem(
+                title = stringResource(R.string.settings),
+                selectedIcon = Icons.Filled.Settings,
+                unSelectedIcon = Icons.Outlined.Settings,
+                route = Screen.Settings
+            ),
 
-        )
+            )
 
     val currentUser = com.novacodestudios.grispisupport.presentation.util.currentUser
 

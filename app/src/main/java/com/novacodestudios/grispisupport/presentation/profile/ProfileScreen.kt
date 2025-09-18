@@ -87,13 +87,13 @@ fun ProfileScreenContent(
             ProfileItem(
                 title = stringResource(id = R.string.full_name),
                 subtitle = state.user.name,
-                onClick = {isNameDialogVisible=true}
+                onClick = { isNameDialogVisible = true }
             )
             ProfileItem(
                 title = stringResource(id = R.string.email),
                 subtitle = state.user.email,
             )
-            if (state.user.id==currentUser.id){ // sadece kendi profiline girince gözüksün yada ayarlar ekrnaına taşı
+            if (state.user.id == currentUser.id) { // sadece kendi profiline girince gözüksün yada ayarlar ekrnaına taşı
                 SettingsItem(
                     headlineText = stringResource(id = R.string.reset_password),
                     onClick = {}
@@ -135,7 +135,8 @@ fun ProfileScreenContent(
             )
             ProfileItem(
                 title = stringResource(id = R.string.followed_tickets),
-                subtitle = dummyTicketList.count { it.followers.any { f-> f.id==state.user.id } }.toString(),
+                subtitle = dummyTicketList.count { it.followers.any { f -> f.id == state.user.id } }
+                    .toString(),
                 onClick = { navigateFilteredTickets(state.user.id, UserTicketFilter.FOLLOW) }
             )
             ProfileItem(
@@ -145,7 +146,7 @@ fun ProfileScreenContent(
             )
         }
 
-        if (isNameDialogVisible){
+        if (isNameDialogVisible) {
             SipAlertDialog(
                 onDismiss = { isNameDialogVisible = false },
                 title = stringResource(id = R.string.full_name),
@@ -167,11 +168,21 @@ fun ProfileScreenContent(
     }
 }
 
-enum class UserTicketFilter{
+enum class UserTicketFilter {
     ASSIGNEE,
     REQUEST,
     FOLLOW,
     MENTION
+}
+
+@Composable
+fun UserTicketFilter.toUiString(): String {
+    return when (this) {
+        UserTicketFilter.ASSIGNEE -> stringResource(id = R.string.assigned_tickets)
+        UserTicketFilter.REQUEST -> stringResource(id = R.string.requested_tickets)
+        UserTicketFilter.FOLLOW -> stringResource(id = R.string.followed_tickets)
+        UserTicketFilter.MENTION -> stringResource(id = R.string.mentioned_tickets)
+    }
 }
 
 @Preview
