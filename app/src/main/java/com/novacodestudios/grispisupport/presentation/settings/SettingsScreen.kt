@@ -143,7 +143,7 @@ fun SettingsScreenContent(
                 DialogRadioGroup(
                     options = ThemeOption.entries.map { it.toUiText() },
                     selectedOption = selectedOption.toUiText(),
-                    onOptionSelected = { selectedOption = displayNameToTheme(context,it) },
+                    onOptionSelected = { selectedOption = displayNameToTheme(context, it) },
                 )
             },
             onConfirm = {
@@ -162,7 +162,7 @@ fun SettingsScreenContent(
                 DialogRadioGroup(
                     options = LanguageOption.entries.map { it.toUiText() },
                     selectedOption = selectedOption.toUiText(),
-                    onOptionSelected = { selectedOption = displayNameToLanguage(context,it) },
+                    onOptionSelected = { selectedOption = displayNameToLanguage(context, it) },
                 )
             },
             onConfirm = {
@@ -180,6 +180,7 @@ enum class ThemeOption() {
     DARK,
     SYSTEM_DEFAULT
 }
+
 @Composable
 fun ThemeOption.toUiText(): String {
     return when (this) {
@@ -189,7 +190,7 @@ fun ThemeOption.toUiText(): String {
     }
 }
 
-fun displayNameToTheme(context: Context,displayName: String): ThemeOption {
+fun displayNameToTheme(context: Context, displayName: String): ThemeOption {
     return when (displayName) {
         context.getString(R.string.light) -> ThemeOption.LIGHT
         context.getString(R.string.dark) -> ThemeOption.DARK
@@ -204,7 +205,7 @@ enum class LanguageOption {
     ENGLISH
 }
 
-fun displayNameToLanguage(context: Context,displayName: String): LanguageOption {
+fun displayNameToLanguage(context: Context, displayName: String): LanguageOption {
     return when (displayName) {
         context.getString(R.string.turkish) -> LanguageOption.TURKISH
         context.getString(R.string.english) -> LanguageOption.ENGLISH
@@ -250,13 +251,14 @@ fun setAppLanguageForNewApi(context: Context, languageOption: LanguageOption) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         context.getSystemService(LocaleManager::class.java)
             .applicationLocales = LocaleList.forLanguageTags(languageCode)
-    }else{
-        setAppLanguageForLegacy(context,languageCode)
+    } else {
+        setAppLanguageForLegacy(context, languageCode)
         Log.d(TAG, "changeLanguage: Language changed to $languageCode")
     }
 }
+
 fun setAppLanguageForLegacy(context: Context, languageCode: String) {
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU){
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
         Log.d(TAG, "changeLanguage: Changing language to $languageCode")
         val locale = Locale(languageCode)
         Locale.setDefault(locale)

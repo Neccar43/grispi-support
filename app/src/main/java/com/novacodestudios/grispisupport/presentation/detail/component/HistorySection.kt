@@ -17,7 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
@@ -25,7 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.novacodestudios.grispisupport.presentation.component.LargeProfileCircle
 import com.novacodestudios.grispisupport.presentation.model.TicketEvent
 import com.novacodestudios.grispisupport.presentation.model.TicketHistory
-import com.novacodestudios.grispisupport.presentation.util.allDummyUsers
+import com.novacodestudios.grispisupport.presentation.model.User
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -33,21 +32,21 @@ import java.util.Locale
 @Composable
 fun HistorySection(
     modifier: Modifier,
-    ticketHistories: List<TicketHistory>
+    ticketHistories: List<TicketHistory>,
+    user: User,
 ) {
     LazyColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(ticketHistories) {
-            HistoryCard(history = it)
+            HistoryCard(history = it,user=user)
         }
     }
 }
 
 @Composable
-fun HistoryCard(history: TicketHistory) {
-    val user = remember { allDummyUsers.find { it.id == history.authorId } } ?: return
+fun HistoryCard(history: TicketHistory, user: User) {
     OutlinedCard {
         Column(
             modifier = Modifier

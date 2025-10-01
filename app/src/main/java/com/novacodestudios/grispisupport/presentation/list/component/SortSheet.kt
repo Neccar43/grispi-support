@@ -56,7 +56,10 @@ fun SortSheet(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(text = stringResource(R.string.sort_criterion), style = MaterialTheme.typography.titleSmall)
+            Text(
+                text = stringResource(R.string.sort_criterion),
+                style = MaterialTheme.typography.titleSmall
+            )
             SingleChoiceSegmentedButtonRow(
                 modifier = Modifier.fillMaxWidth()
             ) {

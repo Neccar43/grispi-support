@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.novacodestudios.grispisupport.data.local.Keys
 import com.novacodestudios.grispisupport.data.local.Preferences
+import com.novacodestudios.grispisupport.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -17,7 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val preferences: Preferences
+    private val preferences: Preferences,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
     var state by mutableStateOf(SettingsState())
         private set
@@ -27,7 +29,7 @@ class SettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            preferences.observeData(Keys.LANGUAGE).collectLatest { language->
+            preferences.observeData(Keys.LANGUAGE).collectLatest { language ->
                 Log.d(TAG, "init: language: $language")
                 language?.let {
                     state = state.copy(language = LanguageOption.valueOf(it))
@@ -53,7 +55,8 @@ class SettingsViewModel @Inject constructor(
                     preferences.editData(Keys.LANGUAGE, event.language.name)
                 }
             }
-            is SettingsEvent.OnThemeSelected ->{
+
+            is SettingsEvent.OnThemeSelected -> {
                 viewModelScope.launch {
                     preferences.editData(Keys.THEME, event.theme.name)
                 }

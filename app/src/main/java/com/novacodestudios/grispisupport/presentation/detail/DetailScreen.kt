@@ -43,9 +43,6 @@ import com.novacodestudios.grispisupport.presentation.detail.component.HistorySe
 import com.novacodestudios.grispisupport.presentation.detail.component.ReplyCard
 import com.novacodestudios.grispisupport.presentation.detail.component.groupMessagesByDateWithPreviousSender
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
-import com.novacodestudios.grispisupport.presentation.util.dummyHistories
-import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
-import com.novacodestudios.grispisupport.presentation.util.messagesT1
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -96,7 +93,12 @@ fun DetailScreenContent(
     }
     val context = LocalContext.current
     val messagesByDate =
-        remember(state.messageList) { groupMessagesByDateWithPreviousSender(state.messageList,context) }
+        remember(state.messageList) {
+            groupMessagesByDateWithPreviousSender(
+                state.messageList,
+                context
+            )
+        }
     val lazyListState = rememberLazyListState()
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -164,7 +166,8 @@ fun DetailScreenContent(
                             .fillMaxSize()
                             .padding(vertical = 8.dp)
                             .padding(horizontal = 16.dp),
-                        ticketHistories = state.ticketHistories
+                        ticketHistories = state.ticketHistories,
+                        user = state.ticket.requester
                     )
 
                     DetailTabs.Extension -> ExtensionSection(
@@ -207,11 +210,12 @@ private fun DetailScreenPreview() {
     GrispiSupportTheme {
         DetailScreenContent(
             state = DetailState(
-                ticket = dummyTicketList.first(),
+                ticketId = "t1",
+                // ticket = dummyTicketList.first(),
                 activeTab = DetailTabs.Conversation,
-                messageList = messagesT1.sortedBy { it.sentAt },
-                ticketHistories = dummyHistories.filter { it.ticketId == "t1" }
-                    .sortedByDescending { it.createdAt }
+                // messageList = messagesT1.sortedBy { it.sentAt },
+                // ticketHistories = dummyHistories.filter { it.ticketId == "t1" }
+                //   .sortedByDescending { it.createdAt }
 
             ),
             snackbarHostState = SnackbarHostState(),
@@ -229,6 +233,7 @@ enum class DetailTabs {
     Extension,
     History
 }
+
 @Composable
 fun DetailTabs.toUiText(): String {
     return when (this) {

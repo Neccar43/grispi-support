@@ -1,7 +1,5 @@
 package com.novacodestudios.grispisupport.presentation.model
 
-import android.content.Context
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.novacodestudios.grispisupport.R

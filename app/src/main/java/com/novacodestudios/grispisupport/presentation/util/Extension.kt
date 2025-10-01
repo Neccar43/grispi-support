@@ -21,7 +21,7 @@ fun formatMessageTime(timestamp: Long): String {
     return dateFormat.format(Date(timestamp))
 }
 
-fun formatMessageDate(timestamp: Long,context: Context): String {
+fun formatMessageDate(timestamp: Long, context: Context): String {
     val now = Calendar.getInstance()
     val date = Calendar.getInstance().apply { timeInMillis = timestamp }
 
@@ -73,7 +73,7 @@ fun TicketStatus.toColor() = when (this) {
 fun TicketStatus.toUiName() = when (this) {
     TicketStatus.OPEN -> stringResource(R.string.status_open)
     //TicketStatus.IN_PROGRESS -> "Devam Ediyor"
-      TicketStatus.PENDING -> stringResource(R.string.status_suspended)
+    TicketStatus.PENDING -> stringResource(R.string.status_suspended)
     TicketStatus.ON_HOLD -> stringResource(R.string.status_on_hold)
     TicketStatus.RESOLVED -> stringResource(R.string.status_resolved)
     // TicketStatus.CLOSED -> "Kapalı"

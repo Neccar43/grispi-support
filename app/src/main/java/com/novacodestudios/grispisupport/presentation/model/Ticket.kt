@@ -1,6 +1,6 @@
 package com.novacodestudios.grispisupport.presentation.model
 
-
+// TODO: domaine taşı
 data class Ticket(
     val id: String,
     val number: Int,
@@ -24,6 +24,7 @@ enum class TicketStatus {
     NEW, // sadece ilk açılışta olacak sonrasında geçiş yapılamayacak
     OPEN,
     PENDING,
+
     // IN_PROGRESS,
     ON_HOLD,
     RESOLVED,

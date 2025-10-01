@@ -29,11 +29,9 @@ import com.novacodestudios.grispisupport.presentation.model.TicketStatus
 import com.novacodestudios.grispisupport.presentation.model.Type
 import com.novacodestudios.grispisupport.presentation.model.toUiText
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
+import com.novacodestudios.grispisupport.presentation.util.DummyDataSource
 import com.novacodestudios.grispisupport.presentation.util.toColor
 import com.novacodestudios.grispisupport.presentation.util.toUiName
-import com.novacodestudios.grispisupport.presentation.util.user1
-import com.novacodestudios.grispisupport.presentation.util.user2
-import com.novacodestudios.grispisupport.presentation.util.user5
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -114,9 +112,9 @@ private fun TicketItemPreview() {
                 id = "t6",
                 number = 1,
                 subject = LoremIpsum(50).values.joinToString(),
-                requester = user1,
-                assignee = user2,
-                followers = listOf(user5),
+                requester = DummyDataSource.user1,
+                assignee = DummyDataSource.user2,
+                followers = listOf(DummyDataSource.user5),
                 tags = listOf(
                     Tag(1, stringResource(R.string.tag_new))
                 ),

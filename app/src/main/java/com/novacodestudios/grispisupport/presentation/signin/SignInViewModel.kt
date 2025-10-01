@@ -1,12 +1,12 @@
 package com.novacodestudios.grispisupport.presentation.signin
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.novacodestudios.grispisupport.presentation.util.currentUser
+import com.novacodestudios.grispisupport.domain.repository.AuthRepository
+import com.novacodestudios.grispisupport.presentation.util.DummyDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -15,8 +15,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SignInViewModel @Inject constructor(
-
+    private val authRepository: AuthRepository
 ) : ViewModel() {
+
     var state by mutableStateOf(SignInState())
         private set
 
@@ -32,34 +33,34 @@ class SignInViewModel @Inject constructor(
         }
     }
 
-    fun next() {
+    private fun next() {
         viewModelScope.launch {
-            Log.d(TAG, "next: domain: ${state.domain}")
+            state = state.copy(isLoading = true, domainError = null)
 
-            if (state.isDomainValid) {
-                val hasError = listOf(
-                    state.email != currentUser.email,
-                    state.password != "test123",
-                    state.email.isBlank(),
-                    state.password.isBlank(),
-                ).any { it }
-
-                if (hasError) {
-                    _eventFlow.emit(UIEvent.ShowSnackBar("Email veya parola hatalı"))
-                    return@launch
+            if (!state.isDomainValid) {
+                val valid = authRepository.validateDomain(state.domain)
+                if (valid) {
+                    state = state.copy(isDomainValid = true, isLoading = false)
+                } else {
+                    state = state.copy(
+                        domainError = "Domain kayıtlı değil",
+                        isLoading = false
+                    )
                 }
-                _eventFlow.emit(UIEvent.NavigateList)
                 return@launch
             }
 
-            state = state.copy(domainError = null)
-            val isRegistered = "test" == state.domain
-            if (isRegistered) {
-                //_eventFlow.emit(UIEvent.NavigateList)
-                state = state.copy(isDomainValid = true)
+            val success = authRepository.signIn(
+                state.domain,
+                state.email,
+                state.password
+            )
+            state = state.copy(isLoading = false)
+            if (success) {
+                _eventFlow.emit(UIEvent.NavigateList)
+            } else {
+                _eventFlow.emit(UIEvent.ShowSnackBar("Email veya parola hatalı"))
             }
-
-            state = state.copy(isLoading = false, domainError = "Domain kayıtlı değil")
         }
     }
 
@@ -67,18 +68,15 @@ class SignInViewModel @Inject constructor(
         data class ShowSnackBar(val message: String) : UIEvent
         data object NavigateList : UIEvent
     }
-
-    companion object {
-        private const val TAG = "SignInViewModel"
-    }
 }
+
 
 data class SignInState(
     val isLoading: Boolean = false,
     val domain: String = "test",
     val domainError: String? = null,
     val isDomainValid: Boolean = false,
-    val email: String = currentUser.email,
+    val email: String = DummyDataSource.currentUser.email,
     val password: String = "test123",
 )
 

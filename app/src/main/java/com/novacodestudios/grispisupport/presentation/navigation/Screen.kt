@@ -12,7 +12,7 @@ sealed interface Screen {
     data object List : Screen
 
     @Serializable
-    data class Detail(val id: String,val macroId: String?=null) : Screen
+    data class Detail(val id: String, val macroId: String? = null) : Screen
 
     @Serializable
     data object Notification : Screen
@@ -27,7 +27,7 @@ sealed interface Screen {
     data class Profile(val id: String) : Screen
 
     @Serializable
-    data class FilteredTickets(val userId: String,val filter: UserTicketFilter ) : Screen
+    data class FilteredTickets(val userId: String, val filter: UserTicketFilter) : Screen
 
     @Serializable
     data class Macro(val ticketId: String) : Screen

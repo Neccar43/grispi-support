@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -71,11 +70,8 @@ import com.novacodestudios.grispisupport.presentation.model.Ticket
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
 import com.novacodestudios.grispisupport.presentation.theme.yellowContainer
 import com.novacodestudios.grispisupport.presentation.theme.yellowOnContainer
-import com.novacodestudios.grispisupport.presentation.util.currentUser
-import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import com.novacodestudios.grispisupport.presentation.util.formatMessageDate
 import com.novacodestudios.grispisupport.presentation.util.formatMessageTime
-import com.novacodestudios.grispisupport.presentation.util.messagesT1
 
 typealias MessagesByDateWithPreviousSender = List<Pair<ConversationItem, String?>>
 
@@ -140,7 +136,8 @@ fun ConversationSection(
                                 item = item,
                                 modifier = Modifier.padding(top = 8.dp, end = 8.dp),
                                 onAttachmentClick = onAttachmentClick,
-                                onPlusClick = onPlusClick
+                                onPlusClick = onPlusClick,
+                                userName = item.message.senderId // TODO: user name gelecek
                             )
                         } else {
                             Row(
@@ -478,6 +475,7 @@ private fun MessageContent(
 @Composable
 private fun InternalNoteContent(
     item: ConversationItem.MessageItem,
+    userName: String,
     onAttachmentClick: (Attachment) -> Unit,
     onPlusClick: (List<Attachment>) -> Unit
 ) {
@@ -487,9 +485,9 @@ private fun InternalNoteContent(
         Column {
             ListItem(
                 leadingContent = {
-                    LargeProfileCircle(currentUser.name) // TODO: gerçek kullanıcı bilgisi ile değiştir
+                    LargeProfileCircle(userName) // TODO: gerçek kullanıcı bilgisi ile değiştir
                 },
-                headlineContent = { Text(currentUser.name) },
+                headlineContent = { Text(userName) },
                 colors = ListItemDefaults.colors(
                     containerColor = yellowContainer,
                     headlineColor = yellowOnContainer
@@ -571,6 +569,7 @@ private fun InternalNoteContent(
 fun InternalNoteCard(
     modifier: Modifier = Modifier,
     item: ConversationItem.MessageItem,
+    userName: String,
     onAttachmentClick: (Attachment) -> Unit,
     onPlusClick: (List<Attachment>) -> Unit
 ) {
@@ -588,7 +587,8 @@ fun InternalNoteCard(
             InternalNoteContent(
                 item = item,
                 onAttachmentClick = onAttachmentClick,
-                onPlusClick = onPlusClick
+                onPlusClick = onPlusClick,
+                userName = userName
             )
         }
     }
@@ -710,21 +710,23 @@ private fun MessageBubble(
 private fun ConversationSectionPreview() {
     GrispiSupportTheme {
         Surface {
-            val context =LocalContext.current
-            ConversationSection(
-                ticket = dummyTicketList.first(),
-                //messageList = messagesT1,
-                lazyListState = rememberLazyListState(),
-                messagesByDate = remember(messagesT1) {
-                    groupMessagesByDateWithPreviousSender(messagesT1,context)
-                }
-            )
+            val context = LocalContext.current
+//            ConversationSection(
+//                ticket = dummyTicketList.first(),
+//                lazyListState = rememberLazyListState(),
+//                messagesByDate = remember(messagesT1) {
+//                    groupMessagesByDateWithPreviousSender(messagesT1, context)
+//                }
+//            )
         }
     }
 }
 
 
-fun groupMessagesByDateWithPreviousSender(messages: List<Message>,context: Context): List<Pair<ConversationItem, String?>> {
+fun groupMessagesByDateWithPreviousSender(
+    messages: List<Message>,
+    context: Context
+): List<Pair<ConversationItem, String?>> {
     if (messages.isEmpty()) return emptyList()
 
     val sortedMessages = messages.sortedBy { it.sentAt }
@@ -734,7 +736,7 @@ fun groupMessagesByDateWithPreviousSender(messages: List<Message>,context: Conte
     var lastSenderId: String? = null
 
     for (message in sortedMessages) {
-        val currentDateKey = formatMessageDate(message.sentAt,context)
+        val currentDateKey = formatMessageDate(message.sentAt, context)
         if (lastDateKey != currentDateKey) {
             result.add(ConversationItem.DateHeader(currentDateKey) to null)
             lastDateKey = currentDateKey

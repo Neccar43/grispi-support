@@ -88,7 +88,6 @@ import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
 import com.novacodestudios.grispisupport.presentation.theme.yellowContainer
 import com.novacodestudios.grispisupport.presentation.theme.yellowOnContainer
 import com.novacodestudios.grispisupport.presentation.theme.yellowPrimary
-import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import com.novacodestudios.grispisupport.presentation.util.toColor
 import com.novacodestudios.grispisupport.presentation.util.toUiName
 import java.io.File
@@ -181,7 +180,10 @@ fun ReplyCard(
                         Row(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(stringResource(R.string.reply_with), style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                stringResource(R.string.reply_with),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                             Row(
                                 modifier = Modifier
                                     .clickable { expanded = true },
@@ -363,8 +365,8 @@ fun ReplyCard(
                             onClick = {
                                 onEvent(
                                     DetailEvent.OnSendReply(
-                                    selectedFiles.map { it.toAttachment(context) }
-                                ))
+                                        selectedFiles.map { it.toAttachment(context) }
+                                    ))
                                 //  isFocused = false
                                 selectedFiles = emptyList()
                                 onScrollToLastItem()
@@ -419,9 +421,10 @@ private fun RCP() {
     GrispiSupportTheme {
         ReplyCard(
             state = DetailState(
-                ticket = dummyTicketList.first(),
+                //ticket = dummyTicketList.first(),
                 replyText = "Merhaba, size nasıl yardımcı olabilirim?",
                 //selectedChannel = Channel.INTERNAL_NOTE
+                ticketId = "t1",
             ),
             onEvent = {},
             navigateMacro = {},
@@ -442,7 +445,11 @@ fun rememberCameraLauncher(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { granted ->
             if (!granted) {
-                Toast.makeText(context, context.getString(R.string.camera_permission_required), Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.camera_permission_required),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     )
@@ -587,7 +594,8 @@ fun queryFileMeta(context: Context, uri: Uri): Pair<String, Long>? {
         val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
         val sizeIndex = it.getColumnIndex(OpenableColumns.SIZE)
         if (it.moveToFirst()) {
-            val name = if (nameIndex != -1) it.getString(nameIndex) else context.getString(R.string.file)
+            val name =
+                if (nameIndex != -1) it.getString(nameIndex) else context.getString(R.string.file)
             val size = if (sizeIndex != -1) it.getLong(sizeIndex) else -1L
             return name to size
         }

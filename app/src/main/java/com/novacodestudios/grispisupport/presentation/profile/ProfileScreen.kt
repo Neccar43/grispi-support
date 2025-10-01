@@ -1,5 +1,6 @@
 package com.novacodestudios.grispisupport.presentation.profile
 
+import androidx.annotation.Keep
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -27,8 +28,6 @@ import com.novacodestudios.grispisupport.presentation.profile.component.ProfileI
 import com.novacodestudios.grispisupport.presentation.profile.component.ProfileTopBar
 import com.novacodestudios.grispisupport.presentation.settings.component.SettingsItem
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
-import com.novacodestudios.grispisupport.presentation.util.currentUser
-import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -93,7 +92,7 @@ fun ProfileScreenContent(
                 title = stringResource(id = R.string.email),
                 subtitle = state.user.email,
             )
-            if (state.user.id == currentUser.id) { // sadece kendi profiline girince gözüksün yada ayarlar ekrnaına taşı
+            if (state.isCurrentUser) { // sadece kendi profiline girince gözüksün yada ayarlar ekrnaına taşı
                 SettingsItem(
                     headlineText = stringResource(id = R.string.reset_password),
                     onClick = {}
@@ -125,23 +124,22 @@ fun ProfileScreenContent(
             HorizontalDivider()
             ProfileItem(
                 title = stringResource(id = R.string.assigned_tickets),
-                subtitle = dummyTicketList.count { it.assignee?.id == state.user.id }.toString(),
+                subtitle = state.assignedTicketCount.toString(),
                 onClick = { navigateFilteredTickets(state.user.id, UserTicketFilter.ASSIGNEE) }
             )
             ProfileItem(
                 title = stringResource(id = R.string.requested_tickets),
-                subtitle = dummyTicketList.count { it.requester.id == state.user.id }.toString(),
+                subtitle = state.requestedTicketCount.toString(),
                 onClick = { navigateFilteredTickets(state.user.id, UserTicketFilter.REQUEST) }
             )
             ProfileItem(
                 title = stringResource(id = R.string.followed_tickets),
-                subtitle = dummyTicketList.count { it.followers.any { f -> f.id == state.user.id } }
-                    .toString(),
+                subtitle = state.followedTicketCount.toString(),
                 onClick = { navigateFilteredTickets(state.user.id, UserTicketFilter.FOLLOW) }
             )
             ProfileItem(
                 title = stringResource(id = R.string.mentioned_tickets),
-                subtitle = "2",
+                subtitle = state.mentionedTicketCount.toString(),
                 onClick = { navigateFilteredTickets(state.user.id, UserTicketFilter.MENTION) }
             )
         }
@@ -167,7 +165,7 @@ fun ProfileScreenContent(
         }
     }
 }
-
+@Keep
 enum class UserTicketFilter {
     ASSIGNEE,
     REQUEST,
@@ -191,7 +189,7 @@ private fun PSP() {
     GrispiSupportTheme {
         ProfileScreenContent(
             state = ProfileState(
-                user = currentUser
+                //user = currentUser
             ),
             snackbarHostState = remember { SnackbarHostState() },
             onEvent = {},

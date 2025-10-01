@@ -1,14 +1,12 @@
 package com.novacodestudios.grispisupport.presentation.macro
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,7 +32,7 @@ import kotlinx.coroutines.flow.collectLatest
 fun MacroScreen(
     viewModel: MacroViewModel = hiltViewModel(),
     navigateUp: () -> Unit,
-    navigateDetail: (id:String, Macro) -> Unit,
+    navigateDetail: (id: String, Macro) -> Unit,
 ) {
     val snackbarHostState =
         remember { SnackbarHostState() }
@@ -62,20 +60,20 @@ fun MacroScreenContent(
     snackbarHostState: SnackbarHostState,
     onEvent: (MacroEvent) -> Unit,
     navigateUp: () -> Unit,
-    navigateDetail: (ticketId:String, Macro) -> Unit,
+    navigateDetail: (ticketId: String, Macro) -> Unit,
 ) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = { MacroTopBar(navigateUp =  navigateUp) }
+        topBar = { MacroTopBar(navigateUp = navigateUp) }
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
-            items(items=state.macros, key = {it.id}){
+            items(items = state.macros, key = { it.id }) {
                 ListItem(
-                    modifier = Modifier.clickable{ navigateDetail(state.ticketId,it)},
+                    modifier = Modifier.clickable { navigateDetail(state.ticketId, it) },
                     leadingContent = {
                         Icon(
                             Icons.Default.Bolt,
@@ -95,7 +93,7 @@ private fun MSP() {
     GrispiSupportTheme {
         MacroScreenContent(
             state = MacroState(
-                macros = dummyMacros,
+                // macros = dummyMacros,
                 ticketId = "t1"
             ),
             snackbarHostState = remember { SnackbarHostState() },
@@ -118,44 +116,6 @@ data class MacroAction(
     val value: String
 )
 
-val dummyMacros = listOf(
-    Macro(
-        id = "macro_123",
-        title = "Kargo Takip Talebi Yanıtı",
-        actions = listOf(
-            MacroAction(field = "status", value = "pending"),
-            MacroAction(field = "priority", value = "high"),
-            MacroAction(
-                field = "comment",
-                value = "Merhaba, kargo takibiniz için [kargo takip linki] üzerinden bilgi alabilirsiniz."
-            )
-        )
-    ),
-    Macro(
-        id = "macro_456",
-        title = "Şifre Sıfırlama Talebi Yanıtı",
-        actions = listOf(
-            MacroAction(field = "status", value = "open"),
-            MacroAction(field = "priority", value = "normal"),
-            MacroAction(
-                field = "comment",
-                value = "Merhaba, şifre sıfırlama talebiniz işleme alınmıştır. Yeni şifreniz kısa süre içinde e-posta adresinize gönderilecektir."
-            )
-        )
-    ),
-    Macro(
-        id = "macro_789",
-        title = "Hesap Kapatma Talebi Yanıtı",
-        actions = listOf(
-            MacroAction(field = "status", value = "closed"),
-            MacroAction(field = "priority", value = "low"),
-            MacroAction(
-                field = "comment",
-                value = "Merhaba, hesap kapatma talebiniz işleme alınmıştır. Hesabınız 30 gün içinde kalıcı olarak silinecektir."
-            )
-        )
-    )
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

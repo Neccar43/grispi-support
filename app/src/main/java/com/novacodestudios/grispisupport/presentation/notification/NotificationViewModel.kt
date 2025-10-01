@@ -4,16 +4,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.novacodestudios.grispisupport.domain.repository.AuthRepository
+import com.novacodestudios.grispisupport.domain.repository.NotificationRepository
 import com.novacodestudios.grispisupport.presentation.model.Notification
-import com.novacodestudios.grispisupport.presentation.util.dummyNotifications
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class NotificationViewModel @Inject constructor(
-
+    private val authRepository: AuthRepository,
+    private val notificationRepository: NotificationRepository
 ) : ViewModel() {
     var state by mutableStateOf(NotificationState())
         private set
@@ -22,20 +26,24 @@ class NotificationViewModel @Inject constructor(
     val eventFlow = _eventFlow.asSharedFlow()
 
     init {
-        state = state.copy(
-            notifications = dummyNotifications
-        )
+        viewModelScope.launch {
+            val currentUserId = authRepository.getCurrentUserId() ?: return@launch
+            state = state.copy(
+                notifications = notificationRepository.getNotifications(currentUserId)
+            )
+        }
+
     }
 
 
     fun onEvent(event: NotificationEvent) {
         when (event) {
             NotificationEvent.MarkAllAsRead -> {
-                state = state.copy(
-                    notifications = state.notifications.map {
-                        it.copy(isRead = true)
-                    }
-                )
+                viewModelScope.launch {
+                    val currentUserId = authRepository.getCurrentUserId() ?: return@launch
+                    val notifications = notificationRepository.markAllAsRead(currentUserId)
+                    state = state.copy(notifications = notifications)
+                }
             }
         }
     }

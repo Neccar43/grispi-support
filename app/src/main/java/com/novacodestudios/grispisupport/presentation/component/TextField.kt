@@ -24,7 +24,7 @@ fun GrspTextField(
         modifier = modifier,
         value = value,
         onValueChange = onValueChange,
-        placeholder = placeholder?.let {{ Text(text = it) } },
+        placeholder = placeholder?.let { { Text(text = it) } },
         colors = TextFieldDefaults.colors(
             unfocusedContainerColor = Color.Transparent,
             focusedContainerColor = Color.Transparent,
@@ -50,8 +50,11 @@ fun GrspEmailField(
             focusedContainerColor = Color.Transparent,
             errorContainerColor = Color.Transparent
         ),
-        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
-        keyboardActions = KeyboardActions(onNext = {focusManager.moveFocus(FocusDirection.Next)})
+        keyboardOptions = KeyboardOptions.Default.copy(
+            keyboardType = KeyboardType.Email,
+            imeAction = ImeAction.Next
+        ),
+        keyboardActions = KeyboardActions(onNext = { focusManager.moveFocus(FocusDirection.Next) })
 
     )
 }
@@ -73,7 +76,10 @@ fun GrspPasswordField(
             focusedContainerColor = Color.Transparent,
             errorContainerColor = Color.Transparent
         ),
-        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
-        keyboardActions = KeyboardActions(onDone = {focusManager.clearFocus()})
+        keyboardOptions = KeyboardOptions.Default.copy(
+            keyboardType = KeyboardType.Password,
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() })
     )
 }

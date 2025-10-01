@@ -5,10 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.novacodestudios.grispisupport.domain.repository.TicketRepository
 import com.novacodestudios.grispisupport.presentation.model.Ticket
-import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
@@ -16,7 +15,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ListViewModel @Inject constructor(
-
+    private val ticketRepository: TicketRepository
 ) : ViewModel() {
     var state by mutableStateOf(ListState())
         private set
@@ -27,10 +26,8 @@ class ListViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             state = state.copy(isLoading = true)
-            delay(500)
-
-            state = state.copy(isLoading = false, tickets = dummyTicketList)
-
+            val tickets = ticketRepository.getTickets()
+            state = state.copy(isLoading = false, tickets = tickets)
         }
     }
 
@@ -42,14 +39,15 @@ class ListViewModel @Inject constructor(
     }
 
     private fun search(query: String?) {
-        if (query.isNullOrEmpty()) {
-            state = state.copy(searchTickets = emptyList())
-            return
+        viewModelScope.launch {
+            if (query.isNullOrEmpty()) {
+                state = state.copy(searchTickets = emptyList())
+                return@launch
+            }
+            val searchResult = ticketRepository.searchTickets(query)
+            state = state.copy(searchTickets = searchResult)
         }
-        val searchResult = state.tickets.filter { it.subject.contains(query, ignoreCase = true) }
-        state = state.copy(searchTickets = searchResult)
     }
-
 
     sealed interface UIEvent {
         data class ShowSnackBar(val message: String) : UIEvent

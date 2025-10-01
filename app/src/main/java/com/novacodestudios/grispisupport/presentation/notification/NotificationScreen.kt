@@ -15,7 +15,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.novacodestudios.grispisupport.presentation.notification.component.NotificationList
 import com.novacodestudios.grispisupport.presentation.notification.component.NotificationTopBar
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
-import com.novacodestudios.grispisupport.presentation.util.dummyNotifications
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -82,7 +81,9 @@ fun NotificationScreenContent(
 private fun NotificationScreenPreview() {
     GrispiSupportTheme {
         NotificationScreenContent(
-            state = NotificationState(notifications = dummyNotifications),
+            state = NotificationState(
+                //notifications = dummyNotifications
+            ),
             snackbarHostState = remember { SnackbarHostState() },
             onEvent = {},
             navigateUp = {},

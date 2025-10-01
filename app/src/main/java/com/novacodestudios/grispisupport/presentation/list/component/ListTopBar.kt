@@ -96,6 +96,7 @@ fun ListMenu() {
         }
     }
 }
+
 enum class ListMenuOption {
     UNSOLVED_RECORDS,
     UNASSIGNED_RECORDS,

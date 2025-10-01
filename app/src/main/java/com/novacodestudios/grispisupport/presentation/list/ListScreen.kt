@@ -25,7 +25,6 @@ import com.novacodestudios.grispisupport.presentation.list.component.TicketItem
 import com.novacodestudios.grispisupport.presentation.list.component.TicketList
 import com.novacodestudios.grispisupport.presentation.list.component.TicketSortRow
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
-import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -122,6 +121,7 @@ enum class SortOptions {
     PRIORITY,
     STATUS
 }
+
 @Composable
 fun SortOptions.toUiText(): String {
     return when (this) {
@@ -140,7 +140,9 @@ fun SortOptions.toUiText(): String {
 private fun ListScreenPreview() {
     GrispiSupportTheme {
         ListScreenContent(
-            state = ListState(tickets = dummyTicketList),
+            state = ListState(
+                // tickets = dummyTicketList
+            ),
             snackbarHostState = SnackbarHostState(),
             onEvent = {},
             navigateDetail = {},

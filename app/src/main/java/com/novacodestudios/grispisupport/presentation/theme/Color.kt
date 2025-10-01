@@ -1,6 +1,7 @@
 package com.novacodestudios.grispisupport.presentation.theme
 
 import androidx.compose.ui.graphics.Color
+
 //val Primary = Color(0xFF622C91)   // Marka rengin
 //val Secondary = Color(0xFF9367C4) // Primary’nin daha açık/soft tonu
 //val Tertiary = Color(0xFFE1BEE7)

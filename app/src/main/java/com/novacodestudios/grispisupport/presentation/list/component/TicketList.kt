@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.novacodestudios.grispisupport.R
 import com.novacodestudios.grispisupport.presentation.model.Ticket
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
-import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
+import com.novacodestudios.grispisupport.presentation.util.DummyDataSource
 
 @Composable
 fun TicketList(tickets: List<Ticket>, onTicketClick: (Ticket) -> Unit) {
@@ -45,7 +45,7 @@ fun TicketList(tickets: List<Ticket>, onTicketClick: (Ticket) -> Unit) {
 private fun TicketListPreview() {
     GrispiSupportTheme {
         TicketList(
-            tickets = dummyTicketList,
+            tickets = DummyDataSource.ticketList,
             onTicketClick = {}
         )
     }

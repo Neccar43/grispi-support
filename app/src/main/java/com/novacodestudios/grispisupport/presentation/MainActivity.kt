@@ -40,6 +40,7 @@ import com.novacodestudios.grispisupport.presentation.settings.SettingsViewModel
 import com.novacodestudios.grispisupport.presentation.settings.setAppLanguageForLegacy
 import com.novacodestudios.grispisupport.presentation.settings.toLanguageCode
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
+import com.novacodestudios.grispisupport.presentation.util.DummyDataSource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -125,6 +126,6 @@ class AppState(
 
             )
 
-    val currentUser = com.novacodestudios.grispisupport.presentation.util.currentUser
+    val currentUser = DummyDataSource.currentUser // TODO: repo üzerinden al
 
 }

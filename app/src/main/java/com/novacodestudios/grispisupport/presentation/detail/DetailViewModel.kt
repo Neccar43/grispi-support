@@ -8,12 +8,16 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.novacodestudios.grispisupport.domain.repository.AuthRepository
+import com.novacodestudios.grispisupport.domain.repository.FormRepository
+import com.novacodestudios.grispisupport.domain.repository.MessageRepository
+import com.novacodestudios.grispisupport.domain.repository.TicketRepository
+import com.novacodestudios.grispisupport.domain.repository.UserRepository
 import com.novacodestudios.grispisupport.presentation.detail.component.ConditionType
 import com.novacodestudios.grispisupport.presentation.detail.component.FieldResponse
 import com.novacodestudios.grispisupport.presentation.detail.component.Form
 import com.novacodestudios.grispisupport.presentation.detail.component.FormResponse
 import com.novacodestudios.grispisupport.presentation.detail.component.isRequired
-import com.novacodestudios.grispisupport.presentation.macro.dummyMacros
 import com.novacodestudios.grispisupport.presentation.model.Attachment
 import com.novacodestudios.grispisupport.presentation.model.Channel
 import com.novacodestudios.grispisupport.presentation.model.Message
@@ -22,15 +26,7 @@ import com.novacodestudios.grispisupport.presentation.model.Ticket
 import com.novacodestudios.grispisupport.presentation.model.TicketHistory
 import com.novacodestudios.grispisupport.presentation.model.TicketStatus
 import com.novacodestudios.grispisupport.presentation.model.User
-import com.novacodestudios.grispisupport.presentation.model.UserRole
 import com.novacodestudios.grispisupport.presentation.navigation.Screen
-import com.novacodestudios.grispisupport.presentation.util.allDummyUsers
-import com.novacodestudios.grispisupport.presentation.util.currentUser
-import com.novacodestudios.grispisupport.presentation.util.dummyFormResponses
-import com.novacodestudios.grispisupport.presentation.util.dummyForms
-import com.novacodestudios.grispisupport.presentation.util.dummyHistories
-import com.novacodestudios.grispisupport.presentation.util.dummyMessageList
-import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -40,46 +36,58 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
+    private val ticketRepository: TicketRepository,
+    private val messageRepository: MessageRepository,
+    private val formRepository: FormRepository,
+    private val userRepository: UserRepository,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
-    var state by mutableStateOf(DetailState())
+    var state by mutableStateOf(
+        DetailState(
+            ticketId = savedStateHandle.toRoute<Screen.Detail>().id
+        )
+    )
         private set
 
     private val _eventFlow = MutableSharedFlow<UIEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
 
     init {
-        val route = savedStateHandle.toRoute<Screen.Detail>()
-        val id = route.id
-        val ticket = dummyTicketList.find { it.id == id }
-        val messages = dummyMessageList.filter { it.ticketId == id }
-        state = state.copy(
-            ticket = ticket,
-            messageList = messages.sortedBy { it.sentAt },
-            oldTicket = ticket
-        )
-        val histories =
-            dummyHistories.filter { it.ticketId == id }.sortedByDescending { it.createdAt }
+        viewModelScope.launch {
+            val route = savedStateHandle.toRoute<Screen.Detail>()
+            val ticketId = route.id
+            val ticket =
+                ticketRepository.getTicketById(ticketId) ?: return@launch // TODO: handle et
 
-        val selectedForm = dummyForms.find { it.id == ticket?.formId }
-        val formResponse = dummyFormResponses.find { it.id == ticket?.formResponseId }
 
-        val agents = allDummyUsers.filter { user -> user.role == UserRole.AGENT }
-
-        state = state.copy(
-            ticketHistories = histories,
-            forms = dummyForms,
-            selectedForm = selectedForm,
-            formResponse = formResponse,
-            agentUser = agents
-        )
-        route.macroId?.let { macroId ->
-            val macro = dummyMacros.find { it.id == macroId }
+            val messages = messageRepository.getMessages(ticketId = ticketId)
             state = state.copy(
-                replyText = macro?.actions?.find { it.field == "comment" }?.value ?: ""
+                ticket = ticket,
+                messageList = messages.sortedBy { it.sentAt },
+                oldTicket = ticket
             )
+            val histories = ticketRepository.getHistories(ticketId)
+
+            val selectedForm = formRepository.getForm(ticket.formId)
+            val formResponse = formRepository.getFormResponse(ticket.formResponseId)
+            val forms = formRepository.getForms()
+
+            val agents = userRepository.getAgentUsers()
+
+            state = state.copy(
+                ticketHistories = histories,
+                forms = forms,
+                selectedForm = selectedForm,
+                formResponse = formResponse,
+                agentUser = agents
+            )
+            route.macroId?.let { macroId ->
+                val macro = ticketRepository.getMacro(macroId)
+                state = state.copy(
+                    replyText = macro?.actions?.find { it.field == "comment" }?.value ?: ""
+                )
+            }
         }
-
-
     }
 
     fun onEvent(event: DetailEvent) {
@@ -128,46 +136,49 @@ class DetailViewModel @Inject constructor(
                 selectedChannel = event.channel
             )
 
-            is DetailEvent.OnSendReply -> { // TODO: refactor edilecek
-                if (state.replyText.isBlank()) {
-                    viewModelScope.launch {
-                        _eventFlow.emit(UIEvent.ShowSnackBar("Yanıt metni boş olamaz"))
+            is DetailEvent.OnSendReply -> {
+                viewModelScope.launch { // TODO: refactor edilecek
+                    if (state.replyText.isBlank()) {
+                        viewModelScope.launch {
+                            _eventFlow.emit(UIEvent.ShowSnackBar("Yanıt metni boş olamaz"))
+                        }
+                        return@launch
                     }
-                    return
-                }
-                state.selectedForm?.let { selectedForm ->
-                    selectedForm.fields.forEach { field ->
-                        val response =
-                            state.formResponse?.responses?.find { it.fieldId == field.id }
-                        if ((field.isRequired(state.formResponse!!) && field.condition?.type != ConditionType.SHOW) && (response == null || response.value.isEmpty())) {
-                            viewModelScope.launch {
-                                _eventFlow.emit(UIEvent.ClearFocus)
-                                _eventFlow.emit(
-                                    UIEvent.ShowSnackBar("Lütfen ${field.label} alanını doldurun")
-                                )
+                    state.selectedForm?.let { selectedForm ->
+                        selectedForm.fields.forEach { field ->
+                            val response =
+                                state.formResponse?.responses?.find { it.fieldId == field.id }
+                            if ((field.isRequired(state.formResponse!!) && field.condition?.type != ConditionType.SHOW) && (response == null || response.value.isEmpty())) {
+                                viewModelScope.launch {
+                                    _eventFlow.emit(UIEvent.ClearFocus)
+                                    _eventFlow.emit(
+                                        UIEvent.ShowSnackBar("Lütfen ${field.label} alanını doldurun")
+                                    )
+                                }
+                                return@launch
                             }
-                            return
                         }
                     }
-                }
-                Log.d(TAG, "OnSendReply: message gönderiliyor ${state.replyText}")
-                val newMessage = Message(
-                    id = "m_${System.currentTimeMillis()}",
-                    ticketId = state.ticket!!.id,
-                    senderId = currentUser.id, // TODO: giriş yapan kullanıcı olacak
-                    content = state.replyText,
-                    sentAt = System.currentTimeMillis(),
-                    attachments = event.attachment,
-                    isInternal = state.selectedChannel == Channel.INTERNAL_NOTE
-                )
-                state = state.copy(
-                    messageList = state.messageList + newMessage,
-                    replyText = "",
-                    ticket = state.ticket?.copy(
-                        lastMessageContent = newMessage.content,
-                        updatedAt = System.currentTimeMillis()
+                    Log.d(TAG, "OnSendReply: message gönderiliyor ${state.replyText}")
+                    val currentUserId = authRepository.getCurrentUserId() ?: return@launch
+                    val newMessage = Message(
+                        id = "m_${System.currentTimeMillis()}",
+                        ticketId = state.ticket!!.id,
+                        senderId = currentUserId,
+                        content = state.replyText,
+                        sentAt = System.currentTimeMillis(),
+                        attachments = event.attachment,
+                        isInternal = state.selectedChannel == Channel.INTERNAL_NOTE
                     )
-                )
+                    state = state.copy(
+                        messageList = state.messageList + newMessage,
+                        replyText = "",
+                        ticket = state.ticket?.copy(
+                            lastMessageContent = newMessage.content,
+                            updatedAt = System.currentTimeMillis()
+                        )
+                    )
+                }
             }
 
         }
@@ -184,32 +195,30 @@ class DetailViewModel @Inject constructor(
     }
 
     private fun searchUsers(query: String) {
-        if (query.isBlank() || query.isEmpty()) {
-            state = state.copy(searchUsers = emptyList())
-            return
+        viewModelScope.launch {
+            if (query.isBlank() || query.isEmpty()) {
+                state = state.copy(searchUsers = emptyList())
+                return@launch
+            }
+            val users = userRepository.searchUsers(query)
+            state = state.copy(searchUsers = users)
         }
-        allDummyUsers.filter {
-            it.name.contains(query, ignoreCase = true) || it.email.contains(
-                query,
-                ignoreCase = true
-            )
-        }.let {
-            state = state.copy(searchUsers = it)
-        }
-
     }
 
     private fun searchTags(query: String) {
-        if (query.isBlank() || query.isEmpty()) {
-            state = state.copy(searchTags = emptyList())
-            return
+        viewModelScope.launch {
+            if (query.isBlank() || query.isEmpty()) {
+                state = state.copy(searchTags = emptyList())
+                return@launch
+            }
+            val allTags = ticketRepository.getTags(state.ticketId)
+            allTags.filter {
+                it.name.contains(query, ignoreCase = true)
+            }.let {
+                state = state.copy(searchTags = it)
+            }
         }
-        val allTags = dummyTicketList.flatMap { it.tags }.distinct()
-        allTags.filter {
-            it.name.contains(query, ignoreCase = true)
-        }.let {
-            state = state.copy(searchTags = it)
-        }
+
     }
 
     sealed interface UIEvent {
@@ -220,6 +229,7 @@ class DetailViewModel @Inject constructor(
 
 data class DetailState(
     val isLoading: Boolean = false,
+    val ticketId: String,
     val oldTicket: Ticket? = null,
     val ticket: Ticket? = null,
     val activeTab: DetailTabs = DetailTabs.Conversation,

@@ -36,8 +36,6 @@ import com.novacodestudios.grispisupport.presentation.detail.DetailState
 import com.novacodestudios.grispisupport.presentation.model.Priority
 import com.novacodestudios.grispisupport.presentation.model.Type
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
-import com.novacodestudios.grispisupport.presentation.util.dummyForms
-import com.novacodestudios.grispisupport.presentation.util.dummyTicketList
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -566,15 +564,16 @@ fun DetailCheckBox(
 private fun DSP() {
     GrispiSupportTheme {
         Surface {
-            DetailSection(
-                state = DetailState(
-                    ticket = dummyTicketList.first(),
-                    forms = dummyForms,
-                    selectedForm = dummyForms.get(2),
-                    formResponse = null,
-                ),
-                onEvent = {}
-            )
+//            DetailSection(
+//                state = DetailState(
+//                    ticket = dummyTicketList.first(),
+//                    forms = dummyForms,
+//                    selectedForm = dummyForms.get(2),
+//                    formResponse = null,
+//                    ticketId = "t1",
+//                ),
+//                onEvent = {}
+//            )
         }
     }
 }

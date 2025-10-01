@@ -86,7 +86,7 @@ fun SupportNavHost(modifier: Modifier = Modifier, appState: AppState) {
 
         }
         composable<Screen.Profile> {
-            ProfileScreen(navigateUp = navigateUp, navigateFilteredTickets = {  userId, filter ->
+            ProfileScreen(navigateUp = navigateUp, navigateFilteredTickets = { userId, filter ->
                 appState.navController.navigate(Screen.FilteredTickets(userId, filter))
             })
         }
@@ -102,8 +102,8 @@ fun SupportNavHost(modifier: Modifier = Modifier, appState: AppState) {
             MacroScreen(
                 navigateUp = navigateUp,
                 navigateDetail = { ticketId, macro ->
-                    appState.navController.navigate(Screen.Detail(ticketId, macroId = macro.id)){
-                        popUpTo(Screen.Detail(ticketId)){
+                    appState.navController.navigate(Screen.Detail(ticketId, macroId = macro.id)) {
+                        popUpTo(Screen.Detail(ticketId)) {
                             inclusive = true
                         }
                     }

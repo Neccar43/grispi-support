@@ -1,16 +1,10 @@
 package com.novacodestudios.grispisupport.presentation.theme
 
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import com.novacodestudios.grispisupport.presentation.settings.ThemeOption
 
 private val lightScheme = lightColorScheme(
@@ -244,7 +238,7 @@ private val highContrastDarkColorScheme = darkColorScheme(
 
 @Composable
 fun GrispiSupportTheme(
-    darkTheme: ThemeOption= when {
+    darkTheme: ThemeOption = when {
         isSystemInDarkTheme() -> ThemeOption.DARK
         else -> ThemeOption.LIGHT
     },
