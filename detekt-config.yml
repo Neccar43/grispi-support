@@ -1,0 +1,49 @@
+config:
+  validation: true
+
+
+
+formatting:
+  NewLineAtEndOfFile:
+    active: false
+
+#detekt compose configuration
+naming:
+  FunctionNaming:
+    active: true
+    functionPattern: '[a-zA-Z][a-zA-Z0-9]*'
+    ignoreAnnotated: ['Composable']
+
+  TopLevelPropertyNaming:
+    active: true
+    constantPattern: '[A-Z][A-Za-z0-9]*'
+
+complexity:
+  LongParameterList:
+    active: true
+    functionThreshold: 10
+    ignoreDefaultParameters: true
+
+  TooManyFunctions:
+    active: true
+    ignoreAnnotatedFunctions: ['Preview']
+
+style:
+  MagicNumber:
+    active: true
+    ignorePropertyDeclaration: true
+    ignoreCompanionObjectPropertyDeclaration: true
+
+# new rule in detekt 2.0.0 alpha 0
+#  UnusedPrivateFunction:
+#    active: true
+#    ignoreAnnotated: ['Preview']
+
+  UnusedPrivateMember:
+    active: true
+    ignoreAnnotated: ['Preview']
+
+#compose-rules
+Compose:
+  ModifierMissing:
+    active: false
