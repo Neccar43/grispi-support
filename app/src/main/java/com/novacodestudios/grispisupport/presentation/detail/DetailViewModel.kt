@@ -70,6 +70,7 @@ class DetailViewModel @Inject constructor(
 
             val selectedForm = formRepository.getForm(ticket.formId)
             val formResponse = formRepository.getFormResponse(ticket.formResponseId)
+                ?: selectedForm?.toResponse(ticket.id)
             val forms = formRepository.getForms()
 
             val agents = userRepository.getAgentUsers()
@@ -92,8 +93,12 @@ class DetailViewModel @Inject constructor(
 
     fun onEvent(event: DetailEvent) {
         when (event) {
-            is DetailEvent.OnActiveTabChange -> state =
-                state.copy(activeTab = event.tab)
+            is DetailEvent.OnActiveTabChange -> {
+                Log.d(TAG, "onEvent: OnActiveTabChange ${event.tab}")
+                Log.d(TAG, "onEvent: form: ${state.selectedForm} formResponse: ${state.formResponse}")
+                state =
+                    state.copy(activeTab = event.tab)
+            }
 
             is DetailEvent.OnReplyTextChange -> state = state.copy(replyText = event.text)
 

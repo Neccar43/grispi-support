@@ -19,6 +19,8 @@ navigationCompose = "2.9.2"
 datastore = "1.1.7"
 appcompat = "1.7.1"
 detekt = "1.23.8"
+uiautomator = "2.2.0"
+benchmarkMacroJunit4 = "1.2.0-beta01"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -54,9 +56,12 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 
 detekt = { group = "io.gitlab.arturbosch.detekt", name = "detekt-formatting", version.ref = "detekt" }
 rules-detekt = { module = "io.nlopez.compose.rules:detekt", version.ref = "composeRules" }
+androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomator", version.ref = "uiautomator" }
+androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+android-test = { id = "com.android.test", version.ref = "agp" }

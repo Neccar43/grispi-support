@@ -21,3 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Grispi Support"
 include(":app")
+include(":benchmark")
