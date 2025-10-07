@@ -109,6 +109,7 @@ dependencies {
     detektPlugins(libs.detekt)
     detektPlugins(libs.rules.detekt)
 
+    debugImplementation(libs.leakcanary)
 }
 
 detekt {
