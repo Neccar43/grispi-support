@@ -96,5 +96,7 @@
     <string name="signin_next_button">Sonraki</string>
     <string name="signin_privacy_policy">GİZLİLİK POLİTİKASI</string>
     <string name="signin">Oturum Aç</string>
+    <string name="app_not_find">Bu tür dosyayı açabilecek bir uygulama bulunamadı</string>
+    <string name="file_not_open">Dosya açılamadı</string>
 
 </resources>

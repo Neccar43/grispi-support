@@ -1,8 +1,12 @@
 package com.novacodestudios.grispisupport.presentation.detail.component
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,6 +44,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -72,6 +77,8 @@ import com.novacodestudios.grispisupport.presentation.theme.yellowContainer
 import com.novacodestudios.grispisupport.presentation.theme.yellowOnContainer
 import com.novacodestudios.grispisupport.presentation.util.formatMessageDate
 import com.novacodestudios.grispisupport.presentation.util.formatMessageTime
+import androidx.core.net.toUri
+import com.novacodestudios.grispisupport.R
 
 typealias MessagesByDateWithPreviousSender = List<Pair<ConversationItem, String?>>
 
@@ -83,14 +90,27 @@ fun ConversationSection(
     messagesByDate: MessagesByDateWithPreviousSender,
     lazyListState: LazyListState
 ) {
+    val context = LocalContext.current
     SideEffect {
         Log.d(TAG, "itemsWithLastSender: $messagesByDate")
+    }
+    LaunchedEffect(true) {
+        lazyListState.scrollToItem(messagesByDate.size)
     }
     var selectedAttachment by remember { mutableStateOf<Attachment?>(null) }
     var selectedAttachments by remember { mutableStateOf<List<Attachment>>(emptyList()) }
     val onAttachmentClick = { attachment: Attachment ->
-        if (attachment.type == AttachmentType.IMAGE) {
-            selectedAttachment = attachment
+        Log.d(TAG, "ConversationSection: Attachment clicked: $attachment")
+
+        when (attachment.type) {
+            AttachmentType.IMAGE -> {
+                selectedAttachment = attachment
+            }
+            AttachmentType.FILE -> {
+                val mimeType = getMimeType(attachment.name)
+                val uri = attachment.url.toUri()
+                openFileWithDefaultApp(context, uri, mimeType)
+            }
         }
     }
     val onPlusClick = { attachments: List<Attachment> ->
@@ -719,6 +739,75 @@ private fun ConversationSectionPreview() {
 //                }
 //            )
         }
+    }
+}
+fun openFileWithDefaultApp(context: Context, fileUri: Uri, mimeType: String) {
+    try {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(fileUri, mimeType)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(intent)
+    } catch (e: ActivityNotFoundException) {
+        Toast.makeText(context, context.getString(R.string.app_not_find), Toast.LENGTH_SHORT).show()
+        Log.e(TAG, "Uygulama bulunamadı: ${e.message}")
+    } catch (e: Exception) {
+        Toast.makeText(context, context.getString(R.string.file_not_open), Toast.LENGTH_SHORT).show()
+        Log.e(TAG, "Hata: ${e.message}")
+    }
+}
+
+
+fun getMimeType(fileName: String?): String {
+    val extension = fileName?.substringAfterLast('.', "")?.lowercase() ?: return "*/*"
+    Log.d(TAG, "getMimeType: Extension: $extension")
+
+    return when (extension) {
+        "pdf" -> "application/pdf"
+
+        // Word formats
+        "doc" -> "application/msword"
+        "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+        // Excel formats
+        "xls" -> "application/vnd.ms-excel"
+        "xlsx" -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+        // PowerPoint formats
+        "ppt" -> "application/vnd.ms-powerpoint"
+        "pptx" -> "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+
+        // Text & markup
+        "txt" -> "text/plain"
+        "csv" -> "text/csv"
+        "json" -> "application/json"
+        "xml" -> "application/xml"
+        "html", "htm" -> "text/html"
+
+        // Images
+        "jpg", "jpeg" -> "image/jpeg"
+        "png" -> "image/png"
+        "gif" -> "image/gif"
+        "bmp" -> "image/bmp"
+        "webp" -> "image/webp"
+
+        // Audio / Video
+        "mp3" -> "audio/mpeg"
+        "wav" -> "audio/wav"
+        "mp4" -> "video/mp4"
+        "mkv" -> "video/x-matroska"
+
+        // Archives
+        "zip" -> "application/zip"
+        "rar" -> "application/x-rar-compressed"
+        "7z" -> "application/x-7z-compressed"
+
+        // Adobe & vector
+        "psd" -> "image/vnd.adobe.photoshop"
+        "ai" -> "application/postscript"
+        "svg" -> "image/svg+xml"
+
+        else -> "*/*" // fallback: bilinmeyen uzantı
     }
 }
 

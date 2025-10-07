@@ -96,4 +96,6 @@ string>
     <string name="signin_next_button">Next</string>
     <string name="signin_privacy_policy">PRIVACY POLICY</string>
     <string name="signin">Sign In</string>
+    <string name="app_not_find">No application found that can open this type of file</string>
+    <string name="file_not_open">File could not open</string>
 </resources>

@@ -203,7 +203,30 @@ object DummyDataSource {
             System.currentTimeMillis() - 6 * 86400000 + 3600000
         )
     )
-    val messageList = messagesT1 + messagesT2 + messagesT3 + messagesT4 + messagesT5
+    val messagesT6 = listOf(
+        Message(
+            "m13",
+            "t6",
+            "u3",
+            "Merhaba, ürün iadesi hakkında bilgi almak istiyorum.",
+            System.currentTimeMillis() - 2 * 86400000 + 3600000
+        ),
+        Message(
+            "m14",
+            "t6",
+            "u1",
+            "Merhaba Ali Bey, iade süreci hakkında size yardımcı olabilirim.",
+            System.currentTimeMillis() - 2 * 86400000 + 7200000
+        ),
+        Message(
+            "m15",
+            "t6",
+            "u3",
+            "Teşekkürler, bekliyorum.",
+            System.currentTimeMillis() - 1 * 86400000 + 3600000
+        )
+    )
+    val messageList = messagesT1 + messagesT2 + messagesT3 + messagesT4 + messagesT5 + messagesT6
 
     val ticketList = listOf(
         Ticket(
@@ -304,6 +327,27 @@ object DummyDataSource {
             channel = Channel.WHATSAPP,
             type = Type.QUESTION,
             priority = Priority.HIGH,
+            formResponseId = ""
+        ),
+        Ticket(
+            id = "t6",
+            number = 1006,
+            subject = "Ürün iadesi hakkında bilgi",
+            requester = user3,
+            assignee = user4,
+            followers = listOf(user2),
+            tags = listOf(
+                Tag(2, "iade"),
+                Tag(3, "müşteri_destek")
+            ),
+            formId = "default_form",
+            status = TicketStatus.OPEN,
+            createdAt = System.currentTimeMillis() - 2 * 86400000, // 2 gün önce
+            updatedAt = System.currentTimeMillis() - 1 * 86400000, // 1 gün önce
+            lastMessageContent = messageList.last { it.ticketId == "t6" }.content,
+            channel = Channel.FACEBOOK_MESSENGER,
+            type = Type.TASK,
+            priority = Priority.MEDIUM,
             formResponseId = ""
         )
     )
@@ -691,4 +735,32 @@ object DummyDataSource {
             )
         )
     )
+
+    fun generateDummyMessages(
+        ticketId: String,
+        senderIds: List<String>,
+        messageCount: Int
+    ): List<Message> {
+        val baseTime = System.currentTimeMillis() - 5 * 86400000
+        val messages = mutableListOf<Message>()
+
+        repeat(messageCount) { index ->
+            val sender = senderIds[index % senderIds.size]
+            val content = when ((1..4).random()) {
+                1 -> "Merhaba, bu bir test mesajıdır."
+                2 -> "Teşekkürler, iyi çalışmalar."
+                3 -> "Bu mesaj performans testi içindir."
+                else -> "Uzun bir mesaj örneği: Lorem ipsum dolor sit amet, consectetur adipiscing elit..."
+            }
+            messages += Message(
+                id = "m$index",
+                ticketId = ticketId,
+                senderId = sender,
+                content = content,
+                sentAt = baseTime + index * 60_000L
+            )
+        }
+        return messages
+    }
+
 }
