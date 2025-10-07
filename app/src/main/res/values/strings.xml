@@ -95,4 +95,5 @@ string>
     <string name="signin_domain_helper">This is the address you use to sign in to Grispi Support.</string>
     <string name="signin_next_button">Next</string>
     <string name="signin_privacy_policy">PRIVACY POLICY</string>
+    <string name="signin">Sign In</string>
 </resources>

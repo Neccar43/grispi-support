@@ -1,9 +1,11 @@
 package com.novacodestudios.grispisupport.presentation.signin
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -28,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarDefaults
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.material3.SnackbarHost
@@ -89,144 +92,157 @@ fun SignInScreenContent(
     snackbarHostState: SnackbarHostState,
     onEvent: (SignInEvent) -> Unit,
 ) {
-    Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = {
-            CenterAlignedTopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = {})
-                    { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
-                },
-                title = {
-                    Icon(
-                        painter = painterResource(com.novacodestudios.grispisupport.R.drawable.logo),
-                        tint = Color(0xFF632D91),
-                        contentDescription = null
+    var isWelcomeVisible by remember { mutableStateOf(true) }
+    Crossfade(targetState = isWelcomeVisible, label = "") { visible ->
+        if (visible) {
+            WelcomeScreen(onSignUpClick = { isWelcomeVisible = false })
+        } else {
+            Scaffold(
+                snackbarHost = { SnackbarHost(snackbarHostState) },
+                topBar = {
+                    CenterAlignedTopAppBar(
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                if (state.isDomainValid) {
+                                    onEvent(SignInEvent.OnBackToDomainClick)
+                                } else {
+                                    isWelcomeVisible = true
+                                }
+                            })
+                            { Icon(Icons.AutoMirrored.Filled.ArrowBack, null) }
+                        },
+                        title = {
+                            Icon(
+                                painter = painterResource(R.drawable.logo),
+                                tint = Color(0xFF632D91),
+                                contentDescription = null
+                            )
+                        }
                     )
-                }
+                },
+                contentWindowInsets = ScaffoldDefaults.contentWindowInsets
+                    .exclude(NavigationBarDefaults.windowInsets)
             )
-        },
-        contentWindowInsets = ScaffoldDefaults.contentWindowInsets
-            .exclude(NavigationBarDefaults.windowInsets)
-    )
-    { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-
-        ) {
-            Spacer(modifier = Modifier.weight(0.5f))
-            AnimatedVisibility(
-                visible = state.isDomainValid,
-                enter = slideInHorizontally(
-                    initialOffsetX = { fullWidth -> fullWidth }
-                ),
-                exit = slideOutHorizontally(
-                    targetOffsetX = { fullWidth -> fullWidth }
-                )
-            ) {
+            { paddingValues ->
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    TextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = state.email,
-                        onValueChange = { onEvent(SignInEvent.OnEmailChange(it)) },
-                        placeholder = { Text(stringResource(id = R.string.signin_email_placeholder)) },
-                        //supportingText = {Text(text = state.domainError)},
-                        // isError = state.domainError!=null,
-                        singleLine = true,
-                        colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedContainerColor = Color.Transparent,
-                            errorContainerColor = Color.Transparent
-                        ),
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Email,
-                            imeAction = ImeAction.Next
-                        ),
+                    modifier = Modifier
+                        .padding(paddingValues)
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
 
+                ) {
+                    Spacer(modifier = Modifier.weight(0.5f))
+                    AnimatedVisibility(
+                        visible = state.isDomainValid,
+                        enter = slideInHorizontally(
+                            initialOffsetX = { fullWidth -> fullWidth }
+                        ),
+                        exit = slideOutHorizontally(
+                            targetOffsetX = { fullWidth -> fullWidth }
                         )
-                    var passwordVisible by remember { mutableStateOf(false) }
-                    TextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = state.password,
-                        onValueChange = { onEvent(SignInEvent.OnPasswordChange(it)) },
-                        placeholder = { Text(stringResource(id = R.string.signin_password_placeholder)) },
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            TextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                value = state.email,
+                                onValueChange = { onEvent(SignInEvent.OnEmailChange(it)) },
+                                placeholder = { Text(stringResource(id = R.string.signin_email_placeholder)) },
+                                //supportingText = {Text(text = state.domainError)},
+                                // isError = state.domainError!=null,
+                                singleLine = true,
+                                colors = TextFieldDefaults.colors(
+                                    unfocusedContainerColor = Color.Transparent,
+                                    focusedContainerColor = Color.Transparent,
+                                    errorContainerColor = Color.Transparent
+                                ),
+                                keyboardOptions = KeyboardOptions.Default.copy(
+                                    keyboardType = KeyboardType.Email,
+                                    imeAction = ImeAction.Next
+                                ),
+
+                                )
+                            var passwordVisible by remember { mutableStateOf(false) }
+                            TextField(
+                                modifier = Modifier.fillMaxWidth(),
+                                value = state.password,
+                                onValueChange = { onEvent(SignInEvent.OnPasswordChange(it)) },
+                                placeholder = { Text(stringResource(id = R.string.signin_password_placeholder)) },
 //                    supportingText = {Text(text = state.domainError?:"Grispi Support'ta oturum açmak için kullandığınız adres budur.")},
 //                    isError = state.domainError!=null,
-                        singleLine = true,
-                        colors = TextFieldDefaults.colors(
-                            unfocusedContainerColor = Color.Transparent,
-                            focusedContainerColor = Color.Transparent,
-                            errorContainerColor = Color.Transparent
-                        ),
-                        trailingIcon = {
-                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(
-                                    imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                    contentDescription = null
-                                )
+                                singleLine = true,
+                                colors = TextFieldDefaults.colors(
+                                    unfocusedContainerColor = Color.Transparent,
+                                    focusedContainerColor = Color.Transparent,
+                                    errorContainerColor = Color.Transparent
+                                ),
+                                trailingIcon = {
+                                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                        Icon(
+                                            imageVector = if (passwordVisible) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                                            contentDescription = null
+                                        )
+                                    }
+                                },
+                                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
+                            )
+                            TextButton(
+                                onClick = {}
+                            ) {
+                                Text(stringResource(id = R.string.signin_forgot_password))
                             }
-                        },
-                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation()
-                    )
-                    TextButton(
-                        onClick = {}
+                        }
+                    }
+                    if (!state.isDomainValid) {
+                        TextField(
+                            modifier = Modifier.fillMaxWidth(),
+                            value = state.domain,
+                            onValueChange = { onEvent(SignInEvent.OnDomainChange(it)) },
+                            placeholder = { Text(stringResource(id = R.string.signin_subdomain_placeholder)) },
+                            suffix = {
+                                Text(
+                                    text = stringResource(id = R.string.signin_domain_suffix),
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                            },
+                            supportingText = {
+                                Text(
+                                    text = state.domainError
+                                        ?: stringResource(id = R.string.signin_domain_helper)
+                                )
+                            },
+                            isError = state.domainError != null,
+                            singleLine = true,
+                            colors = TextFieldDefaults.colors(
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedContainerColor = Color.Transparent,
+                                errorContainerColor = Color.Transparent
+                            )
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.weight(1f))
+                    Button(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { onEvent(SignInEvent.OnNextClick) },
+                        enabled = state.domain.isNotBlank()
                     ) {
-                        Text(stringResource(id = R.string.signin_forgot_password))
+                        Text(stringResource(id = R.string.signin_next_button))
+                    }
+
+                    TextButton(
+                        modifier = Modifier.windowInsetsPadding(
+                            WindowInsets.ime
+                                .union(NavigationBarDefaults.windowInsets)
+                                .only(WindowInsetsSides.Bottom)
+                        ),
+                        onClick = {}) {
+                        Text(stringResource(id = R.string.signin_privacy_policy))
                     }
                 }
-            }
-            if (!state.isDomainValid) {
-                TextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = state.domain,
-                    onValueChange = { onEvent(SignInEvent.OnDomainChange(it)) },
-                    placeholder = { Text(stringResource(id = R.string.signin_subdomain_placeholder)) },
-                    suffix = {
-                        Text(
-                            text = stringResource(id = R.string.signin_domain_suffix),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    },
-                    supportingText = {
-                        Text(
-                            text = state.domainError
-                                ?: stringResource(id = R.string.signin_domain_helper)
-                        )
-                    },
-                    isError = state.domainError != null,
-                    singleLine = true,
-                    colors = TextFieldDefaults.colors(
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedContainerColor = Color.Transparent,
-                        errorContainerColor = Color.Transparent
-                    )
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-            Button(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { onEvent(SignInEvent.OnNextClick) },
-                enabled = state.domain.isNotBlank()
-            ) {
-                Text(stringResource(id = R.string.signin_next_button))
-            }
-
-            TextButton(
-                modifier = Modifier.windowInsetsPadding(
-                    WindowInsets.ime
-                        .union(NavigationBarDefaults.windowInsets)
-                        .only(WindowInsetsSides.Bottom)
-                ),
-                onClick = {}) {
-                Text(stringResource(id = R.string.signin_privacy_policy))
             }
         }
     }
@@ -242,4 +258,34 @@ private fun SignInScreenPreview() {
             onEvent = {}
         )
     }
+}
+
+@Composable
+fun WelcomeScreen(onSignUpClick: () -> Unit) {
+    Scaffold(
+        contentWindowInsets = ScaffoldDefaults.contentWindowInsets
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.logo_text),
+                tint = Color(0xFF632D91),
+                contentDescription = null,
+                modifier = Modifier.align(Alignment.Center)
+            )
+            OutlinedIconButton(
+                onClick = onSignUpClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .align(Alignment.BottomCenter)
+            ) {
+                Text(text = stringResource(id = R.string.signin))
+            }
+        }
+    }
+
 }

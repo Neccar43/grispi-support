@@ -95,5 +95,6 @@
     <string name="signin_domain_helper">Grispi Support\'ta oturum açmak için kullandığınız adres budur.</string>
     <string name="signin_next_button">Sonraki</string>
     <string name="signin_privacy_policy">GİZLİLİK POLİTİKASI</string>
+    <string name="signin">Oturum Aç</string>
 
 </resources>

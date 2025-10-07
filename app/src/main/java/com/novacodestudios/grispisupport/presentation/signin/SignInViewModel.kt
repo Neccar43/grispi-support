@@ -30,6 +30,7 @@ class SignInViewModel @Inject constructor(
             SignInEvent.OnNextClick -> next()
             is SignInEvent.OnEmailChange -> state = state.copy(email = event.email)
             is SignInEvent.OnPasswordChange -> state = state.copy(password = event.password)
+            SignInEvent.OnBackToDomainClick -> state = state.copy(isDomainValid = false, domainError = null)
         }
     }
 
@@ -85,4 +86,5 @@ sealed interface SignInEvent {
     data object OnNextClick : SignInEvent
     data class OnEmailChange(val email: String) : SignInEvent
     data class OnPasswordChange(val password: String) : SignInEvent
+    data object OnBackToDomainClick : SignInEvent
 }
