@@ -142,6 +142,7 @@ class DetailViewModel @Inject constructor(
             )
 
             is DetailEvent.OnSendReply -> {
+                if (state.replyText.isBlank()) return
                 Log.d(TAG, "onEvent: OnSendReply")
                 viewModelScope.launch { // TODO: refactor edilecek
                     if (state.replyText.isBlank()) {

@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.provider.OpenableColumns
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -67,6 +68,8 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -137,6 +140,23 @@ fun ReplyCard(
         )
     }
     var isMentionMenuExpanded by remember { mutableStateOf(false) }
+
+
+    var textFieldValue by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = state.replyText,
+                selection = TextRange(state.replyText.length)
+            )
+        )
+    }
+
+    LaunchedEffect(state.replyText) {
+        if (state.replyText != textFieldValue.text) {
+            Log.d(TAG, "state.replyText : ${state.replyText}")
+            textFieldValue = textFieldValue.copy(text = state.replyText)
+        }
+    }
 
     LaunchedEffect(isFocused) {
         if (isFocused) {
@@ -220,18 +240,18 @@ fun ReplyCard(
                             }
                         }
                     }
-                    StdBasicTextField(
-                        value = state.replyText,
+                    MentionTextField(
+                        value = textFieldValue,
                         onValueChange = {
-                            if (it.lastOrNull() == '@') {
-                                isMentionMenuExpanded = true
-                            }
-                            onEvent(DetailEvent.OnReplyTextChange(it))
+                            textFieldValue = it
+                            onEvent(DetailEvent.OnReplyTextChange(it.text))
                         },
                         placeholder = stringResource(R.string.write_response),
                         modifier = Modifier
                             .focusRequester(focusRequester)
                             .fillMaxWidth(),
+                        mentionNames = state.agentUser.map { it.name },
+                        onMentionTrigger = { isMentionMenuExpanded = true },
                     )
                     if (selectedFiles.isNotEmpty()) {
                         LazyRow(
@@ -282,9 +302,29 @@ fun ReplyCard(
                         Icon(Icons.Default.Attachment, null)
                     }
                     IconButton(onClick = {
-                        // TODO: @Kişi kısmı primary color olacak
                         isMentionMenuExpanded = true
-                        onEvent(DetailEvent.OnReplyTextChange(state.replyText + "@"))
+
+                        val cursor = textFieldValue.selection.end
+                        val text = textFieldValue.text
+
+                        val shouldAddSpaceBeforeAt = when {
+                            cursor == 0 -> false
+                            text[cursor - 1].isWhitespace() -> false
+                            else -> true
+                        }
+                        val newText = buildString {
+                            append(text.substring(0, cursor))
+                            if (shouldAddSpaceBeforeAt) append(" ")
+                            append("@")
+                            append(text.substring(cursor))
+                        }
+                        val newCursorPos = cursor + if (shouldAddSpaceBeforeAt) 2 else 1
+                        textFieldValue = textFieldValue.copy(
+                            text = newText,
+                            selection = TextRange(newCursorPos)
+                        )
+
+                        onEvent(DetailEvent.OnReplyTextChange(newText))
                     }) {
                         Icon(Icons.Default.AlternateEmail, null)
                     }
@@ -368,6 +408,7 @@ fun ReplyCard(
                                         selectedFiles.map { it.toAttachment(context) }
                                     ))
                                 //  isFocused = false
+                                textFieldValue = TextFieldValue(text = "")
                                 selectedFiles = emptyList()
                                 onScrollToLastItem()
                             },
@@ -402,7 +443,23 @@ fun ReplyCard(
 
                     },
                     onClick = {
-                        onEvent(DetailEvent.OnReplyTextChange(state.replyText + it.name))
+                        val cursor = textFieldValue.selection.end
+                        val text = textFieldValue.text
+                        val atIndex = text.lastIndexOf('@', cursor - 1)
+
+
+                        val newText = buildString {
+                            append(text.substring(0, atIndex))
+                            append("@${it.name} ")
+                            append(text.substring(cursor))
+                        }
+
+                        val newCursorPos = atIndex + it.name.length + 2
+                        textFieldValue = textFieldValue.copy(
+                            text = newText,
+                            selection = TextRange(newCursorPos)
+                        )
+                        onEvent(DetailEvent.OnReplyTextChange(newText))
                         isMentionMenuExpanded = false
                     }
                 )
@@ -633,3 +690,5 @@ val internalNoteTriple = Triple(
     yellowOnContainer,
     yellowPrimary
 )
+
+private const val TAG = "ReplyCard"
