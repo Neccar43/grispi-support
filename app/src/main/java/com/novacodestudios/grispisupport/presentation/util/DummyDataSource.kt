@@ -743,6 +743,13 @@ object DummyDataSource {
     ): List<Message> {
         val baseTime = System.currentTimeMillis() - 5 * 86400000
         val messages = mutableListOf<Message>()
+        messages += Message(
+            id = "m$-1",
+            ticketId = ticketId,
+            senderId = senderIds.first(),
+            content = "İlk mesaj",
+            sentAt = baseTime
+        )
 
         repeat(messageCount) { index ->
             val sender = senderIds[index % senderIds.size]
@@ -760,6 +767,15 @@ object DummyDataSource {
                 sentAt = baseTime + index * 60_000L
             )
         }
+
+        messages += Message(
+            id = "m${messageCount}",
+            ticketId = ticketId,
+            senderId = senderIds.last(),
+            content = "Son mesaj",
+            sentAt = baseTime + (messageCount + 1) * 60_000L
+        )
+
         return messages
     }
 

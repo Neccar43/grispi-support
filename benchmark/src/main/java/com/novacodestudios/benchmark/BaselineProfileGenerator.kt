@@ -10,7 +10,7 @@ class BaselineProfileGenerator {
 
     @Test
     fun startup() = baselineProfileRule.collect(
-        packageName = PACKAGE_NAME,
+        packageName = BenchmarkUtil.PACKAGE_NAME,
         profileBlock = {
             startActivityAndWait()
         }

@@ -13,7 +13,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class ExampleStartupBenchmark {
+class StartupBenchmark {
     @get:Rule
     val benchmarkRule = MacrobenchmarkRule()
 
@@ -36,10 +36,10 @@ class ExampleStartupBenchmark {
     fun startupFullyPrecompiled() = startup(CompilationMode.Full())
 
     private fun startup(compilationMode: CompilationMode) = benchmarkRule.measureRepeated(
-        packageName = PACKAGE_NAME,
-        metrics = allMetrics,
+        packageName = BenchmarkUtil.PACKAGE_NAME,
+        metrics = BenchmarkUtil.allMetrics,
         compilationMode = compilationMode,
-        iterations = DEFAULT_ITERATION,
+        iterations = BenchmarkUtil.DEFAULT_ITERATION,
         startupMode = StartupMode.COLD,
         setupBlock = {
             pressHome()
@@ -47,21 +47,4 @@ class ExampleStartupBenchmark {
     ) {
         startActivityAndWait()
     }
-
-    companion object{
-
-        const val DEFAULT_ITERATION = 20
-
-        //jit derlemesi için geçen süre
-        @OptIn(ExperimentalMetricApi::class)
-        val jitCompilationMetric = TraceSectionMetric("JIT Compiling %")
-
-        //sınıf başlatma için geçen süre
-        @OptIn(ExperimentalMetricApi::class)
-        val classInitMetric = TraceSectionMetric("L%/%;")
-
-        @OptIn(ExperimentalMetricApi::class)
-        val allMetrics = listOf(StartupTimingMetric(), jitCompilationMetric, classInitMetric)
-    }
 }
-const val PACKAGE_NAME = "com.novacodestudios.grispisupport"

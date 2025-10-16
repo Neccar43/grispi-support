@@ -67,6 +67,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -247,7 +248,7 @@ fun ReplyCard(
                             onEvent(DetailEvent.OnReplyTextChange(it.text))
                         },
                         placeholder = stringResource(R.string.write_response),
-                        modifier = Modifier
+                        modifier = Modifier.testTag("reply_text_field")
                             .focusRequester(focusRequester)
                             .fillMaxWidth(),
                         mentionNames = state.agentUser.map { it.name },
@@ -334,7 +335,7 @@ fun ReplyCard(
                         value = state.replyText,
                         onValueChange = { onEvent(DetailEvent.OnReplyTextChange(it)) },
                         placeholder = stringResource(R.string.write_response),
-                        modifier = Modifier
+                        modifier = Modifier.testTag("fake_reply_text_field")
                             .onFocusChanged { focusState ->
                                 if (focusState.isFocused) {
                                     isFocused = true
@@ -402,6 +403,7 @@ fun ReplyCard(
                         modifier = Modifier.padding(end = 8.dp),
                     ) {
                         FilledIconButton(
+                            modifier = Modifier.testTag("send_button"),
                             onClick = {
                                 onEvent(
                                     DetailEvent.OnSendReply(
