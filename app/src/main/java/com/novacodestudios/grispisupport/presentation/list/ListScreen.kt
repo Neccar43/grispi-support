@@ -18,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.novacodestudios.grispisupport.R
+import com.novacodestudios.grispisupport.presentation.component.LoadingCircle
 import com.novacodestudios.grispisupport.presentation.list.component.ListTopBar
 import com.novacodestudios.grispisupport.presentation.list.component.SortSheet
 import com.novacodestudios.grispisupport.presentation.list.component.StdSearchBarWithAnimation
@@ -25,6 +26,7 @@ import com.novacodestudios.grispisupport.presentation.list.component.TicketItem
 import com.novacodestudios.grispisupport.presentation.list.component.TicketList
 import com.novacodestudios.grispisupport.presentation.list.component.TicketSortRow
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
+import com.novacodestudios.grispisupport.presentation.util.DummyDataSource
 import kotlinx.coroutines.flow.collectLatest
 
 @Composable
@@ -93,6 +95,9 @@ fun ListScreenContent(
                 onSortOptionChange = {}
             )
         }
+        if (state.isLoading){
+            LoadingCircle(modifier = Modifier.fillMaxSize())
+        }
 
     }
     StdSearchBarWithAnimation(
@@ -141,7 +146,7 @@ private fun ListScreenPreview() {
     GrispiSupportTheme {
         ListScreenContent(
             state = ListState(
-                // tickets = dummyTicketList
+                 tickets = DummyDataSource.ticketList
             ),
             snackbarHostState = SnackbarHostState(),
             onEvent = {},

@@ -1,5 +1,6 @@
 package com.novacodestudios.grispisupport.presentation.theme
 
+import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -7,7 +8,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 import com.novacodestudios.grispisupport.presentation.settings.ThemeOption
 
 private val lightScheme = lightColorScheme(
@@ -252,7 +258,18 @@ fun GrispiSupportTheme(
         ThemeOption.LIGHT -> lightScheme
         ThemeOption.SYSTEM_DEFAULT -> if (isSystemInDarkTheme()) darkScheme else lightScheme
     }
-
+    // eski api ler için edge-to-edge
+    val view = LocalView.current
+    if (!view.isInEditMode) {
+        SideEffect {
+            val window = (view.context as Activity).window
+            window.statusBarColor = Color.Transparent.toArgb()
+            window.navigationBarColor = colorScheme.background.toArgb()
+            val insetsController = WindowCompat.getInsetsController(window, view)
+            insetsController.isAppearanceLightStatusBars = darkTheme != ThemeOption.DARK
+            insetsController.isAppearanceLightNavigationBars = darkTheme != ThemeOption.DARK
+        }
+    }
 
     MaterialTheme(
         colorScheme = colorScheme,
