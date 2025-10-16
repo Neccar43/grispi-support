@@ -166,9 +166,9 @@ fun SettingsScreenContent(
                 )
             },
             onConfirm = {
+                onEvent(SettingsEvent.OnLanguageSelected(selectedOption))
                 setAppLanguageForNewApi(context = context, languageOption = selectedOption)
                 (context as? Activity)?.recreate()
-                onEvent(SettingsEvent.OnLanguageSelected(selectedOption))
                 isLanguageDialogVisible = false
             },
         )

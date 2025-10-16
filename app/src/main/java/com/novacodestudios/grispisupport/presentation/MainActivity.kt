@@ -18,14 +18,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
@@ -38,44 +38,60 @@ import com.novacodestudios.grispisupport.presentation.navigation.GrispiDrawer
 import com.novacodestudios.grispisupport.presentation.navigation.NavigationItem
 import com.novacodestudios.grispisupport.presentation.navigation.Screen
 import com.novacodestudios.grispisupport.presentation.settings.LanguageOption
-import com.novacodestudios.grispisupport.presentation.settings.SettingsViewModel
+import com.novacodestudios.grispisupport.presentation.settings.ThemeOption
 import com.novacodestudios.grispisupport.presentation.settings.setAppLanguageForLegacy
 import com.novacodestudios.grispisupport.presentation.settings.toLanguageCode
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
 import com.novacodestudios.grispisupport.presentation.util.DummyDataSource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 private const val TAG = "MainActivity"
-
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var preferences: Preferences
 
+
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        lifecycleScope.launch {
-            val langCode = preferences.getData(Keys.LANGUAGE)
-                ?.let { LanguageOption.valueOf(it).toLanguageCode() } ?: return@launch
-            setAppLanguageForLegacy(this@MainActivity, langCode)
-            Log.d(TAG, "onCreate: Language code: $langCode")
+        // TODO: app startup süresini uzatabilir
+        val (initialTheme, language) = runBlocking {
+            val initialTheme = preferences.getData(Keys.THEME)?.let { ThemeOption.valueOf(it) }
+                ?: ThemeOption.SYSTEM_DEFAULT
+            val language = preferences.getData(Keys.LANGUAGE)?.let { LanguageOption.valueOf(it) }
+                ?: LanguageOption.TURKISH
+            initialTheme to language
+        }
+        if (isFirstLaunch) {
+            Log.d(TAG, "onCreate: first change app language to ${language.name}")
+            setAppLanguageForLegacy(this, language.toLanguageCode())
+            isFirstLaunch = false
         }
 
         enableEdgeToEdge()
         setContent {
-            val settingsViewModel: SettingsViewModel = hiltViewModel()
+            val themeState by preferences.observeData(Keys.THEME)
+                .map { it?.let(ThemeOption::valueOf) ?: initialTheme }
+                .collectAsState(initial = initialTheme)
 
             GrispiSupportTheme(
-                darkTheme = settingsViewModel.state.theme
+                darkTheme = themeState
             ) {
                 val appState = rememberAppState()
-                GrispiDrawer(modifier = Modifier.semantics{testTagsAsResourceId=true}, appState = appState)
+                GrispiDrawer(
+                    modifier = Modifier.semantics { testTagsAsResourceId = true },
+                    appState = appState
+                )
             }
         }
+    }
+    companion object {
+        private var isFirstLaunch = true
     }
 }
 

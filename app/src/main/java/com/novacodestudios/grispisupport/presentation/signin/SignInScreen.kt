@@ -13,10 +13,13 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -93,7 +96,7 @@ fun SignInScreenContent(
     onEvent: (SignInEvent) -> Unit,
 ) {
     var isWelcomeVisible by remember { mutableStateOf(true) }
-    Crossfade(targetState = isWelcomeVisible, label = "") { visible ->
+    Crossfade(targetState = isWelcomeVisible, label = "",modifier = Modifier.fillMaxSize()) { visible ->
         if (visible) {
             WelcomeScreen(onSignUpClick = { isWelcomeVisible = false })
         } else {
@@ -263,6 +266,7 @@ private fun SignInScreenPreview() {
 @Composable
 fun WelcomeScreen(onSignUpClick: () -> Unit) {
     Scaffold(
+        modifier = Modifier.fillMaxSize(),
         contentWindowInsets = ScaffoldDefaults.contentWindowInsets
     ) { paddingValues ->
         Box(
@@ -274,7 +278,7 @@ fun WelcomeScreen(onSignUpClick: () -> Unit) {
                 painter = painterResource(R.drawable.logo_text),
                 tint = Color(0xFF632D91),
                 contentDescription = null,
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center).size(200.dp)
             )
             OutlinedIconButton(
                 onClick = onSignUpClick,

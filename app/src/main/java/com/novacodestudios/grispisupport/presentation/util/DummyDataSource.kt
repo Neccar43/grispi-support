@@ -357,7 +357,7 @@ object DummyDataSource {
             id = "n1",
             isRead = false,
             timestamp = System.currentTimeMillis() - 3600000,
-            user = user1,
+            user = user2,
             ticket = ticketList[0]
         ),
         Notification(
@@ -385,8 +385,15 @@ object DummyDataSource {
             id = "n5",
             isRead = true,
             timestamp = System.currentTimeMillis() - 18000000,
-            user = user1,
+            user = user2,
             ticket = ticketList[4]
+        ),
+        Notification(
+            id = "n6",
+            isRead = false,
+            timestamp = System.currentTimeMillis() - 21600000,
+            user = user2,
+            ticket = ticketList[5]
         ),
     )
 
