@@ -98,5 +98,5 @@
     <string name="signin">Oturum Aç</string>
     <string name="app_not_find">Bu tür dosyayı açabilecek bir uygulama bulunamadı</string>
     <string name="file_not_open">Dosya açılamadı</string>
-
+    <string name="enter_feedback">Geri bildiriminizi yazın…</string>
 </resources>

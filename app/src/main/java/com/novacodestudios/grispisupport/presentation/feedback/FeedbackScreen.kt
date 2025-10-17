@@ -1,7 +1,6 @@
 package com.novacodestudios.grispisupport.presentation.feedback
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,14 +26,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -74,39 +69,51 @@ fun FeedbackScreenContent(
     onEvent: (FeedbackEvent) -> Unit,
     navigateUp: () -> Unit
 ) {
+    val focusManager = LocalFocusManager.current
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        topBar = { FeedbackTopBar(navigateUp = navigateUp) }
+        topBar = {
+            FeedbackTopBar(
+                navigateUp = navigateUp,
+                onSendClick = {
+                    onEvent(FeedbackEvent.OnSendClick)
+                    focusManager.clearFocus()
+                },
+                isSendEnable = state.feedbackText.isNotBlank()
+            )
+        }
     ) { paddingValues ->
-        var selectedStars by remember { mutableIntStateOf(0) }
-        var comment by remember { mutableStateOf("") }
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .padding(16.dp)
                 .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(128.dp))
             Row {
                 for (i in 1..5) {
+                    val isSelected = i <= state.selectedStarCount
                     Icon(
-                        imageVector = if (i <= selectedStars) Icons.Default.Star else Icons.Default.StarOutline,
+                        imageVector = if (isSelected) Icons.Default.Star else Icons.Default.StarOutline,
                         contentDescription = "$i yıldız",
                         modifier = Modifier
-                            .size(48.dp)
-                            .clickable { selectedStars = i },
-                        tint = Color(0xFFFFD700) // Sarı renk
+                            .size(60.dp)
+                            .padding(end = 8.dp)
+                            .clickable { onEvent(FeedbackEvent.OnStarSelected(i)) },
+                        tint = if (isSelected) Color(0xFFFFD700) else Color.Gray
                     )
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
-
+            Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
-                value = comment,
-                onValueChange = { comment = it },
-                label = { Text("Yorumunuz") },
-                modifier = Modifier.fillMaxWidth(),
+                value = state.feedbackText,
+                onValueChange = {
+                    onEvent(FeedbackEvent.OnFeedbackChange(it))
+                },
+                placeholder = { Text(text = stringResource(R.string.enter_feedback)) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp),
                 shape = MaterialTheme.shapes.large
             )
         }
@@ -128,7 +135,7 @@ private fun FeedBackPrev() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FeedbackTopBar(navigateUp: () -> Unit) {
+fun FeedbackTopBar(navigateUp: () -> Unit, onSendClick: () -> Unit, isSendEnable: Boolean) {
     TopAppBar(
         title = { Text(stringResource(R.string.feedback)) },
         navigationIcon = {
@@ -140,7 +147,7 @@ fun FeedbackTopBar(navigateUp: () -> Unit) {
             }
         },
         actions = {
-            IconButton(onClick = {}) {
+            IconButton(onClick = onSendClick, enabled = isSendEnable) {
                 Icon(
                     Icons.AutoMirrored.Default.Send,
                     null
