@@ -1,14 +1,6 @@
 package com.novacodestudios.benchmark
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.FrameTimingMetric
-import androidx.benchmark.macro.MemoryUsageMetric
-import androidx.benchmark.macro.PowerCategory
-import androidx.benchmark.macro.PowerCategoryDisplayLevel
-import androidx.benchmark.macro.PowerMetric
-import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.uiautomator.By
@@ -32,6 +24,10 @@ class ScrollBenchmark {
             setupBlock = {
                 pressHome()
                 startActivityAndWait()
+                device.wait(
+                    Until.gone(By.res("loading_circle")),
+                    5_000
+                )
 
                 val benchmarkTicket = device.findObject(By.text("Ürün iadesi hakkında bilgi"))
                 benchmarkTicket.click()

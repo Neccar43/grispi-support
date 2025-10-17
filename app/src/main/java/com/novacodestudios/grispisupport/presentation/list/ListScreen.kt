@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -95,8 +96,10 @@ fun ListScreenContent(
                 onSortOptionChange = {}
             )
         }
-        if (state.isLoading){
-            LoadingCircle(modifier = Modifier.fillMaxSize())
+        if (state.isLoading) {
+            LoadingCircle(modifier = Modifier
+                .testTag("loading_circle")
+                .fillMaxSize())
         }
 
     }
@@ -146,7 +149,7 @@ private fun ListScreenPreview() {
     GrispiSupportTheme {
         ListScreenContent(
             state = ListState(
-                 tickets = DummyDataSource.ticketList
+                tickets = DummyDataSource.ticketList
             ),
             snackbarHostState = SnackbarHostState(),
             onEvent = {},

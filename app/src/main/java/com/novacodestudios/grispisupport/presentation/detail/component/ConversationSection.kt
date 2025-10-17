@@ -57,15 +57,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.net.toUri
 import coil3.compose.rememberAsyncImagePainter
+import com.novacodestudios.grispisupport.R
 import com.novacodestudios.grispisupport.presentation.component.LargeProfileCircle
 import com.novacodestudios.grispisupport.presentation.component.SmallProfileCircle
 import com.novacodestudios.grispisupport.presentation.list.component.ReceiverMessageBubbleCard
@@ -78,10 +78,9 @@ import com.novacodestudios.grispisupport.presentation.model.Ticket
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
 import com.novacodestudios.grispisupport.presentation.theme.yellowContainer
 import com.novacodestudios.grispisupport.presentation.theme.yellowOnContainer
+import com.novacodestudios.grispisupport.presentation.util.DummyDataSource
 import com.novacodestudios.grispisupport.presentation.util.formatMessageDate
 import com.novacodestudios.grispisupport.presentation.util.formatMessageTime
-import androidx.core.net.toUri
-import com.novacodestudios.grispisupport.R
 
 typealias MessagesByDateWithPreviousSender = List<Pair<ConversationItem, String?>>
 
@@ -109,6 +108,7 @@ fun ConversationSection(
             AttachmentType.IMAGE -> {
                 selectedAttachment = attachment
             }
+
             AttachmentType.FILE -> {
                 val mimeType = getMimeType(attachment.name)
                 val uri = attachment.url.toUri()
@@ -124,7 +124,8 @@ fun ConversationSection(
     )
     {
         LazyColumn(
-            modifier = Modifier.testTag("conversation_list")
+            modifier = Modifier
+                .testTag("conversation_list")
                 .padding(horizontal = 16.dp)
                 .fillMaxWidth(),
             state = lazyListState,
@@ -160,7 +161,7 @@ fun ConversationSection(
                                 modifier = Modifier.padding(top = 8.dp, end = 8.dp),
                                 onAttachmentClick = onAttachmentClick,
                                 onPlusClick = onPlusClick,
-                                userName = item.message.senderId // TODO: user name gelecek
+                                userName = DummyDataSource.currentUser.name // TODO: user name gelecek
                             )
                         } else {
                             Row(
@@ -744,6 +745,7 @@ private fun ConversationSectionPreview() {
         }
     }
 }
+
 fun openFileWithDefaultApp(context: Context, fileUri: Uri, mimeType: String) {
     try {
         val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -755,7 +757,8 @@ fun openFileWithDefaultApp(context: Context, fileUri: Uri, mimeType: String) {
         Toast.makeText(context, context.getString(R.string.app_not_find), Toast.LENGTH_SHORT).show()
         Log.e(TAG, "Uygulama bulunamadı: ${e.message}")
     } catch (e: Exception) {
-        Toast.makeText(context, context.getString(R.string.file_not_open), Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, context.getString(R.string.file_not_open), Toast.LENGTH_SHORT)
+            .show()
         Log.e(TAG, "Hata: ${e.message}")
     }
 }
