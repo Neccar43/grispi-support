@@ -28,8 +28,10 @@ class NotificationViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val currentUserId = authRepository.getCurrentUserId() ?: return@launch
+            state = state.copy(isLoading = true)
             state = state.copy(
-                notifications = notificationRepository.getNotifications(currentUserId)
+                notifications = notificationRepository.getNotifications(currentUserId),
+                isLoading = false
             )
         }
 

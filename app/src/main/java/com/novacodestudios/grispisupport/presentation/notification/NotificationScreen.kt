@@ -10,8 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.novacodestudios.grispisupport.presentation.component.LoadingCircle
 import com.novacodestudios.grispisupport.presentation.notification.component.NotificationList
 import com.novacodestudios.grispisupport.presentation.notification.component.NotificationTopBar
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
@@ -73,6 +75,10 @@ fun NotificationScreenContent(
                 onNotificationClick = { navigateDetail(it.ticket.id) }
             )
         }
+        if (state.isLoading) {
+            LoadingCircle(modifier = Modifier
+                .fillMaxSize())
+        }
     }
 }
 
@@ -82,7 +88,7 @@ private fun NotificationScreenPreview() {
     GrispiSupportTheme {
         NotificationScreenContent(
             state = NotificationState(
-                //notifications = dummyNotifications
+                //notifications = dummyNotifications,
             ),
             snackbarHostState = remember { SnackbarHostState() },
             onEvent = {},
