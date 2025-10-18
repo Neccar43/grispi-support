@@ -7,6 +7,8 @@ It has been developed natively using **Kotlin** and **Jetpack Compose**, followi
 
 The app provides UI screens for a typical support workflow. It is designed solely for frontend demonstration purposes using mock data, and it follows MVI architectural principles.
 
+[Watch the demo video](https://drive.google.com/file/d/1M8TCZiULkump14f5YHAEHJnySudkHR_h/view?usp=sharing)
+
 ---
 
 ## Tech Stack
@@ -21,7 +23,11 @@ The app provides UI screens for a typical support workflow. It is designed solel
 
 ---
 
-## Package Structure
+## Package Structure & Architecture
+
+<table>
+<tr>
+<td>
 
 ```text
 ├── di                  # Dependency Injection (Hilt)
@@ -36,6 +42,10 @@ The app provides UI screens for a typical support workflow. It is designed solel
     └── screen          # ViewModel, State, Event and Screen Composable related to the relevant screen
         └── component   # Screen-specific components
 ```
+</td>
+<td><img src="art/layers.svg" width="250"/></td>
+</tr>
+</table>
 
 ## Screens
 
@@ -51,26 +61,35 @@ The app provides UI screens for a typical support workflow. It is designed solel
 
 <table>
   <tr>
-    <td align="center"><img src="screenshot/signin_1.png" width="333"/></td>
-    <td align="center"><img src="screenshot/signin_2.png" width="333"/></td>
-    <td align="center"><img src="screenshot/list.png" width="333"/></td>
+    <td align="center"><img src="art/signin_1.png" width="333"/></td>
+    <td align="center"><img src="art/signin_2.png" width="333"/></td>
+    <td align="center"><img src="art/signin_3.png" width="333"/></td>
   </tr>
 </table>
 
 <table>
   <tr>
-    <td align="center"><img src="screenshot/detail_conversation.png" width="249"/></td>
-    <td align="center"><img src="screenshot/detail_detail.png" width="249"/></td>
-    <td align="center"><img src="screenshot/detail_application.png" width="249"/></td>
-    <td align="center"><img src="screenshot/detail_history.png" width="249"/></td>
+    <td align="center"><img src="art/list.png" width="249"/></td>
+    <td align="center"><img src="art/notification.png" width="249"/></td>
+    <td align="center"><img src="art/feedback.png" width="249"/></td>
+    <td align="center"><img src="art/settings.png" width="249"/></td>
   </tr>
 </table>
 
 <table>
   <tr>
-    <td align="center"><img src="screenshot/notification.png" width="333"/></td>
-    <td align="center"><img src="screenshot/profile.png" width="333"/></td>
-    <td align="center"><img src="screenshot/settings.png" width="333"/></td>
+    <td align="center"><img src="art/detail_conversation.png" width="249"/></td>
+    <td align="center"><img src="art/detail_detail.png" width="249"/></td>
+    <td align="center"><img src="art/detail_application.png" width="249"/></td>
+    <td align="center"><img src="art/detail_history.png" width="249"/></td>
+  </tr>
+</table>
+
+<table>
+  <tr>
+    <td align="center"><img src="art/macro.png" width="333"/></td>
+    <td align="center"><img src="art/profile.png" width="333"/></td>
+    <td align="center"><img src="art/filtered_tickets.png" width="333"/></td>
   </tr>
 </table>
 
