@@ -84,8 +84,11 @@ class DetailViewModel @Inject constructor(
             )
             route.macroId?.let { macroId ->
                 val macro = ticketRepository.getMacro(macroId)
+                Log.d(TAG, "init: macro $macro")
+                val text=macro?.actions?.find { it.field == "comment" }?.value ?: ""
                 state = state.copy(
-                    replyText = macro?.actions?.find { it.field == "comment" }?.value ?: ""
+                    macroText = text,
+                    replyText = text
                 )
             }
         }
@@ -241,6 +244,7 @@ data class DetailState(
     val ticket: Ticket? = null,
     val activeTab: DetailTabs = DetailTabs.Conversation,
     val replyText: String = "",
+    val macroText: String = "",
     val messageList: List<Message> = emptyList(),
     val searchUsers: List<User> = emptyList(),
     val searchTags: List<Tag> = emptyList(),

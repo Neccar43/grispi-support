@@ -43,6 +43,7 @@ import com.novacodestudios.grispisupport.presentation.detail.component.HistorySe
 import com.novacodestudios.grispisupport.presentation.detail.component.ReplyCard
 import com.novacodestudios.grispisupport.presentation.detail.component.groupMessagesByDateWithPreviousSender
 import com.novacodestudios.grispisupport.presentation.theme.GrispiSupportTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -100,6 +101,13 @@ fun DetailScreenContent(
             )
         }
     val lazyListState = rememberLazyListState()
+
+    LaunchedEffect(messagesByDate.size) {
+        if (messagesByDate.isNotEmpty()) {
+            lazyListState.animateScrollToItem(messagesByDate.size - 1)
+        }
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
@@ -194,11 +202,6 @@ fun DetailScreenContent(
                         pagerState.animateScrollToPage(0)
                     }
                 },
-                onScrollToLastItem = {
-                    coroutineScope.launch {
-                        lazyListState.animateScrollToItem(messagesByDate.size)
-                    }
-                }
             )
         }
     }

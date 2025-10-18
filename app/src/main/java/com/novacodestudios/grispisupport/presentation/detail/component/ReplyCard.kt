@@ -106,7 +106,6 @@ fun ReplyCard(
     onEvent: (DetailEvent) -> Unit,
     navigateMacro: (String) -> Unit,
     onScrollToConversationPage: () -> Unit,
-    onScrollToLastItem: () -> Unit,
 ) {
     val context = LocalContext.current
     var isFocused by remember { mutableStateOf(state.replyText.isNotBlank()) }
@@ -152,10 +151,13 @@ fun ReplyCard(
         )
     }
 
-    LaunchedEffect(state.replyText) {
-        if (state.replyText != textFieldValue.text) {
-            Log.d(TAG, "state.replyText : ${state.replyText}")
-            textFieldValue = textFieldValue.copy(text = state.replyText)
+    LaunchedEffect(state.macroText) {
+        if (state.macroText.isNotEmpty()) {
+            Log.d(TAG, "Initial replyText macro: ${state.replyText}")
+            textFieldValue = textFieldValue.copy(
+                text = state.macroText,
+                selection = TextRange(state.macroText.length)
+            )
         }
     }
 
@@ -412,7 +414,6 @@ fun ReplyCard(
                                 //  isFocused = false
                                 textFieldValue = TextFieldValue(text = "")
                                 selectedFiles = emptyList()
-                                onScrollToLastItem()
                             },
                             enabled = state.replyText.isNotBlank(),
                             colors = IconButtonDefaults.filledIconButtonColors()
@@ -488,7 +489,6 @@ private fun RCP() {
             onEvent = {},
             navigateMacro = {},
             onScrollToConversationPage = {},
-            onScrollToLastItem = {}
         )
     }
 
