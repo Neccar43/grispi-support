@@ -23,11 +23,7 @@ The app provides UI screens for a typical support workflow. It is designed solel
 
 ---
 
-## Package Structure & Architecture
-
-<table>
-<tr>
-<td>
+## Package Structure
 
 ```text
 ├── di                  # Dependency Injection (Hilt)
@@ -42,22 +38,8 @@ The app provides UI screens for a typical support workflow. It is designed solel
     └── screen          # ViewModel, State, Event and Screen Composable related to the relevant screen
         └── component   # Screen-specific components
 ```
-</td>
-<td><img src="art/layers.svg" width="250"/></td>
-</tr>
-</table>
 
 ## Screens
-
-* **SignIn** – Basic login screen
-* **List** – Shows support ticket list with basic metadata
-* **Conversation Tab** – Displays selected ticket information
-* **Detail Tab** – Shows and allows entering a response
-* **Application Tab** – Displays application details
-* **History Tab** – Shows ticket history
-* **Profile** – User profile screen
-* **Settings** – App settings screen
-* **Notification** – Notification center screen
 
 <table>
   <tr>
